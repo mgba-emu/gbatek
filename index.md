@@ -963,7 +963,7 @@ mirrored at 4010800h, 4020800h, etc.)
 The table summarizes the facilities of the separate BG modes (video modes).
 
 ```
-<b>  Mode  Rot/Scal Layers Size               Tiles Colors       Features</b>
+  Mode  Rot/Scal Layers Size               Tiles Colors       Features
   0     No       0123   256x256..512x515   1024  16/16..256/1 SFMABP
   1     Mixed    012-   (BG0,BG1 as above Mode 0, BG2 as below Mode 2)
   2     Yes      --23   128x128..1024x1024 256   256/1        S-MABP
@@ -7722,7 +7722,7 @@ Many API functions have no effect until the next Wait occurs.
   RST0_BDh N/A (bx 0)
   RST0_BEh N/A (bx 0)
   RST0_BFh N/A (bx 0)
-<b>  Below Non-Japan and Japan/Plus only (not Japan/Ori)</b>
+  Below Non-Japan and Japan/Plus only (not Japan/Ori)
   RST0_C0h GetTextWidth(a,b)
   RST0_C1h GetTextWidthEx(a,b,c)
   RST0_C2h  (?)
@@ -7774,13 +7774,13 @@ Many API functions have no effect until the next Wait occurs.
   RST0_F0h  (?) _unk1
   RST0_F1h RandomInit     ;in: hl=random_seed
   RST0_F2h                         (?)
-<b>  Below Japan/Plus only</b>
+  Below Japan/Plus only
   RST0_F3h  (?)
   RST0_F4h  (?)
   RST0_F5h  (?)
   RST0_F6h  (?)
   RST0_F7h GBA: N/A - Z80: (?)
-<b>  Below is undefined/garbage (values as so in Z80 mode)</b>
+  Below is undefined/garbage (values as so in Z80 mode)
   Jap/Ori: RST0_C0h      N/A (bx 0)
   Jap/Ori: RST0_C1h..FFh Overlaps RST8 jump list
   Non-Jap: RST0_F3h..FFh Overlaps RST8 jump list
@@ -7841,7 +7841,7 @@ Many API functions have no effect until the next Wait occurs.
   RST8_2Dh  (?) get_16bit_from_2030114h ;jap/ori: hl=[20077B4h]
   RST8_2Eh  (?)
   RST8_2Fh PlayCustomSound(a,b)
-<b>  Below not for Japanese/Original</b>
+  Below not for Japanese/Original
   (the renumbered functions can be theoretically used on japanese/original)
   (but, doing so would blow forwards compatibility with japanese/plus)
   RST8_30h (ori: none)      GBA: N/A - Z80: (?)
@@ -7853,7 +7853,7 @@ Many API functions have no effect until the next Wait occurs.
   RST8_36h (ori: RST8_34h)  ResetTimer ;[400010Ch]=00000000h, [400010Eh]=A+80h
   RST8_37h (ori: RST8_35h)  GetTimer   ;hl=[400010Ch]
   RST8_38h (ori: none)      GBA: N/A - Z80:  (?)
-<b>  Below is undefined/reserved/garbage (values as so in Z80 mode)</b>
+  Below is undefined/reserved/garbage (values as so in Z80 mode)
   (can be used to tweak jap/ori to start GBA-code from inside of Z80-code)
   (that, after relocating code to 3000xxxh via DMA via IoWrite function)
   RST8_39h (ori: RST8_36h)  bx 0140014h
@@ -10056,7 +10056,7 @@ There is a total of 656KB of VRAM in Blocks A-I.
 Table below shows the possible configurations.
 
 ```
-<b>  VRAM    SIZE  MST  OFS   ARM9, Plain ARM9-CPU Access (so-called LCDC mode)</b>
+  VRAM    SIZE  MST  OFS   ARM9, Plain ARM9-CPU Access (so-called LCDC mode)
   A       128K  0    -     6800000h-681FFFFh
   B       128K  0    -     6820000h-683FFFFh
   C       128K  0    -     6840000h-685FFFFh
@@ -10066,36 +10066,36 @@ Table below shows the possible configurations.
   G       16K   0    -     6894000h-6897FFFh
   H       32K   0    -     6898000h-689FFFFh
   I       16K   0    -     68A0000h-68A3FFFh
-<b>  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)</b>
+  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine A, BG-VRAM (max 512K)
   A,B,C,D 128K  1    0..3  6000000h+(20000h*OFS)
   E       64K   1    -     6000000h
   F,G     16K   1    0..3  6000000h+(4000h*OFS.0)+(10000h*OFS.1)
-<b>  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)</b>
+  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine A, OBJ-VRAM (max 256K)
   A,B     128K  2    0..1  6400000h+(20000h*OFS.0)  ;(OFS.1 must be zero)
   E       64K   2    -     6400000h
   F,G     16K   2    0..3  6400000h+(4000h*OFS.0)+(10000h*OFS.1)
-<b>  VRAM    SIZE  MST  OFS   2D Graphics Engine A, BG Extended Palette</b>
+  VRAM    SIZE  MST  OFS   2D Graphics Engine A, BG Extended Palette
   E       64K   4    -     Slot 0-3  ;only lower 32K used
   F,G     16K   4    0..1  Slot 0-1 (OFS=0), Slot 2-3 (OFS=1)
-<b>  VRAM    SIZE  MST  OFS   2D Graphics Engine A, OBJ Extended Palette</b>
+  VRAM    SIZE  MST  OFS   2D Graphics Engine A, OBJ Extended Palette
   F,G     16K   5    -     Slot 0  ;16K each (only lower 8K used)
-<b>  VRAM    SIZE  MST  OFS   Texture/Rear-plane Image</b>
+  VRAM    SIZE  MST  OFS   Texture/Rear-plane Image
   A,B,C,D 128K  3    0..3  Slot OFS(0-3)   ;(Slot2-3: Texture, or Rear-plane)
-<b>  VRAM    SIZE  MST  OFS   Texture Palette</b>
+  VRAM    SIZE  MST  OFS   Texture Palette
   E       64K   3    -     Slots 0-3                 ;OFS=don't care
   F,G     16K   3    0..3  Slot (OFS.0*1)+(OFS.1*4)  ;ie. Slot 0, 1, 4, or 5
-<b>  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine B, BG-VRAM (max 128K)</b>
+  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine B, BG-VRAM (max 128K)
   C       128K  4    -     6200000h
   H       32K   1    -     6200000h
   I       16K   1    -     6208000h
-<b>  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K)</b>
+  VRAM    SIZE  MST  OFS   ARM9, 2D Graphics Engine B, OBJ-VRAM (max 128K)
   D       128K  4    -     6600000h
   I       16K   2    -     6600000h
-<b>  VRAM    SIZE  MST  OFS   2D Graphics Engine B, BG Extended Palette</b>
+  VRAM    SIZE  MST  OFS   2D Graphics Engine B, BG Extended Palette
   H       32K   2    -     Slot 0-3
-<b>  VRAM    SIZE  MST  OFS   2D Graphics Engine B, OBJ Extended Palette</b>
+  VRAM    SIZE  MST  OFS   2D Graphics Engine B, OBJ Extended Palette
   I       16K   3    -     Slot 0  ;(only lower 8K used)
-<b>  VRAM    SIZE  MST  OFS   &lt;ARM7&gt;, Plain &lt;ARM7&gt;-CPU Access</b>
+  VRAM    SIZE  MST  OFS   <ARM7>, Plain <ARM7>-CPU Access
   C,D     128K  2    0..1  6000000h+(20000h*OFS.0)  ;OFS.1 must be zero
 ```
 
@@ -11189,7 +11189,7 @@ hardware is automatically rendering the same image again, and again).
 
 ```
   Address  Siz Name            Expl.
-<b>  Rendering Engine (per Frame settings)</b>
+  Rendering Engine (per Frame settings)
   4000060h 2   DISP3DCNT       3D Display Control Register (R/W)
   4000320h 1   RDLINES_COUNT   Rendered Line Count Register (R)
   4000330h 10h EDGE_COLOR      Edge Colors 0..7 (W)
@@ -11201,7 +11201,7 @@ hardware is automatically rendering the same image again, and again).
   400035Ch 2   FOG_OFFSET      Fog Depth Offset (W)
   4000360h 20h FOG_TABLE       Fog Density Table, 32 entries (W)
   4000380h 40h TOON_TABLE      Toon Table, 32 colors (W)
-<b>  Geometry Engine (per Polygon/Vertex settings)</b>
+  Geometry Engine (per Polygon/Vertex settings)
   4000400h 40h GXFIFO          Geometry Command FIFO (W)
   4000440h ... ...             Geometry Command Ports (see below)
   4000600h 4   GXSTAT          Geometry Engine Status Register (R and R/W)
@@ -11709,7 +11709,7 @@ seven elements are automatically set to 0 or 1.0 (whereas "1.0" means "1 SHL
 
 
 ```
-<b>   _      4x4 Matrix       _        _    Identity Matrix    _</b>
+   _      4x4 Matrix       _        _    Identity Matrix    _
   | m[0]  m[1]  m[2]  m[3]  |      |  1.0   0     0     0    |
   | m[4]  m[5]  m[6]  m[7]  |      |  0     1.0   0     0    |
   | m[8]  m[9]  m[10] m[11] |      |  0     0     1.0   0    |
@@ -11718,7 +11718,7 @@ seven elements are automatically set to 0 or 1.0 (whereas "1.0" means "1 SHL
 
 
 ```
-<b>   _      4x3 Matrix       _        _  Translation Matrix   _</b>
+   _      4x3 Matrix       _        _  Translation Matrix   _
   | m[0]  m[1]  m[2]   0    |      |  1.0   0     0     0    |
   | m[3]  m[4]  m[5]   0    |      |  0     1.0   0     0    |
   | m[6]  m[7]  m[8]   0    |      |  0     0     1.0   0    |
@@ -11727,7 +11727,7 @@ seven elements are automatically set to 0 or 1.0 (whereas "1.0" means "1 SHL
 
 
 ```
-<b>   _      3x3 Matrix       _        _     Scale Matrix      _</b>
+   _      3x3 Matrix       _        _     Scale Matrix      _
   | m[0]  m[1]  m[2]   0    |      | m[0]   0     0     0    |
   | m[3]  m[4]  m[5]   0    |      |  0    m[1]   0     0    |
   | m[6]  m[7]  m[8]   0    |      |  0     0    m[2]   0    |
@@ -11856,7 +11856,7 @@ distance.
 
 
 ```
-<b>  Perspective Projection     Orthogonal Projection</b>
+  Perspective Projection     Orthogonal Projection
                    __                  __________
        top __..--''  |            top |          |
           |   view   |                |   view   |
@@ -20043,7 +20043,7 @@ IF.Bit24 can be reset (ack) \<even> when (W\_IF AND W\_IE) is still
 non-zero.
 
 ```
-<b>  Caution  Caution  Caution  Caution  Caution</b>
+  Caution  Caution  Caution  Caution  Caution
   That means, when acknowledging IF.Bit24, then NO FURTHER wifi IRQs
   will be executed whilst and as long as (W_IF AND W_IE) is non-zero.
 ```
@@ -28001,7 +28001,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_crypt_block(mode,src,dst):</b>
+ aes_crypt_block(mode,src,dst):
   Y0 = RK[0] xor [src+00h]
   Y1 = RK[1] xor [src+04h]
   Y2 = RK[2] xor [src+08h]
@@ -28021,7 +28021,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> scatter32(TAB,a,b,c,d):              scatter8(TAB,a,b,c,d):</b>
+ scatter32(TAB,a,b,c,d):              scatter8(TAB,a,b,c,d):
   w=      (TAB[a.bit0..7] ror 24)      w.bit0..7   = TAB[a.bit0..7]
   w=w xor (TAB[b.bit8..15] ror 16)     w.bit8..15  = TAB[b.bit8..15]
   w=w xor (TAB[c.bit16..23] ror 8)     w.bit16..23 = TAB[c.bit16..23]
@@ -28031,7 +28031,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_setkey(mode,key,keysize):  ;out: RK[0..43/51/59], nr=10/12/14</b>
+ aes_setkey(mode,key,keysize):  ;out: RK[0..43/51/59], nr=10/12/14
   aes_generate_tables   ;<-- unless tables are already initialized
   if keysize<>128 and keysize<>192 and keysize<>256 then error  ;size in bits
   rc=01h, j=0, jj=keysize/32, nr=jj+6   ;jj=4,6,8      ;\
@@ -28060,7 +28060,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_generate_tables:</b>
+ aes_generate_tables:
   for i=0 to 0FFh               ;compute pow and log tables...
     if i=0 then x=01h, else x=x xor x*2, if x>0FFh then x=x xor 11Bh
     pow[i]=x, log[x]=i
@@ -28083,7 +28083,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_generate_tables_results:</b>
+ aes_generate_tables_results:
   pow[00h..FFh] = 01,03,05,0F,11,..,C7,52,F6,01   ;pow  ;\needed temporarily
   log[00h..FFh] = 00,FF,19,01,32,..,C0,F7,70,07   ;log  ;/for table creation
   FSb[00h..FFh] = 63,7C,77,7B,F2,..,B0,54,BB,16   ;Forward S-box
@@ -28094,7 +28094,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_setkey_results:</b>
+ aes_setkey_results:
   key = "AES-Test-Key-Str-1234567-Abcdefg"  ;use only 1st bytes for 128/192bit
   128bit ENCRYPT --> RK[0..9..30..43] = 2D534541..2783080F..93AF7DF0..827EE10D
   192bit ENCRYPT --> RK[0..9..30..51] = 79654B2D..9708FA95..2529372B..C66C19FA
@@ -28106,7 +28106,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_crypt_results:</b>
+ aes_crypt_results:
   [key+0..15]    = "AES-Test-Key-Str-1234567-Abcdefg"
   [iv+0..15]     = "Nonce/InitVector"
   [xtra+0..20]   = "Extra-Associated-Data"  ;\for CCM
@@ -28296,7 +28296,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_crypt_block(mode,src,dst):</b>
+ aes_crypt_block(mode,src,dst):
   Y0 = RK[0] xor [src+00h]
   Y1 = RK[1] xor [src+04h]
   Y2 = RK[2] xor [src+08h]
@@ -28316,7 +28316,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> scatter32(TAB,a,b,c,d):              scatter8(TAB,a,b,c,d):</b>
+ scatter32(TAB,a,b,c,d):              scatter8(TAB,a,b,c,d):
   w=      (TAB[a.bit0..7])             w.bit0..7   = TAB[a.bit0..7]
   w=w xor (TAB[b.bit8..15] rol 8)      w.bit8..15  = TAB[b.bit8..15]
   w=w xor (TAB[c.bit16..23] rol 16)    w.bit16..23 = TAB[c.bit16..23]
@@ -28326,7 +28326,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_setkey(mode,key,keysize):  ;out: RK[0..43/51/59], nr=10/12/14</b>
+ aes_setkey(mode,key,keysize):  ;out: RK[0..43/51/59], nr=10/12/14
   aes_generate_tables   ;<-- unless tables are already initialized
   if keysize<>128 and keysize<>192 and keysize<>256 then error  ;size in bits
   rc=01h, j=0, jj=keysize/32, nr=jj+6   ;jj=4,6,8      ;\
@@ -28355,7 +28355,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_generate_tables:</b>
+ aes_generate_tables:
   for i=0 to 0FFh               ;compute pow and log tables...
     if i=0 then x=01h, else x=x xor x*2, if x>0FFh then x=x xor 11Bh
     pow[i]=x, log[x]=i
@@ -28378,7 +28378,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_generate_tables_results:</b>
+ aes_generate_tables_results:
   pow[00h..FFh] = 01,03,05,0F,11,..,C7,52,F6,01   ;pow  ;\needed temporarily
   log[00h..FFh] = 00,FF,19,01,32,..,C0,F7,70,07   ;log  ;/for table creation
   FSb[00h..FFh] = 63,7C,77,7B,F2,..,B0,54,BB,16   ;Forward S-box
@@ -28389,7 +28389,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_setkey_results:</b>
+ aes_setkey_results:
   key = "AES-Test-Key-Str-1234567-Abcdefg"  ;use only 1st bytes for 128/192bit
   128bit ENCRYPT --> RK[0..9..30..43] = 2D534541..ED0DC6FA..43DAC81C..0F5026BB
   192bit ENCRYPT --> RK[0..9..30..51] = 2D534541..4AAB3D82..29CA38D2..CA4DFE3B
@@ -28401,7 +28401,7 @@ aes\_crypt\_ecb(mode,src,dst,len)
 
 
 ```
-<b> aes_crypt_results:</b>
+ aes_crypt_results:
   [key+0..15]    = "AES-Test-Key-Str-1234567-Abcdefg"
   [iv+0..15]     = "Nonce/InitVector"
   [xtra+0..20]   = "Extra-Associated-Data"  ;\for CCM
@@ -72827,7 +72827,7 @@ other modes also.
 
 
 ```
-<b>  System/User FIQ       Supervisor Abort     IRQ       Undefined</b>
+  System/User FIQ       Supervisor Abort     IRQ       Undefined
   --------------------------------------------------------------
   R0          R0        R0         R0        R0        R0
   R1          R1        R1         R1        R1        R1
@@ -72937,7 +72937,7 @@ nonconditional; however BLX\_reg can be conditional).
 In THUMB mode, {cond} can be used only for branch opcodes.
 
 ```
-<b>  Code Suffix Flags         Meaning</b>
+  Code Suffix Flags         Meaning
   0:   EQ     Z=1           equal (zero) (same)
   1:   NE     Z=0           not equal (nonzero) (not same)
   2:   CS/HS  C=1           unsigned higher or same (carry set)
@@ -74395,7 +74395,7 @@ Otherwise: (User bank transfer)
   Rlist is referring to User Bank Registers, R0-R15 (rather than
   register related to the current mode, such like R14_svc etc.)
   Base write-back should not be used for User bank transfer.
-<b>  Caution - When instruction is LDM:</b>
+  Caution - When instruction is LDM:
   If the following instruction reads from a banked register (eg. R14_svc),
   then CPU might still read R14 instead; if necessary insert a dummy NOP.
 ```
@@ -76409,7 +76409,7 @@ Instruction Cycle Summary
 
 
 ```
-<b>  Instruction      Cycles      Additional</b>
+  Instruction      Cycles      Additional
   ---------------------------------------------------------------------
   ALU              1S          +1S+1N if R15 loaded, +1I if SHIFT(Rs)
   MSR,MRS          1S
@@ -76801,7 +76801,7 @@ care should be taken that the Supervisor Stack does not overflow.
 
 
 ```
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 Basic Functions</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 Basic Functions
   00h  00h  00h  -    -    SoftReset
   01h  -    -    -    -    RegisterRamReset
   02h  06h  06h  06h  06h  Halt
@@ -76818,7 +76818,7 @@ care should be taken that the Supervisor Stack does not overflow.
   0Dh  -    -    -    -    GetBiosChecksum
   0Eh  -    -    -    -    BgAffineSet
   0Fh  -    -    -    -    ObjAffineSet
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 Decompression Functions</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 Decompression Functions
   10h  10h  10h  10h  10h  BitUnPack
   11h  11h  11h  11h  11h  LZ77UnCompReadNormalWrite8bit   ;"Wram"
   12h  -    -    -    -    LZ77UnCompReadNormalWrite16bit  ;"Vram"
@@ -76833,7 +76833,7 @@ care should be taken that the Supervisor Stack does not overflow.
   16h  -    16h  -    16h  Diff8bitUnFilterWrite8bit       ;"Wram"
   17h  -    -    -    -    Diff8bitUnFilterWrite16bit      ;"Vram"
   18h  -    18h  -    18h  Diff16bitUnFilter
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 Sound (and Multiboot/HardReset/CustomHalt)</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 Sound (and Multiboot/HardReset/CustomHalt)
   19h  08h  -    08h  -    SoundBias
   1Ah  -    -    -    -    SoundDriverInit
   1Bh  -    -    -    -    SoundDriverMode
@@ -76852,7 +76852,7 @@ care should be taken that the Supervisor Stack does not overflow.
   28h  -    -    -    -    SoundDriverVSyncOff
   29h  -    -    -    -    SoundDriverVSyncOn
   2Ah  -    -    -    -    SoundGetJumpList
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 New NDS Functions</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 New NDS Functions
   -    03h  03h  03h  03h  WaitByLoop
   -    0Eh  0Eh  0Eh  0Eh  GetCRC16
   -    0Fh  0Fh  -    -    IsDebugger
@@ -76861,7 +76861,7 @@ care should be taken that the Supervisor Stack does not overflow.
   -    1Ch  -    1Ch  -    GetVolumeTable
   -    1Dh  -    1Dh  -    GetBootProcs (DSi7: only 1 proc)
   -    -    1Fh  -    1Fh  CustomPost
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 New DSi Functions (RSA/SHA1)</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 New DSi Functions (RSA/SHA1)
   -    -    -    20h  20h  RSA_Init_crypto_heap
   -    -    -    21h  21h  RSA_Decrypt
   -    -    -    22h  22h  RSA_Decrypt_Unpad
@@ -76872,7 +76872,7 @@ care should be taken that the Supervisor Stack does not overflow.
   -    -    -    27h  27h  SHA1_Init_update_fin
   -    -    -    28h  28h  SHA1_Compare_20_bytes
   -    -    -    29h  29h  SHA1_Random_maybe
-<b>  GBA  NDS7 NDS9 DSi7 DSi9 Invalid Functions</b>
+  GBA  NDS7 NDS9 DSi7 DSi9 Invalid Functions
   2Bh+ 20h+ 20h+ -    -    Crash (SWI xxh..FFh do jump to garbage addresses)
   -    xxh  xxh  -    -    Jump to 0   (on any SWI numbers not listed above)
   -    -    -    12h  12h  No function (ignored)
