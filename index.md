@@ -2,7 +2,7 @@
 # GBATEK
 
 
-Gameboy Advance / Nintendo DS / DSi - Technical Info - Extracted from no$gba version 2.8f
+Gameboy Advance / Nintendo DS / DSi - Technical Info - Extracted from no$gba version 2.9b
 
 [About this Document](#aboutthisdocument)
 
@@ -1119,11 +1119,12 @@ Note: This is much the same than the 'LY' register of older gameboys.
   Bit   Expl.
   0-1   BG Priority           (0-3, 0=Highest)
   2-3   Character Base Block  (0-3, in units of 16 KBytes) (=BG Tile Data)
-  4-5   Not used (must be zero)
+  4-5   Not used (must be zero) (except in NDS mode: MSBs of char base)
   6     Mosaic                (0=Disable, 1=Enable)
   7     Colors/Palettes       (0=16/16, 1=256/1)
   8-12  Screen Base Block     (0-31, in units of 2 KBytes) (=BG Map Data)
-  13    Display Area Overflow (0=Transparent, 1=Wraparound; BG2CNT/BG3CNT only)
+  13    BG0/BG1: Not used (except in NDS mode: Ext Palette Slot for BG0/BG1)
+  13    BG2/BG3: Display Area Overflow (0=Transparent, 1=Wraparound)
   14-15 Screen Size (0-3)
 ```
 
@@ -1146,7 +1147,7 @@ of one or more 256x256 pixel (32x32 tiles) areas. When Size=0: only 1 area
 (SC0), when Size=1 or Size=2: two areas (SC0,SC1 either horizontally or
 vertically arranged next to each other), when Size=3: four areas (SC0,SC1 in
 upper row, SC2,SC3 in lower row). Whereas SC0 is defined by the normal BG Map
-base address (Bit 8-12 of BG#CNT), SC1 uses same address +2K, SC2 address +4K,
+base address (Bit 8-12 of BGxCNT), SC1 uses same address +2K, SC2 address +4K,
 SC3 address +6K. When the screen is scrolled it'll always wraparound.
 
 
@@ -1154,7 +1155,7 @@ In 'Rotation/Scaling Modes', the screen size is organized as follows, only one
 area (SC0) of variable size 128x128..1024x1024 pixels (16x16..128x128 tiles)
 exists. When the screen is rotated/scaled (or scrolled?) so that the LCD
 viewport reaches outside of the background/screen area, then BG may be either
-displayed as transparent or wraparound (Bit 13 of BG#CNT).
+displayed as transparent or wraparound (Bit 13 of BGxCNT).
 
 
 
@@ -10777,10 +10778,9 @@ can be used for mode selection. Also, bitmap modes do not use charbase, so
 charbase.0 can be used for mode selection as well).
 
 
-for BG0, BG1 only: bit13 selects extended palette slot
-
 ```
-                   (BG0: 0=Slot0, 1=Slot2, BG1: 0=Slot1, 1=Slot3)
+  for BG0CNT, BG1CNT only: bit13 selects extended palette slot
+                           (BG0: 0=Slot0, 1=Slot2, BG1: 0=Slot1, 1=Slot3)
 ```
 
 
@@ -10862,10 +10862,10 @@ located in the LSBs (ie. MaskX=0Fh, or MaskX=1Fh, depending on DISPCNT.5).
 
 
 Setting the OBJ Mode bits (Attr 0, Bit10-11) to a value of 3 has been
-prohibited in GBA, however, in NDS it selects the the new Bitmap OBJ mode; in
-that mode, the Color depth bit (Attr 0, Bit13) should be set to zero; also in
-that mode, the color bits (Attr 2, Bit 12-15) are used as Alpha-OAM value
-(instead of as palette setting).
+prohibited in GBA, however, in NDS it selects the new Bitmap OBJ mode; in that
+mode, the Color depth bit (Attr 0, Bit13) should be set to zero; also in that
+mode, the color bits (Attr 2, Bit 12-15) are used as Alpha-OAM value (instead
+of as palette setting).
 
 
 
@@ -12738,7 +12738,7 @@ and only if the Specular Material Color is nonzero.
 Note on Vector\*Vector multiplication: Processed as LineVector\*RowVector, so the
 result is a number (aka scalar) (aka a matrix with only 1x1 elements),
 multiplying two (normalized) vectors results in: "cos(angle)=vec1\*vec2", ie.
-the consine of the angle between the two vectors.
+the cosine of the angle between the two vectors.
 
 The various Normal/Light/Half/Sight vectors are only 3-dimensional (x,y,z), ie.
 only the upper-left 3x3 matrix elements are used on multiplications with the
@@ -14640,6 +14640,11 @@ to be used as fixed source addresses for DMA memfill operations.
 This is useful because DMA cannot read from TCM, and reading from Main RAM
 would require to recurse cache & write buffer.
 
+The DMA Filldata is used with Src=Fixed and SAD=40000Exh (which isn't optimal
+because it's doing repeated reads from SAD, and, for that reason, a memfill via
+STMIA opcodes can be faster than DMA; the DSi's new NDMA channels are providing
+a faster fill method with Src=Fill and SAD=Unused).
+
 
 
 ### NDS7 Sound DMA
@@ -14782,7 +14787,7 @@ Trying to set all IE bits gives FFFFFFFFh (DSi7) or FFFFFF7Fh (DSi9).
   4     DSi7: GPIO33[0] unknown (related to "GPIO330" testpoint on mainboard?)
   5     DSi7: GPIO33[1] Headphone connect (HP#SP) (static state)
   6     DSi7: GPIO33[2] Powerbutton interrupt (short pulse upon key-down)
-  7     DSi7: GPIO33[3]
+  7     DSi7: GPIO33[3] sound enable output (ie. not a useful irq-input)
   8     DSi7: SD/MMC Controller   ;-Onboard eMMC and External SD Slot
   9     DSi7: SD Slot Data1 pin   ;-For SDIO hardware in External SD Slot
   10    DSi7: SDIO Controller     ;\Atheros Wifi Unit
@@ -15215,9 +15220,21 @@ MAYBE that three signals are somehow replaced by EXTKEYIN bit0,1,3?
 
 
 
+
+### NDS
+
+
 Seiko Instruments Inc. S-35180 (compatible with S-35190A)
 
 Miniature 8pin RTC with 3-wire serial bus
+
+
+
+### DSi
+
+
+Seiko S-35199A01 (12pin BGA, with some extra functions like FOUT and Alarm
+Date)
 
 
 
@@ -15262,7 +15279,9 @@ Bit transfer (repeat 8 times per cmd/param byte) (bits transferred LSB first):
 
 Ideally, \<both> commands and parameters should be transmitted LSB-first
 (unlike the original Seiko document, which recommends LSB-first for data, and
-MSB-first for commands).
+MSB-first for commands) (actually, later Seiko datasheets are going so far to
+recommend MSB-first for everything, eg. to use bit-reversed Data=C8h for
+Year=13h).
 
 
 
@@ -15272,7 +15291,10 @@ MSB-first for commands).
 ```
   Command Register
     Fwd  Rev
-    0-3  7-4 Fixed Code (must be 06h = 0110b) (same for Fwd and Rev)
+    0    7   Fixed Code (must be 0)
+    1    6   Fixed Code (must be 1)
+    2    5   Fixed Code (must be 1)
+    3    4   Fixed Code (must be 0, or, DSi only: 1=Extended Command)
     4-6  3-1 Command
              Fwd Rev Parameter bytes (read/write access)
              0   0   1 byte, status register 1
@@ -15284,6 +15306,16 @@ MSB-first for commands).
              5   5   3 bytes, int2, alarm time 2 (day_of_week, hour, minute)
              3   6   1 byte, clock adjustment register
              7   7   1 byte, free register
+             Extended command (when above "fourth bit" was set, DSi only)
+             Fwd Rev Parameter bytes (read/write access)
+             0   0   3 byte, up counter (msw,mid,lsw) (read only)
+             4   1   1 byte, FOUT register setting 1
+             2   2   1 byte, FOUT register setting 2
+             6   3   reserved
+             1   4   3 bytes, alarm date 1 (year,month,day)
+             5   5   3 bytes, alarm date 2 (year,month,day)
+             3   6   reserved
+             7   7   reserved
     7    0   Parameter Read/Write Access (0=Write, 1=Read)
 ```
 
@@ -15403,6 +15435,64 @@ Note: There is only one register shared as "Selected Frequency Steady
 Interrupt" (accessed as single byte parameter when Stat2/Bit2=0) and as "Alarm1
 Minute" (accessed as 3rd byte of 3-byte parameter when Stat2/Bit2=1), changing
 either value will also change the other value.
+
+
+
+### Up Counter (DSi only)
+
+
+```
+  Up Counter Msw
+    0-7 R   Up Counter bit16-23 (non-BCD, 00h..FFh)
+  Up Counter Mid
+    0-7 R   Up Counter bit8-15  (non-BCD, 00h..FFh)
+  Up Counter Lsw
+    0-7 R   Up Counter bit0-7   (non-BCD, 00h..FFh)
+```
+
+The 24bit Up Counter is incremented when seconds=00h (that is, once per minute;
+unless the Time is getting getting changed by write commands, which may cause
+some stuttering). The Up Counter starts at 000000h upon power-up, and, if the
+battery lasts that long: wraps from FFFFFFh to 000000h after about 30 years.
+
+
+
+### Alarm 1 and Alarm 2 Date Registers (DSi only)
+
+
+```
+  Alarm 1 and Alarm 2 Year Register
+    0-7 R/W Year     (BCD 00h..99h = 2000..2099)
+  Alarm 1 and Alarm 2 Month Register
+    0-4 R/W Month    (BCD 01h..12h = January..December)
+    5   -   Not used (always zero)
+    6   R/W Year Compare Enable (0=Ignore, 1=Enable)
+    7   R/W Month Compare Enable (0=Ignore, 1=Enable)
+  Alarm 1 and Alarm 2 Day Register
+    0-5 R/W Day      (BCD 01h..28h,29h,30h,31h, range depending on month/year)
+    6   -   Not used (always zero)
+    7   R/W Day Compare Enable (0=Ignore, 1=Enable)
+```
+
+XXX unspecified if above Alarm Date stuff is really R/W (or write only)
+
+
+
+### FOUT Register (DSi only)
+
+
+```
+  FOUT Register Setting 1
+    0-7 R/W  Enable bits (bit0=256Hz, bit1=512Hz, ..., bit7=32768Hz)
+  FOUT Register Setting 2
+    0-7 R/W  Enable bits (bit0=1Hz,   bit1=2Hz, ...,   bit7=128Hz)
+  The above sixteen FOUT signals are ANDed when two or more frequencies are
+  enabled, ie. the FOUT signal gets LOW when either of the signals is LOW.
+```
+
+Note: The FOUT pin goes to the DSi's wifi daughterboard (FOUT is configured by
+firmware (needed if it was changed, or when the battery was removed), FOUT is
+required for exchanging Atheros WMI commands/events).
 
 
 
@@ -15571,7 +15661,7 @@ separated by Bit2 (Reference Select). IN1 is selected when Bit2=1, IN2 is
 selected when Bit2=0 (despite of the Bit2 settings, both IN1 and IN2 are using
 single ended more). On the NDS-Lite, IN1 connects to the mircrophone (as on
 original NDS), and the new IN2 input is simply wired to VDD3.3 (which is equal
-the the external VREF voltage, so IN2 is always FFFh).
+to the external VREF voltage, so IN2 is always FFFh).
 
 
 
@@ -15908,8 +15998,11 @@ HLL-programmers, asm-coders know that (and why) they should not jump to 0.
 ```
 
 There are some write-restrictions: The NDS7 register can be written to only
-from code executed in BIOS. Bit0 of both NDS7 and NDS9 registers cannot be
-cleared (except by Reset) once when it is set.
+from code executed in BIOS (done by NDS boot ROM, or by DSi firmware, whereas
+the DSi firmware is using the CpuSet SWI function to issue the POSTFLG write
+from within ROM). Bit0 of both NDS7 and NDS9 registers cannot be cleared
+(except by Reset) once when it is set. DSi games seem to run regardless of
+POSTFLG, whilst NDS games somewhat refuse to run when POSTFLG=0.
 
 
 
@@ -15980,12 +16073,13 @@ register, and release the chipselect line when finished.
 
 ### Register 10h - DSi Only - Backlight Mirrors & Reset (R/W)
 
-  - Bit0   Reset (0=No, 1=Reboot) (same/similar as BPTWL reset feature?)
+  - Bit0   Reset (0=No, 1=Reboot DSi) (same/similar as BPTWL reset feature?)
   - Bit1   Unknown (R/W) (note: whatever it is, it isn't warmboot flag)
   - Bit2-3 Mirror of Register 0, bit2-3 (backlight enable bits) (R/W)
   - Bit4-7 Not used (always 0)
-  - (DSi in NDS Mode: seems to behave same as in DSi mode, except that, reset
-  - defaults to warmboot, since BPTWL always has warmboot enabled in NDS mode)
+  - (This register works in NDS mode and DSi mode, though it's mainly intended
+  - for NDS mode, eg. DS Download Play uses the Reset bit to return to DSi menu)
+  - (note: writing bit2 seems to affect BOTH bit1 and bit2 in register 0)
 
 On Old-DS, registers 4..7Fh are mirrors of 0..3. On DS-Lite, registers 5,6,7
 are mirrors of 4, register 8..7Fh are mirrors of 0-7.
@@ -15993,7 +16087,7 @@ are mirrors of 4, register 8..7Fh are mirrors of 0-7.
 On DSi (in DS mode), index 0,1,2,3,4,10h are used (reads as
 0Fh,00h,00h,01h,41h,0Fh - regardless of backlight level, and power source),
 index 5..0Fh and 11h..7Fh return 00h (ie. unlike DS and DS-Lite, there are no
-mirrors; aside from the 3 bits in register 10h).
+mirrors; aside from the mirrored bits in register 10h).
 
 
 
@@ -16178,7 +16272,7 @@ code via multiboot.
 
 
 The CPU, Timers, and Sound Frequencies are probably clocked at 16.76MHz;
-33.51Mhz/2; a bit slower than the original GBA's 16.78MHz clock?
+33.51MHz/2; a bit slower than the original GBA's 16.78MHz clock?
 
 In the BIOS, a single byte in a formerly 00h-filled area has been changed from
 00h to 01h, resulting in SWI 0Dh returning a different BIOS checksum.
@@ -16407,12 +16501,13 @@ debug I/O ports.
   068h    4     Icon/Title offset (0=None) (8000h and up)
   06Ch    2     Secure Area Checksum, CRC-16 of [[020h]..00007FFFh]
   06Eh    2     Secure Area Delay (in 131kHz units) (051Eh=10ms or 0D7Eh=26ms)
-  070h    4     ARM9 Auto Load List RAM Address (?)
-  074h    4     ARM7 Auto Load List RAM Address (?)
+  070h    4     ARM9 Auto Load List Hook RAM Address (?) ;\endaddr of auto-load
+  074h    4     ARM7 Auto Load List Hook RAM Address (?) ;/functions
   078h    8     Secure Area Disable (by encrypted "NmMdOnly") (usually zero)
   080h    4     Total Used ROM size (remaining/unused bytes usually FFh-padded)
   084h    4     ROM Header Size (4000h)
-  088h    38h   Reserved (zero filled) (except, [88h..93h] used on DSi)
+  088h    28h   Reserved (zero filled; except, [88h..93h] used on DSi)
+  0B0h    10h   Reserved (zero filled; or "DoNotZeroFillMem"=unlaunch fastboot)
   0C0h    9Ch   Nintendo Logo (compressed bitmap, same as in GBA Headers)
   15Ch    2     Nintendo Logo Checksum, CRC-16 of [0C0h-15Bh], fixed CF56h
   15Eh    2     Header Checksum, CRC-16 of [000h-15Dh]
@@ -16426,14 +16521,11 @@ debug I/O ports.
 DSi Cartridges are using an extended cartridge header,
 
 - [DSi Cartridge Header](#dsicartridgeheader)
-Newer NDS cartridges are reportedly containing RSA signatures - the format of
-that signatures is still unknown (probably it's same or similar as in DSi
-headers), those RSA signatures are required for running NDS carts on DSi
-consoles (at least with newer DSi firmwares) (the DSi firmware contains a
-whitelist with known checksums for all existing older NDS games, and requires
-RSA signatures in newer NDS games - this is making it impossible to run
-unlicensed/homebrew NDS programs on DSi, unless using trickery such like
-savegame exploits).
+Some of that new/changed DSi header entries are important even in NDS mode:
+
+- On DSi, ARM9/ARM7 areas are restricted to 2.75MB (instead 3.8MB on real NDS)
+
+- New NDS titles must have RSA signatures (and old titles must be in whitelist)
 
 
 For more info about CRC-16, see description of GetCRC16 BIOS function,
@@ -16471,13 +16563,13 @@ When ChipID.Bit31=1 (commands are repeated MULTIPLE times): The delay is issued
 AFTER sending the command for the FIRST time:
 
 ```
-  Cmd,Delay,Cmd                               ;for 2x repeat
-  Cmd,Delay,Cmd,Cmd,Cmd,CmdCmd,Cmd,Cmd,Cmd    ;for 9x repeat
+  Cmd,Delay,Cmd                                ;for 2x repeat
+  Cmd,Delay,Cmd,Cmd,Cmd,Cmd,Cmd,Cmd,Cmd,Cmd    ;for 9x repeat
 ```
 
 Known games are using delays of 26ms (although all known existing cartridges
 (=Cooking Coach) with Bit31=1 would actually work with shorter delays of ca.
-6.5ms).
+7ms (but, better use 8ms for safety)).
 
 
 
@@ -16818,6 +16910,8 @@ Cartridge memory must be copied to RAM (the CPU cannot execute code in ROM).
   B7aaaaaaaa000000h Encrypted Data Read               KEY2 KEY2  200h
   B800000000000000h 3rd Get ROM Chip ID               KEY2 KEY2  4
   xxxxxxxxxxxxxxxxh Invalid - Get KEY2 Stream XOR 00h KEY2 KEY2  ...
+  B500000000000000h Whatever NAND related?            KEY2 KEY2  0
+  D600000000000000h Whatever NAND related?            KEY2 KEY2  4
 ```
 
 The parameter digits contained in above commands are:
@@ -16902,6 +16996,7 @@ Existing/known ROM IDs are:
 
 ```
   C2h,07h,00h,00h NDS Macronix 8MB ROM  (eg. DS Vision)
+  AEh,0Fh,00h,00h NDS Noname   16MB ROM (eg. Meine Tierarztpraxis)
   C2h,0Fh,00h,00h NDS Macronix 16MB ROM (eg. Metroid Demo)
   C2h,1Fh,00h,00h NDS Macronix 32MB ROM (eg. Over the Hedge)
   C2h,1Fh,00h,40h DSi Macronix 32MB ROM (eg. Art Academy, TWL-VAAV, SystemFlaw)
@@ -17196,13 +17291,7 @@ outputting the eight portions one after another).
   FLASH 1024K bytes             ST 45PE80V6       (eg. Spirit Tracks, NTR-BKIP)
   FLASH 8192K bytes             MX25L6445EZNI-10G (Art Academy only, TWL-VAAV)
   FRAM     8K bytes   No limit  ?                 (eg. which/any games?)
-  FRAM    32K bytes   No limit  Ramtr
-```
-
-
-
-```
-  on FM25L256? (eg. which/any games?)
+  FRAM    32K bytes   No limit  Ramtron FM25L256? (eg. which/any games?)
 ```
 
 
@@ -17423,17 +17512,92 @@ received value can be then read from AUXSPIDATA, if desired.
   24-26 Data Block size   (0=None, 1..6=100h SHL (1..6) bytes, 7=4 bytes)
   27    Transfer CLK rate (0=6.7MHz=33.51MHz/5, 1=4.2MHz=33.51MHz/8)
   28    KEY1 Gap CLKs (0=Hold CLK High during gaps, 1=Output Dummy CLK Pulses)
-  29     "RESB" Unknown (always 1 ?) (not read/write-able) -- R/W on DSi7 (?!)
-  30     "WR"   Unknown (always 0 ?) (read/write-able)
+  29    RESB Release Reset (0=Reset, 1=Release) (cannot be cleared once set)
+  30     "WR"   Unknown, maybe data-write? (usually 0) (read/write-able)
   31    Block Start/Status (0=Ready, 1=Start/Busy) (IRQ See 40001A0h/Bit14)
 ```
 
 The cartridge header is booted at 4.2MHz CLK rate, and following transfers are
 then using ROMCTRL settings specified in cartridge header entries [060h] and
-[064h], which are usually using 6.7MHz CLK rate.
+[064h], which are usually using 6.7MHz CLK rate for the main data transfer
+phase (whereof, older MROM carts can actually transfer 6.7Mbyte/s, but newer
+1T-ROM carts default to reading 200h-byte blocks with gap1=657h, thus reaching
+only 1.6Mbyte/s).
 
 Transfer length of null, four, and 200h..4000h bytes are supported by the
-console, however, regular cartridges support only max 1000h bytes.
+console, however, retail cartridges cannot cross 1000h-byte boundaries.
+
+
+### Default cart header entries
+
+
+```
+  hdr[60h]   hdr[64h]   hdr[6Eh]
+  00586000h  001808F8h  051Eh     ;older/faster MROM
+  00416657h  081808F8h  0D7Eh     ;newer/slower 1T-ROM
+  ?          ?          ?         ;whatever NAND
+```
+
+
+### Older/Faster MROM
+
+
+The romctrl values in cartheader[60h,64h] are okay, but the secure delay in
+[6Eh] is nonsense (should be zero).
+
+
+### Misdeclared MROM
+
+
+Some carts like SystemFlaw and BiggestLoser are actually containing MROM chips
+despite of having 1T-ROM values in cart header (gap1=657h is making loading
+insane slow, gap2=01h causes errors on 1000h-byte blocks, and secure.clk=4.2MHz
+is slowing down secure area loading, combined with even slower secure area
+delay despite of not needing any delay for MROM).
+
+As the cart header entries are wrong, some other detection is needed: This can
+be probably done by checking ChipID.bit31 (or otherwise by testing if
+1000h-block reading works with gap1=01h, if so, then it's 1T-ROM).
+
+
+### Newer/Slower 1T-ROM
+
+
+Actual 1T-ROM carts can be very slow, especially when using the insane cart
+header values and default firmware blocksize of 200h bytes which drops loading
+speed from 6.7Mbytes/s to 1.6Mbyte/s (as workaround, use gap1=180h,
+blocksize=1000h, also secure area delay should be 400h, not D7Eh)
+(tested/working for CookingCoach, unknown if that timings work for all other
+carts).
+
+
+### NAND
+
+
+Some cartridges are said to contain NAND memory, unknown if that's accessed
+with the normal ROM reading commands, and if so, with which timings.
+
+
+### Cart Reset
+
+
+Reset flag in bit29 can be set once only (to release reset), the only way to
+clear the bit is power-off. However, there are some ways to issue resets:
+
+1) On NDS: Manually eject/insert the cart (that won't affect bit29, but the
+cart will reset itself anyways upon power loss) (eject on DSi will power-off
+the cart slot).
+
+2) If one of the two ROMCTRL registers (on ARM7 and ARM9) is still zero:
+Temporarily toggle ARM7/ARM9 cart access via EXMEMCNT on ARM9 side.
+
+3) On DSi: If the 2nd cart slot ROMCTRL register (40021A4h) is still zero:
+Temporarily swap 1ns/2nd cart slot via SCFG\_MC.bit15 on ARM7 side.
+
+4) On DSi: Use SCFG\_MC to toggle cart power off/on; this will actually reset
+bit29, the DSi firmware is actually using that method, but it's very slow
+(takes about 300ms, for the power-off wait, plus (unneccassary) hardcoded
+power-on delays).
 
 
 
@@ -18503,10 +18667,13 @@ NDS/DSi BIOS. The values can be found at:
   DSi.TCM Copy: 01FFC894h..01FFD8DBh (values 99 D5 20 5F ..) ""
   DSi.ARM7 ROM: 0000C6D0h..0000D717h (values 59 AA 56 8E ..) Blowfish/DSi-mode
   DSi.RAM Copy: 03FFC654h..03FFD69Bh (values 59 AA 56 8E ..) ""
+  DSi.Debug:    (stored in launcher) (values 69 63 52 05 ..) Blowfish/DSi-debug
 ```
 
 The DSi ROM sections are disabled after booting, but the RAM/TCM copies can be
-dumped (at least with some complex main memory hardware mods).
+dumped (eg. with some complex main memory hardware mods, or via unlaunch
+exploit). The DSi.Debug key is stored in launcher, and it's used when SCFG\_OP
+is nonzero (as so on debugging on hardware).
 
 
 
@@ -19474,7 +19641,7 @@ Wifi Registers & RAM cannot be written to by STRB opcodes (ignored).
   48080D0h R/W   W_RXFILTER      1fff [0401]
   48080D4h R/W   W_CONFIG_0D4h   ---3 [0001]
   48080D8h R/W   W_CONFIG_0D8h   -fff [0004]
-  48080DAh R/W   W_CONFIG_0DAh   ffff [0602]
+  48080DAh R/W   W_RX_LEN_CROP   ffff [0602]
   48080E0h R/W   W_RXFILTER2     ---f [0008]
 ```
 
@@ -19757,11 +19924,17 @@ effects on unused/mirrored ports are different, too).
 
 
 ```
-  0-2   specify a software mode for wifi operation
+  0-2   Unknown, specify a software mode for wifi operation
         (may be related to hardware but a correlation has not yet been found)
-  3-5   specify the hardware WEP mode
-        0=no WEP, 1=64bit WEP (48bit key), and 3=128bit WEP.
-        (Values 2 and 4 exist too, but are nonstandard)
+  3-5   WEP Encryption Key Size:
+         0=Reserved (acts same as 1)
+         1=64bit WEP  (IV=24bit + KEY=40bit)  (aka 3+5 bytes)   ;standard/us
+         2=128bit WEP (IV=24bit + KEY=104bit) (aka 3+13 bytes)  ;standard/world
+         3=152bit WEP (IV=24bit + KEY=128bit) (aka 3+16 bytes)  ;uncommon
+         4=Unknown, mabye 256bit WEP (IV=24bit + KEY=232bit) (aka 3+29 bytes)?
+         5=Reserved (acts same as 1)
+         6=Reserved (acts same as 1)
+         7=Reserved (acts same as 1)
   6     Unknown
   8-15  Always zero
 ```
@@ -19832,12 +20005,13 @@ Usually set equal to the lower 4bit of the W\_AID\_FULL value.
   15    WEP Engine Enable  (0=Disable, 1=Enable)
 ```
 
-[expl. I - bit15 enables/disables WEP processing of sent/received packets]
+Normally, bit15 should be always set (but it will only affect WEP-encrypted
+packets, ie. packets with Frame Control bit14=1 in 802.11 header). When
+disabled, WEP packets aren't received at all (neither in encrypted nor
+decrypted form), and sending WEP packets might be also ignored(?).
 
-[expl. II - bit15 enables wep processing on packets which bear the WEP flag in
-the 802.11 header]
-
-[expl. III - bit15 seems to react on 0-to-1 transitions]
+The firmware contains some code that does toggle the bit off for a moment
+(apparently to reset something after transfer errors).
 
 
 
@@ -20002,7 +20176,7 @@ IRQ07 and IRQ01).
 
 Write a '1' to a bit to clear it. For the Half-Overflow flags that works ONLY
 if the counter MSBs are zero (ie. one must first read the counters (to reset
-them), and THEN acknowlege the corresponding W\_IF bit).
+them), and THEN acknowledge the corresponding W\_IF bit).
 
 The Transmit Start/Complete bits (Bit7,1) are set for EACH packet (including
 beacons, and including retries).
@@ -20462,7 +20636,7 @@ reflected to W\_RXSTAT\_OVF\_IF.
 The recommended way to acknowledge W\_RXSTAT\_OVF\_IF is to read the corresponding
 counters (which are reset to 00h after reading). For some reason, the firmware
 is additionally writing FFFFh to W\_RXSTAT\_OVF\_IF (that is possibly a bug, or it
-does acknowlege something internally?).
+does acknowledge something internally?).
 
 
 
@@ -21621,15 +21795,24 @@ and W\_CONFIG\_150h to 202h, and W\_CONFIG\_140h depending on tx rate and preamb
 
 
 
-### 48080DAh - W\_CONFIG\_0DAh (R/W) ;firmware writes 0602h (same as on power-up)
-
-
-
 ### 4808254h - W\_CONFIG\_254h (?) ;firmware writes 0000h (read: EEEEh on DS-Lite)
 
 
 Firmware just initializes these ports with fixed values, without further using
 them after initialization.
+
+
+
+### 48080DAh - W\_RX\_LEN\_CROP (R/W) ;firmware writes 0602h (same as on power-up)
+
+
+```
+  0-7   Decrease RX Length by N halfwords for Non-WEP packets (usually 2)
+  8-15  Decrease RX Length by N halfwords for WEP packets     (usually 6)
+```
+
+Used to exclude the FCS (and WEP IV+ICV) from the length entry in the Hardware
+RX Header.
 
 
 
@@ -22437,7 +22620,7 @@ Init the Mac system:
   reg[0BCh] = 0001h   - W_PREAMBLE       ;disable short preamble
   reg[0D4h] = 0003h   - W_CONFIG_0D4h    ;
   reg[0D8h] = 0004h   - W_CONFIG_0D8h    ;
-  reg[0DAh] = 0602h   - W_CONFIG_0DAh    ;
+  reg[0DAh] = 0602h   - W_RX_LEN_CROP    ;
   reg[076h] = 0000h   - W_TXBUF_GAPDISP  ;disable gap/skip (offset=zero)
 ```
 
@@ -23356,6 +23539,7 @@ Special NDS related Addresses:
   00 16 56 xx xx xx  NDS-Consoles (Newer NDS-Lite with firmware v6 and up)
   00 23 CC xx xx xx  DSi-Consoles (Original DSi with early mainboard; nocash)
   00 24 1E xx xx xx  DSi-Consoles (Another DSi; scanlime)
+  40 F4 07 xx xx xx  DSI Consoles (with DWM-W024; nocash)
   03 09 BF 00 00 00  NDS-Multiboot: host to client (main data flow)
   03 09 BF 00 00 10  NDS-Multiboot: client to host (replies)
   03 09 BF 00 00 03  NDS-Multiboot: host to client (acknowledges replies)
@@ -23930,12 +24114,6 @@ is somewhat reserved for being controlled by the firmware.
 This memory does still exist, but it's only 128Kbytes in DSi (instead 256K),
 and most of it is empty (since the DSi Firmware is stored in the eMMC chip).
 
-Reportedly, newer DSi consoles are somehow disabling access to the FLASH memory
-and to the Wifi hardware (unknown if that's true; it might actually disable
-both the SPI chipselect and Wifi hardware, or there might be just some issue
-with a different/smaller FLASH chip being used - and problems with reading the
-Wifi Calibration would indirectly cause problems to use the Wifi hardware).
-
 
 
 ### RTC
@@ -23953,11 +24131,15 @@ other mainboard components?
 ### Wifi
 
 
-Supports new WPA and WPA2 encryption (unknow how to use them yet), and supports
-higher transfer rates (unknown how yet too, maybe just by changing the
-10=1Mbit/s and 20=2MBit/s settings to higher values).
+Supports new WPA and WPA2 encryption and supports higher transfer rates (via a
+new SDIO wifi unit, unknown how to use that thing yet). For the old NDS-wifi
+mode, there are some new control registers:
 
-As said above (see SPI FLASH), the Wifi hardware can be reportedly disabled.
+```
+  4004020h - SCFG_WL
+  4004C04h - GPIO_WIFI
+  BPTWL[30h] - Wifi LED related (also needed to enable Atheros Wifi SDIO)
+```
 
 SPI FLASH contains three new access point settings (for WPA/WPA2/proxy
 support):
@@ -24055,6 +24237,9 @@ additional new/changed registers are:
   4000214h 4   IF       (new interrupt sources, removed GBA-slot IRQ)
   40021A0h 4   Unknown, nonzero, probably same/silimar as on DSi7 side
   40021A4h 4   Unknown, zero, probably same/silimar as on DSi7 side
+  40021A8h ..
+  40021Bxh ..
+  4102010h 4
 ```
 
 
@@ -24070,7 +24255,7 @@ additional new/changed registers are:
 ```
 
 
-### ARM9 DSi WRAM Bank Control
+### ARM9 DSi New Shared WRAM Bank Control
 
 
 ```
@@ -24082,7 +24267,7 @@ additional new/changed registers are:
   4004054h 4   MBK6       WRAM-A Address Range           ;\Local ARM9 Side
   4004058h 4   MBK7       WRAM-B Address Range           ; (R/W)
   400405Ch 4   MBK8       WRAM-C Address Range           ;/
-  4004060h 4   MBK9       WRAM-A/B/C Slot Master Selection (R)
+  4004060h 4   MBK9       WRAM-A/B/C Slot Write Protect (R)
 ```
 
 
@@ -24178,6 +24363,9 @@ additional new/changed registers are:
 ```
   40021A0h 4   Unknown, nonzero, probably related to below 40021A4h
   40021A4h 4   Unknown, related to 40001A4h (Gamecard Bus ROMCTRL)
+  40021A8h ..
+  40021Bxh ..
+  4102010h 4
 ```
 
 
@@ -24185,21 +24373,32 @@ additional new/changed registers are:
 
 
 ```
-  4004000h 1   SCFG_A9ROM used by BIOS and SystemFlaw  (maybe A9ROM) (bit0,1)
-  4004001h 1   SCFG_A7ROM used by BIOS and SystemFlaw  (maybe A7ROM) (bit0,1,2)
-  4004004h 2   SCFG_CLK7  used by SystemFlaw           (maybe CLK)
+  4004000h 1   SCFG_A9ROM used by BIOS and SystemFlaw   (bit0,1)
+  4004001h 1   SCFG_A7ROM used by BIOS and SystemFlaw   (bit0,1,2)
+  4004004h 2   SCFG_CLK7  used by SystemFlaw
   4004006h 2   SCFG_JTAG  Debugger Control
-  4004008h 4   SCFG_EXT7  used by SystemFlaw           (maybe EXT)
+  4004008h 4   SCFG_EXT7  used by SystemFlaw
   4004010h 2   SCFG_MC    Memory Card Interface Control (R/W)
   4004012h 2   SCFG_1988H Unknown, there is something (?) (SysMenu: 1988h)
   4004014h 2   SCFG_264CH Unknown, there is something (?) (SysMenu: 264Ch)
   4004020h 2   SCFG_WL    Wireless Disable    ;bit0 = wifi?
-  4004024h 2   SCFG_OP    Debugger Type       ;bit0-1 = (0=retail, ?=debug)
-  4004040h 20  MBK1..MBK5 mirror of ARM9's MBK1..MBK5
-  4004054h 12  MBK6..MBK8 local version of ARM9's MBK6..MBK8
-  4004060h 1   MBK9...?   used by BIOS
-  4004061h 1   MBK9...?   used by BIOS
-  4004062h 1   MBK9...?   used by BIOS
+  4004024h 2   SCFG_OP    Debugger Type (R)   ;bit0-1 = (0=retail, ?=debug)
+```
+
+
+### ARM7 DSi New Shared WRAM Bank Control
+
+
+```
+  4004040h 4   MBK1       WRAM-A Slots for Bank 0,1,2,3  ;\
+  4004044h 4   MBK2       WRAM-B Slots for Bank 0,1,2,3  ; Global ARM7+ARM9
+  4004048h 4   MBK3       WRAM-B Slots for Bank 4,5,6,7  ; Slot Mapping (R)
+  400404Ch 4   MBK4       WRAM-C Slots for Bank 0,1,2,3  ; (set on ARM9 side)
+  4004050h 4   MBK5       WRAM-C Slots for Bank 4,5,6,7  ;/
+  4004054h 4   MBK6       WRAM-A Address Range           ;\Local ARM7 Side
+  4004058h 4   MBK7       WRAM-B Address Range           ; (R/W)
+  400405Ch 4   MBK8       WRAM-C Address Range           ;/
+  4004060h 4   MBK9       WRAM-A/B/C Slot Write Protect (R/W)
 ```
 
 
@@ -24297,7 +24496,7 @@ additional new/changed registers are:
   40048F0h 2   Fixed always zero?       ;(RESERVED10)
   40048F2h 2   ? Can be 0003h
   40048F4h 2   ? Can be 0770h
-  40048F6h 2   ? Firmware tests bit0 (but, always 0?)       (RESERVED4)
+  40048F6h 2   SD_WRPROTECT_2 (R)       ;Wprot for eMMC     (RESERVED4)
   40048F8h 2   Fixed always 0004h?   (nonzero, unlike SDIO) (RESERVED5)
   40048FAh 2   ? Can be 0000h..0007h (nonzero, unlike SDIO) (RESERVED6)
   40048FCh 2   ? Can be 0024h..00FFh?                       (RESERVED7)
@@ -24328,13 +24527,12 @@ additional new/changed registers are:
 
 
 ```
-  4004C00h 1   GPIO Data In               (R)  (even in DS mode)
-  4004C00h 1   GPIO Data Out              (W)
-  4004C01h 1   GPIO Data Direction        (R/W)
-  4004C02h 1   GPIO Interrupt Edge Select (R/W)
-  4004C03h 1   GPIO Interrupt Enable      (R/W)
-  4004C04h 1   GPIO? Unknown  ;\maybe GPIO related, or something else
-  4004C05h 1   GPIO? Unknown  ;/
+  4004C00h 1   GPIO Data In                (R)  (even in DS mode)
+  4004C00h 1   GPIO Data Out               (W)
+  4004C01h 1   GPIO Data Direction         (R/W)
+  4004C02h 1   GPIO Interrupt Edge Select  (R/W)
+  4004C03h 1   GPIO Interrupt Enable       (R/W)
+  4004C04h 2   GPIO_WIFI                   (R/W)
 ```
 
 
@@ -24342,8 +24540,8 @@ additional new/changed registers are:
 
 
 ```
-  4004D00h 8   CPU/Console ID Code (64bit)
-  4004D08h 2   CPU/Console ID Flag (1bit)
+  4004D00h 8   CPU/Console ID Code (64bit) (R)
+  4004D08h 2   CPU/Console ID Flag (1bit)  (R)
 ```
 
 
@@ -24352,14 +24550,6 @@ additional new/changed registers are:
 
 ```
   8030200h 2   GBA area, accessed alongsides with SDIO port [4004A30h] (bug?)
-```
-
-
-### Additional/Unknown, expected features are:
-
-
-```
-  NDS-slot-swap-bit (would allow to boot NDS carts from 2nd NDS-slot)
 ```
 
 
@@ -24374,43 +24564,46 @@ additional new/changed registers are:
 
 
 ```
-  0-1   System ROM Status (0=NITRO, 1=TWL, 2-3=?) (somehow controlled via NDS7)
+  0     ARM9 BIOS Upper 32K half of DSi BIOS (0=Enabled, 1=Disabled)
+  1     ARM9 BIOS for NDS Mode               (0=DSi BIOS, 1=NDS BIOS)
   2-15  Unused (0)
   16-31 Unspecified (0)
 ```
 
+Possible values are:
+
+```
+  00h  DSi ROM mapped at FFFFxxxxh, full 64K enabled (during bootstage 1 only)
+  01h  DSi ROM mapped at FFFFxxxxh, lower 32K only
+  03h  NDS ROM mapped at FFFFxxxxh (internal setting)
+  00h  NDS ROM mapped at FFFFxxxxh (visible setting due to SCFG_EXT.bit31=0)
+```
+
+Checking for A9ROM=01h is common for detecting if the console is a "DSi console
+running in DSi mode".
 
 
-### 4004000h - DSi7 - SCFG\_A9ROM? - ROM Control (R/W)
+
+### 4004000h - DSi7 - SCFG\_ROM - ROM Control (R/W, Set-Once)
 
 
 ```
-  0     Upper 32K half of DSi BIOS? (0=Enabled, 1=Disabled)
-  1     NDS Mode (0=DSi BIOS?, 1=NDS BIOS?)
-  2-7   Unknown/Unused
-  8-15  See Port 4004001h
-  16-31 Unknown/Unused
+  0     ARM9 BIOS Upper 32K half of DSi BIOS (0=Enabled, 1=Disabled)
+  1     ARM9 BIOS for NDS Mode               (0=DSi BIOS, 1=NDS BIOS)
+  2-7   Unused (0)
+  8     ARM7 BIOS Upper 32K half of DSi BIOS (0=Enabled, 1=Disabled)
+  9     ARM7 BIOS for NDS Mode               (0=DSi BIOS, 1=NDS BIOS)
+  10    Access to Console ID registers       (0=Enabled, 1=Disabled) (4004Dxxh)
+  11-31 Unused (0)
 ```
 
+Bits in this register can be set once (cannot be changed back from 1 to 0).
 
+Don't change bit1 while executing IRQs or SWI functions on ARM9 side.
 
-### 4004001h - DSi7 - SCFG\_A7ROM?? - ROM Control (R/W)
-
-
-```
-  0     Upper 32K half of DSi BIOS? (0=Enabled, 1=Disabled)
-  1     NDS Mode (0=DSi BIOS?, 1=NDS BIOS?)
-  2     Unknown (set before starting Cartridges or DSiware files)
-  3-7   Unknown/Unused
-```
-
-The System Menu sets 4004001h.Bit2 shortly before starting any Cartridges or
-DSiware files (except System Base Tools) (for NDS mode, after having set Bit2,
-it's also setting 4004000h.Bit1 and 4004001h.Bit1).
-
-Setting Bit1 of 4004000h/4004001h does probably map NDS BIOS ROMs (instead of
-DSi BIOS ROMs) (however, the SCFG registers are disabled in NDS mode, so one
-can't see if Bit1 is set or not).
+The System Menu sets bit10 shortly before starting any Cartridges or DSiware
+files (except System Base Tools) (for NDS mode, after having set bit10, it's
+also setting bit1 and bit9).
 
 
 
@@ -24422,7 +24615,7 @@ can't see if Bit1 is set or not).
   1     Teak DSP Block Clock   (0=Stop, 1=Run)
   2     Camera Interface Clock (0=Stop, 1=Run)
   3-6   Unused (0)
-  7     New Shared RAM Clock   (0=Stop, 1=Run)   (R?) (always set?)
+  7     New Shared RAM Clock   (0=Stop, 1=Run)               (set via ARM7) (R)
   8     Camera External Clock  (0=Disable, 1=Enable) ("outputs at 16.76MHz")
   9-15  Unused (0)
   16-31 See below (Port 4004006h, SCFG_RST)
@@ -24432,6 +24625,22 @@ Change ARM9 clock only from code within ITCM (and wait at least 8 cycles before
 accessing any non-ITCM memory).
 
 Disable the corresponding modules before stopping their clocks.
+
+
+
+### 4004004h - DSi7 - SCFG\_CLK7 (R/W)
+
+
+```
+  0     SD/MMC Clock      (0=Stop, 1=Run) (should be same as SCFG_EXT7.bit18)
+  1     Unknown/used      (0=Stop, 1=Run) (?) (maybe SDIO/wifi clock or so?)
+  2     Unknown/used      (0=Stop, 1=Run) (?)
+  3-6   Unused (0)
+  7     New Shared RAM Clock   (0=Stop, 1=Run)
+  8     Touchscreen Clock (0=Stop, 1=Run) (needed for touchscr input)
+  9-15  Unused (0)
+  16-31 See below (Port 4004006h, SCFG_JTAG)
+```
 
 
 
@@ -24445,31 +24654,15 @@ Disable the corresponding modules before stopping their clocks.
 
 
 
-### 4004004h - DSi7 - SCFG\_CLK7
-
-
-```
-  0     Related to carthdr[1B8h].bit18 (sdmmc)
-  1     Unknown/used
-  2     Unknown/used
-  3-6   Unknown/unused
-  7     Unknown/used
-  8     Unknown/used
-  9-15  Unknown/unused
-  16-31 See below (Port 4004006h, SCFG_JTAG)
-```
-
-
-
-### 4004006h - DSi7 - SCFG\_JTAG - Debugger Control (R/W)
+### 4004006h - DSi7 - SCFG\_JTAG - Debugger Control (R/W? or Write-ONCE-only?)
 
 
 ```
   0     ARM7SEL (set when debugger can do ARM7 debugging)
   1     CPU JTAG Enable
-  2-7   Unknown/unused
+  2-7   Unused (0)
   8     DSP JTAG Enable
-  9-15  Unknown/unused
+  9-15  Unused (0)
 ```
 
 Initialized as so: if SCFG\_OP=2 then SCFG\_JTAG=0102h, elseif SCFG\_OP=1 then
@@ -24481,14 +24674,14 @@ SCFG\_JTAG=0103h, entrypoint=0, endif.
 
 
 ```
-  0     Revised DMA Circuit            (0=NITRO, 1=Revised)
+  0     Revised ARM9 DMA Circuit       (0=NITRO, 1=Revised)
   1     Revised Geometry Circuit       (0=NITRO, 1=Revised)
   2     Revised Renderer Circuit       (0=NITRO, 1=Revised)
   3     Revised 2D Engine Circuit      (0=NITRO, 1=Revised)
   4     Revised Divider Circuit        (0=NITRO, 1=Revised)
   5-6   Unused (0)
   7     Revised Card Interface Circuit (0=NITRO, 1=Revised)
-  8     Extended Interrupt Circuit     (0=NITRO, 1=Extended)
+  8     Extended ARM9 Interrupts       (0=NITRO, 1=Extended)
   9-11  Unused (0)
   12    Extended LCD Circuit           (0=NITRO, 1=Extended)
   13    Extended VRAM Access           (0=NITRO, 1=Extended)
@@ -24497,11 +24690,14 @@ SCFG\_JTAG=0103h, entrypoint=0, endif.
   17    Access to Camera Interface     (0=Disable, 1=Enable) (40042xxh)
   18    Access to Teak DSP Block       (0=Disable, 1=Enable) (40043xxh)
   19-23 Unused (0)
-  24    Access to New Shared WRAM (0=Disable, 1=Enable) (3xxxxxxh or 40040xxh?)
-  25    Undocumented/Unknown (can be set)                                   (?)
+  24    Access to 2nd NDS Cart Slot   (0=Disable, 1=Enable)  (set via ARM7) (R)
+  25    Access to New Shared WRAM     (0=Disable, 1=Enable)  (set via ARM7) (R)
   26-30 Unused (0)
-  31    System Control Block Access (0=Disable, 1=Enable) (lock 4004000h-4063h)
+  31    Access to SCFG/MBK registers  (0=Disable, 1=Enable) (4004000h-4004063h)
 ```
+
+Bit24-25 are READ-ONLY (showing state set via ARM7 side). Note: Official specs
+for Bit24-25 are nonsense.
 
 Default settings seem to be:
 
@@ -24538,16 +24734,35 @@ Size/Openbus detection is conventionally done by trying to read/write a BYTE at
 
 
 ```
-  0     reportedly Fix DMA
-  1     reportedly Fix Sound DMA
-  2     reportedly Fix Sound
-  3-9   Unknown
-  10    reportedly Extend Sound DMA
-  11-17 Unknown
-  18    Access to SD/MMC registers (0=Disable, 1=Enable) (40048xxh-40049xxh)
-  19-30 Unknown
-  31    System Control Block Access (0=Disable, 1=Enable) (lock 4004000h-4063h)
+  0     Revised ARM7 DMA Circuit       (0=NITRO, 1=Revised)
+  1     Revised Sound DMA              (0=NITRO, 1=Revised)
+  2     Revised Sound                  (0=NITRO, 1=Revised)
+  3-6   Unused (0)
+  7     Revised Card Interface Circuit (0=NITRO, 1=Revised) (set via ARM9) (R)
+  8     Extended ARM7 Interrupts      (0=NITRO, 1=Extended) (4000218h)
+  9     Undocumented/Unknown      ??  (0=NITRO, 1=Extended) (?)
+  10    Extended Sound DMA        ?   (0=NITRO, 1=Extended) (?)
+  11    Undocumented/Unknown      ??  (0=NITRO, 1=Extended) (?)
+  12    Extended LCD Circuit          (0=NITRO, 1=Extended) (set via ARM9) (R)
+  13    Extended VRAM Access          (0=NITRO, 1=Extended) (set via ARM9) (R)
+  14-15 Main Memory RAM Limit    (0..1=4MB, 2=16MB, 3=32MB) (set via ARM9) (R)
+  16    Access to New DMA Controller  (0=Disable, 1=Enable) (40041xxh)
+  17    Access to AES Unit            (0=Disable, 1=Enable) (40044xxh)
+  18    Access to SD/MMC registers    (0=Disable, 1=Enable) (40048xxh-40049xxh)
+  19    Access to SDIO Wifi registers (0=Disable, 1=Enable) (4004Axxh-4004Bxxh)
+  20    Access to Microphone regs     (0=Disable, 1=Enable) (40046xxh)
+  21    Access to SNDEXCNT register   (0=Disable, 1=Enable) (40047xxh)
+  22    Access to I2C registers       (0=Disable, 1=Enable) (40045xxh)
+  23    Access to GPIO registers      (0=Disable, 1=Enable) (4004Cxxh)
+  24    Access to 2nd NDS Cart Slot   (0=Disable, 1=Enable) (40021xxh)
+  25    Access to New Shared WRAM     (0=Disable, 1=Enable) (3xxxxxxh)
+  26-27 Unused (0)
+  28    Undocumented/Unknown          (0=???, 1=Normal)     (?)
+  29-30 Unused (0)
+  31    Access to SCFG/MBK registers  (0=Disable, 1=Enable) (4004000h-4004063h)
 ```
+
+Bit7,12-15 are READ-ONLY (showing state set via ARM9 side).
 
 Default settings seem to be:
 
@@ -24560,15 +24775,13 @@ Default settings seem to be:
 
 Bits 0,1,2,10,18,31 are taken from carthdr[1B8h].
 
-ARM7 Port 4004004h.bit0 should be same setting as 4004008h.bit18 (SD/MMC).
+
+
+### 4004010h - DSi9 - SCFG\_MC - NDS Slot Memory Card Interface Status (R)
 
 
 
-### 4004010h - DSi9 - SCFG\_MC - Memory Card Interface Status (R)
-
-
-
-### 4004010h - DSi7 - SCFG\_MC - Memory Card Interface Control (R/W)
+### 4004010h - DSi7 - SCFG\_MC - NDS Slot Memory Card Interface Control (R/W)
 
 
 ```
@@ -24578,13 +24791,10 @@ ARM7 Port 4004004h.bit0 should be same setting as 4004008h.bit18 (SD/MMC).
   4     2nd NDS Slot Game Cartridge (always 1=Ejected) ;\DSi              (R)
   5     2nd NDS Slot Unknown/Undocumented (0)          ; prototype
   6-7   2nd NDS Slot Power State    (always 0=Off)     ;/relict           (R/W)
-  8-15  Unknown/Undocumented (0)
+  8-14  Unknown/Undocumented (0)
+  15    Swap NDS Slots (0=Normal, 1=Swap)                                 (R/W)
   16-31 ARM7: See Port 4004012h, ARM9: Unspecified (0)
 ```
-
-NDS-Slot related. Bit3 (and maybe Bit2) are probably R/W on ARM7 side (though
-the register is disabled on ARM7 side in cooking coach exploit, so R/W isn't
-possible in practice).
 
 Note: Additionally, the NDS slot Reset pin can be toggled (via ROMCTRL.Bit29;
 that bit is writeable on ARM7 side on DSi; which wasn't supported on NDS).
@@ -24598,64 +24808,77 @@ Power state values:
   3=Request Power off (will be AUTOMATICALLY changed to state=0)
 ```
 
-cart\_power\_on:
+cart\_power\_on: (official/insane 1+10+27+120ms, but also works with 1+1+0+1ms)
 
 ```
   wait until state<>3                   ;wait if pwr off busy?
   exit if state<>0                      ;exit if already on?
-  wait 1ms, then set state=1            ;prepare pwr on?       or want RESET ?
-  wait 10ms, then set state=2           ;apply pwr on?
-  wait 27ms, then set ROMCTRL=20000000h ;reset cart?  or rather RELEASE reset?
-  wait 120ms                            ;more insane delay?
+  wait 1ms, then set state=1            ;prepare pwr on? or want RESET ?
+  wait 10ms, then set state=2           ;apply pwr on?         ;better: 1ms
+  wait 27ms, then set ROMCTRL=20000000h ;release reset signal  ;better: 0ms
+  wait 120ms                            ;more insane delay?    ;better: 1ms
 ```
 
-cart\_power\_off:
+cart\_power\_off: (with unfortunate 153ms wait)
 
 ```
   wait until state<>3                   ;wait if pwr off busy?
   exit if state<>2                      ;exit if already off?
   set state=3                           ;request pwr off?
-  wait until state=0                    ;wait until pwr off?
+  wait until state=0                    ;wait until pwr off <-- SLOW: 153ms!!!
 ```
 
 Power Off is also done automatically by hardware when ejecting the cartridge.
 
+Power switching does reset ROMCTRL.bit29=0 (reset signal).
+
+Bit15 swaps ports 40001A0h-40001BFh and 4100010h with 40021A0h-40021BFh? and
+4102010h?, the primary purpose is mapping the 2nd Slot to the 4xx0xxxh
+registers (for running carts in 2nd slot in NDS mode; which of course doesn't
+work because the 2nd slot connector isn't installed), theoretically it would
+also allow to access the 1st slot via 4xx2xxxh registers (however, that doesn't
+seem to be fully implemented, cart reading does merely reply FFh's (cart
+inserted) or 00h's (no cart)). 4102010h can be read by manually polling DRQ in
+40021A4h.bit23, and probably by NDMA (but not by old DMA which has no known DRQ
+mode for 2nd slot).
 
 
-### 4004012h - DSi7 - SCFG\_1988H
+
+### 4004012h - DSi7 - SCFG\_1988H (R/W)
 
 
 
-### 4004014h - DSi7 - SCFG\_264CH
+### 4004014h - DSi7 - SCFG\_264CH (R/W)
 
 
 ```
-  0-15  Unknown
+  0-15  Unknown (R/W)
 ```
 
-Usually set to 1988h/264Ch for SCFG\_1988H/264CH accordingly. Maybe some clock
-dividers?
+Usually set to 1988h/264Ch for SCFG\_1988H/264CH accordingly (when not doing so,
+the eject bit in SCFG\_MC is always 1, and cart access fails). Maybe pin
+directions, clock dividers, power-on/off timers, waitstates, whatever?
 
 
 
-### 4004020h - DSi7 - SCFG\_WL - Wireless Disable (R/W?)
+### 4004020h - DSi7 - SCFG\_WL - Wireless Disable (R/W)
 
 
 ```
   0     OFFB, Related to Wifi Enable flag from TWLCFGn.dat files?
-  1-15  Unknown/unused
+  1-15  Unknown/unused (0)
 ```
 
 
 
-### 4004024h - DSi7 - SCFG\_OP - Debugger Type (R?)
+### 4004024h - DSi7 - SCFG\_OP - Debugger Type (R)
 
 
 ```
   0-1   Debug Hardware Type (0=Retail, other=debug variants)
-  2-3   Unknown/unused
+  2-3   Unknown/unused (0)
   4     Unknown (maybe used, since it isn't masked & copied to RAM)
-  5-15  Unknown/unused
+  5-15  Unknown/unused (0)
 ```
 
 Changing this register would theoretically allow to install the debug firmware
@@ -24684,6 +24907,7 @@ and "Nintendo Zone" system utilities, and by the "Cooking Coach" cartridge.
 - [DSi Teak I/O Ports (on Teak Side)](#dsiteakioportsonteakside)
 - [DSi Teak CPU Registers](#dsiteakcpuregisters)
 - [DSi Teak CPU Control/Status Registers](#dsiteakcpucontrolstatusregisters)
+- [DSi Teak CPU Address Config/Step/Modulo](#dsiteakcpuaddressconfigstepmodulo)
 - [DSi TeakLite II Instruction Set Encoding](#dsiteakliteiiinstructionsetencoding)
 - [DSi TeakLite II Operand Encoding](#dsiteakliteiioperandencoding)
 
@@ -24763,11 +24987,11 @@ code in New Shared WRAM, and then map that memory to Teak side via MBK
 registers:
 
 - [DSi New Shared WRAM (for ARM7, ARM9, DSP)](#dsinewsharedwramforarm7arm9dsp)
-At Teak side, 16bit is the smallest addressable unit (so there's "byte-order"
-on Teak side - however, 16bit values should be stored in little endian format
-on ARM side).
+At Teak side, 16bit is the smallest addressable unit (so there's no
+"byte-order" on Teak side - however, 16bit values should be stored in little
+endian format on ARM side).
 
-Confusingly, the "movpd" opcode is doing a 32bit read with two 16bit words
+Confusingly, the "movpdw" opcode is doing a 32bit read with two 16bit words
 ordered in big-endian (and, on ARM side, byte-fractions ordered in
 little-endian). There are a few more opcodes that can read/write 32bits, with
 optional address increment/decrement for the 2nd word, so endianness is
@@ -25576,18 +25800,19 @@ teak exception vectors
 
 
 
-### 36bit Accumulators: a0,a1,b0,b1
+### 36bit/40bit Accumulators: a0,a1,b0,b1
 
 
 ```
-  a0e:a0h:a0l (4:16:16 bits) = a0 (36bit)
-  a1e:a1h:a1l (4:16:16 bits) = a1 (36bit)
-  b0e:b0h:b0l (4:16:16 bits) = b0 (36bit)
-  b1e:b1h:b1l (4:16:16 bits) = b1 (36bit)
+  a0e:a0h:a0l (4:16:16 bits) = a0 (36bit)    ;TL2: 40bit (8:16:16)
+  a1e:a1h:a1l (4:16:16 bits) = a1 (36bit)    ;TL2: 40bit (8:16:16)
+  b0e:b0h:b0l (4:16:16 bits) = b0 (36bit)    ;TL2: 40bit (8:16:16)
+  b1e:b1h:b1l (4:16:16 bits) = b1 (36bit)    ;TL2: 40bit (8:16:16)
 ```
 
-The upper 4bit (a0e,a1e,b0e,b1e) can be accessed via push/pop, and two of them
-(a0e,a1e) can be also found in status registers (st0,st1).
+4bit snippets (bit32-35) of a0/a1 can be found in status registers (st0,st1).
+On TL2, the whole upper 8bit (bit32-39) of a0/a1/b0/b1 can be additionally
+accessed via push/pop (a0e,a1e,b0e,b1e).
 
 
 
@@ -25595,28 +25820,15 @@ The upper 4bit (a0e,a1e,b0e,b1e) can be accessed via push/pop, and two of them
 
 
 ```
-  r0     ;TL  ;16bit ;\
-  r1     ;TL  ;16bit ;
-  r2     ;TL  ;16bit ; old TL1 registers
-  r3     ;TL  ;16bit ;
-  r4     ;TL  ;16bit ;
-  r5     ;TL  ;16bit ;/
-  r6     ;TL2 ;16bit ;<-- new TL2 register
-  r7     ;TL  ;16bit ;<-- aka rb (with optional immediate, MemR7Imm)
+  r0     ;TL  ;16bit  ;\
+  r1     ;TL  ;16bit  ;
+  r2     ;TL  ;16bit  ; old TL1 registers
+  r3     ;TL  ;16bit  ;
+  r4     ;TL  ;16bit  ;
+  r5     ;TL  ;16bit  ;/
+  r6     ;TL2 ;16bit  ;<-- new TL2 register
+  r7     ;TL  ;16bit  ;<-- aka rb (with optional immediate, MemR7Imm)
 ```
-
-
-
-### cfgi/cfgj - Step and Mod I/J
-
-
-```
-  0-6   stepi/stepj   (see "load stepi/stepj")  ;step "Rn+s" ?
-  7-15  modi/modj     (see "load modi/modj")
-```
-
-The modulos can be enabled in Control/Status registers. Some opcodes do also
-allow to disable modulos via "dmod" suffix.
 
 
 
@@ -25624,13 +25836,13 @@ allow to disable modulos via "dmod" suffix.
 
 
 ```
-  x0     ;TL  ;16bit ;-
-  y0     ;TL  ;16bit ;-
-  x1     ;TL2 ;16bit ;-
-  y1     ;TL2 ;16bit ;-
-  p0     ;TL  ;32bit!;\Px
-  p1     ;TL2 ;32bit!;/
-  p0h    ;TL  ;16bit ; ;<-- aka ph ;<-- called "p0" (aka "p") in "RegisterP0"
+  x0     ;TL  ;16bit  ;-
+  y0     ;TL  ;16bit  ;-
+  x1     ;TL2 ;16bit  ;-
+  y1     ;TL2 ;16bit  ;-
+  p0     ;TL  ;33bit! ;\Px   ;TL2: 33bit p0e:p0 ?  ;TL1: 32bit?
+  p1     ;TL2 ;33bit! ;/     ;TL2: 33bit p1e:p1 ?  ;TL1: N/A
+  p0h    ;TL  ;16bit  ; ;<-- aka ph ;<-- called "p0" (aka "p") in "RegisterP0"
 ```
 
 The "load ps" and "load ps01" opcodes allow to specify a multiply shifter, this
@@ -25651,50 +25863,57 @@ is useful when dealing with signed/unsigned parameters:
 
 
 ```
-  pc     ;TL  ;18bit! ;program counter
-  sp     ;TL  ;16bit  ;stack pointer (decreasing on push/call)
-  sv     ;TL  ;16bit  ;shift value (negative=right) (for shift-by-register)
-  mixp   ;TL  ;16bit  ;related to min/max/mind/maxd
-  lc     ;TL  ;16bit  ;Loop Counter (of block repeat)
-  repc   ;TL  ;16bit  ;Repeat Counter (for "rep" opcode)
-  dvm    ;TL  ;16bit  ;Data Value Match (data breakpoints) (and for trap)
+  pc     ;TL  ;18bit! ;-program counter (TL2: 18bit, TL1: 16bit)
+  sp     ;TL  ;16bit  ;-stack pointer (decreasing on push/call)
+  sv     ;TL  ;16bit  ;-shift value (negative=right) (for shift-by-register)
+  mixp   ;TL  ;16bit  ;-related to min/max/mind/maxd
+  lc     ;TL  ;16bit  ;-Loop Counter (of block repeat)
+  repc   ;TL  ;16bit  ;-Repeat Counter (for "rep" opcode)
+  dvm    ;TL  ;16bit  ;-Data Value Match (data breakpoints) (and for trap)
 ```
 
 
 
-### TeakLiteII Misc: ar0,ar1,arp0,arp1,arp2,arp3,stepi0,stepj0,vtr0,vtr1,prpage
+### TeakLiteII Misc: vtr0,vtr1,prpage
 
 
 ```
-  ar0    ;TL2 16bit ;\maybe addresses... or scaling factors?
-  ar1    ;TL2 16bit ;/
-  arp0   ;TL2 12+2bit ;\
-  arp1   ;TL2 12+2bit ; maybe addresses... or scaling factors?
-  arp2   ;TL2 12+2bit ; (bit9-11,bit13-14 used) (bit12,15 always 0)
-  arp3   ;TL2 12+2bit ;/
-  stepi0 ;TL2 16bit ;\more steps, probably for "modr" with "+s0" (stepII2D2S0)
-  stepj0 ;TL2 16bit ;/
-  vtr0   ;TL2 ?     ;\related to vtrshr,vtrmov,vtrclr?
-  vtr1   ;TL2 ?     ;/
-  prpage ;TL2 4bit  ;-??? (bit0-3 used/dangerous, bit4-15 always 0)
+  vtr0   ;TL2 16bit   ;\related to vtrshr,vtrmov,vtrclr
+  vtr1   ;TL2 16bit   ;/(saved C/C1 carry flags for Viterby decoding)
+  prpage ;TL2 4bit    ;-??? (bit0-3 used/dangerous, bit4-15 always 0)
 ```
-
-ar0,ar1,arp0,arp1,arp2,arp3,stepi0,stepj0 are occassionaly changed within maths
-functions, so they are probably used as (implied) operands for some
-multi-function opcodes (maybe as address steps, or multiply/addition
-factors/offsets).
 
 vtr0,vtr1 are related to vtrshr,vtrmov,vtrclr opcodes (and multi-function
-opcodes with "vtrshr" suffix), however, the purpose is unknown.
+opcodes with "vtrshr" suffix).
 
 prpage isn't used by existing DSi code, setting the four write-able bits to
-nonzero seems screw-up opcode fetching, causing code to crash (unless one of
+nonzero seems to screw-up opcode fetching, causing code to crash (unless one of
 the next 1-2 prefetched opcodes restores prpage=0, which causes opcode fetching
 to recover; after skipping some following prefetched opcodes, until prpage=0 is
 applied). Maybe it's related to code access rights or waitstates... it doesn't
 seem to be related to upper 2bit of the 18bit program counter (prpage is zero
 even when executing code above address 0FFFFh).
 
+
+
+### Old Control/Status registers (TeakLite): st0,st1,st2,icr
+
+
+
+### New Control/Status registers (TeakLiteII): stt0,stt1,stt2,mod0,mod1,mod2,mod3
+
+
+- [DSi Teak CPU Control/Status Registers](#dsiteakcpucontrolstatusregisters)
+
+
+### Address Config (TeakLiteII): ar0,ar1,arp0,arp1,arp2,arp3
+
+
+
+### Address Step/Modulo: cfgi,cfgj (and TL2 stepi0,stepj0)
+
+
+- [DSi Teak CPU Address Config/Step/Modulo](#dsiteakcpuaddressconfigstepmodulo)
 
 
 ### User-defined registers (optional off-core): ext0,ext1,ext2,ext3
@@ -25718,16 +25937,6 @@ registers, and hardware is solely accessed via memory mapped I/O).
 
 
 
-### Old Control/Status registers (TeakLite): st0,st1,st2,icr
-
-
-
-### New Control/Status registers (TeakLiteII): stt0,stt1,stt2,mod0,mod1,mod2,mod3
-
-
-- [DSi Teak CPU Control/Status Registers](#dsiteakcpucontrolstatusregisters)
-
-
 ### Bitfields for Control/Status registers and cfgi/cfgj registers
 
 
@@ -25735,7 +25944,7 @@ registers, and hardware is solely accessed via memory mapped I/O).
   page   ;TL  ;8bit "load" st1.bit0-7   (page for MemImm8)    ;aka "lpg"
   ps     ;TL  ;2bit "load" st1.bit10-11 (product shifter for multiply?)
   ps01   ;TL2 ;4bit "load" mod0...?     (maybe separate "ps" for p0 and p1 ?)
-  movpd  ;TL2 ;2bit "load" stt2.bit6-7  (page for ProgMem)
+  movpd  ;TL2 ;2bit "load" stt2.bit6-7  (page for reading DATA from ProgMem)
   modi   ;TL  ;9bit "load" cfgi.bit7-15 =imm9
   modj   ;TL  ;9bit "load" cfgj.bit7-15 =imm9
   stepi  ;TL  ;7bit "load" cfgi.bit0-6  =imm7
@@ -25763,7 +25972,7 @@ switching enabled.
   r4 <--> r4b                           ; BankFlags (banke)
   r7 <--> r7b     ;TL2                  ;
   cfgi <--> cfgib                       ;
-  cfgj <--> cfgij ;TL2                  ;/
+  cfgj <--> cfgjb ;TL2                  ;/
   Ar,Arp <--> ?   ;TL2                  ;-? (bankr and/or cntx)
 ```
 
@@ -25876,17 +26085,22 @@ above rules (eg. the new "r6" register should act as old "r0-r5"), but other
 new opcodes might do this or that.
 
 
+```
+ __________________________ Old registers (TeakLite) __________________________
+```
+
+
 
 ### st0 - Old TL1 Status/Control Register st0
 
 
 ```
-  0     SAR  R/W Saturation Mode  (0=Off, 1=Saturate "Ax to data") ;mod0.0
+  0     SAT  R/W Saturation Mode  (0=Off, 1=Saturate "Ax to data") ;mod0.0
   1     IE   R/W Interrupt Enable (0=Disable, 1=Enable) ;dint/eint ;mod3.7
   2     IM0  R/W Interrupt INT0 Mask (0=Disable, 1=Enable if IE=1) ;mod3.8
   3     IM1  R/W Interrupt INT1 Mask (0=Disable, 1=Enable if IE=1) ;mod3.9
   4     R    R/W Flag: rN is Zero   ;see Cond nr                   ;stt1.4
-  5     L    R/W Flag: Limit        ;see Cond l                    ;stt0.0+1
+  5     L    R/W Flag: Limit        ;see Cond l      ;L=(LM or VL) ;stt0.0+1
   6     E    R/W Flag: Extension    ;see Cond e                    ;stt0.2
   7     C    R/W Flag: Carry        ;see Cond c                    ;stt0.3
   8     V    R/W Flag: Overflow     ;see Cond v                    ;stt0.4
@@ -25904,7 +26118,7 @@ new opcodes might do this or that.
 ```
   0-7   PAGE R/W Data Memory Page (for MemImm8) (see "load page")  ;mod1.0-7
   8-9   -    -   Reserved (read: always set)                       ;-
-  10-11 PS   R/W Product Shifter Control (see "load ps")(multiply?);mod0.2-3
+  10-11 PS   R/W Product Shifter for P0 (see "load ps")(multiply?) ;mod0.10-11
                    (0=No Shift, 1=SHR1, 2=SHL1, 3=SHL2)
   12-15 a1e  R/W Accumulator 1 Extension Bits                      ;a1.32-35
 ```
@@ -25915,13 +26129,14 @@ new opcodes might do this or that.
 
 
 ```
-  0-5   Mn   R/W Modulo Enable M0..M5  ;related to R0..R5          ;mod2.0-5
+  0-3   MDn  R/W Enable cfgi.modi modulo for R0..R3 (0=Off, 1=On)  ;mod2.0-3
+  4-5   MDn  R/W Enable cfgj.modj modulo for R4..R5 (0=Off, 1=On)  ;mod2.4-5
   6     IM2  R/W Interrupt INT2 Mask (0=Disable, 1=Enable if IE=1) ;mod3.10
   7     S    R/W Shift Mode (0=Arithmetic, 1=Logic)                ;mod0.7
   8     OU0  R/W OUSER0 User Output Pin                            ;mod0.8
   9     OU1  R/W OUSER1 User Output Pin                            ;mod0.9
-  10    IU0  R   IUSER0 User Input Pin (zero)  ;see Cond iu0,niu0  ;??
-  11    IU1  R   IUSER1 User Input Pin (zero)  ;see Cond iu1       ;??
+  10    IU0  R   IUSER0 User Input Pin (zero)  ;see Cond iu0,niu0  ;stt1.??
+  11    IU1  R   IUSER1 User Input Pin (zero)  ;see Cond iu1       ;stt1.??
   12    -    -   Reserved (read: always set)                       ;-
   13    IP2  R   Interrupt Pending INT2 (0=No, 1=IRQ)              ;stt2.2
   14    IP0  R   Interrupt Pending INT0 (0=No, 1=IRQ)              ;stt2.0
@@ -25944,20 +26159,26 @@ new opcodes might do this or that.
 ```
 
 
+```
+ _________________________ New registers (TeakLiteII) _________________________
+```
+
+
 
 ### stt0 - New TL2 Status/Control Register stt0 (CPU Flags)
 
 
 ```
-  0+1   L    R/W Flag: Limit        ;see Cond l             ;st0.5  2x??
-  2     E    R/W Flag: Extension    ;see Cond e             ;st0.6
-  3     C    R/W Flag: Carry        ;see Cond c             ;st0.7
-  4     V    R/W Flag: Overflow     ;see Cond v             ;st0.8
-  5     N    R/W Flag: Normalized   ;see Cond nn            ;st0.9
-  6     M    R/W Flag: Minus        ;see Cond gt,ge,lt,le   ;st0.10
-  7     Z    R/W Flag: Zero         ;see Cond eq,neq,gt,le  ;st0.11
+  0     LM   R/W Flag: Limit, set if saturation has/had occured    ;st0.5
+  1     VL   R/W Flag: LatchedV, set if overflow has/had occurred  ;st0.5, too
+  2     E    R/W Flag: Extension    ;see Cond e                    ;st0.6
+  3     C    R/W Flag: Carry        ;see Cond c                    ;st0.7
+  4     V    R/W Flag: Overflow     ;see Cond v                    ;st0.8
+  5     N    R/W Flag: Normalized   ;see Cond nn                   ;st0.9
+  6     M    R/W Flag: Minus        ;see Cond gt,ge,lt,le          ;st0.10
+  7     Z    R/W Flag: Zero         ;see Cond eq,neq,gt,le         ;st0.11
   8-10  -    -   Unknown (reads as zero)
-  11    ?    R/W Unknown (R/W)
+  11    C1   R/W Flag: Carry1 (2nd carry, for dual-operation opcodes)
   12-15 -    -   Unknown (reads as zero)
 ```
 
@@ -25969,10 +26190,13 @@ new opcodes might do this or that.
 ```
   0-3   -    -   Unknown (reads as zero)
   4     R    R/W Flag: rN is Zero   ;see Cond nr                   ;st0.4
-  5-13  -    -   Unknown (reads as zero)
-  14    ?    R/W Unknown (R/W)
-  15    ?    R/W Unknown (R/W)
+  5-13  -    -   Unknown (reads as zero)  (IU1 and IU0 should be here!)
+  14    P0E  R/W Upper bit of 33bit P0 register  ;\shifted-in on        ;p0.32
+  15    P1E  R/W Upper bit of 33bit P1 register  ;/arith right shifts   ;p1.32
 ```
+
+Note: bit14/bit15 are automatically sign-expanded when moving data to
+p0/p0h/p1.
 
 
 
@@ -25983,9 +26207,9 @@ new opcodes might do this or that.
   0     IP0  R   Interrupt Pending INT0 (0=No, 1=IRQ)              ;st2.14
   1     IP1  R   Interrupt Pending INT1 (0=No, 1=IRQ)              ;st2.15
   2     IP2  R   Interrupt Pending INT2 (0=No, 1=IRQ)              ;st2.13
-  3     VIP  R   Interrupt Pending VINT                            ;-
+  3     IPV  R   Interrupt Pending VINT                            ;-
   4-5   -    -   Unknown (reads as zero)                           ;-
-  6-7  movpd R/W Program Memory Bank (for ProgMemRn/ProgMemAxl) ("load movpd")
+  6-7  PCMhi R/W Program Memory Bank (for ProgMemRn/ProgMemAxl) ("load movpd")
   8-11  -    -   Unknown (reads as zero)                           ;-
   12-14 BCn  R   Block repeat nest. counter ;see "bkrep"           ;icr.5-7
   15    LP   R   InLoop (when inside one or more "bkrep" loops)    ;icr.4
@@ -25997,18 +26221,22 @@ new opcodes might do this or that.
 
 
 ```
-  0     SAR  R/W Saturation Mode (0=Off, 1=Saturate "Ax to data")  ;st0.0
-  1     ?    R/W Unknown (R/W)
-  2-3   PS   (R) Product Shifter Control (see "load ps")(multiply?);st1.10-11 ?
+  0     SAT  R/W Saturation Mode (0=Off, 1=Saturate "Ax to data"?) ;st0.0
+  1     SATA R/W Saturation Mode on store (0=Off, 1="(Ax op data) to Ax"?)
+  2     ?    R   Unknown (reads as one)
+  3     -    -   Unknown (reads as zero)
   4     -    -   Unknown (reads as zero)
-  5     ?    R/W Unknown (R/W)
-  6     ?    R/W Unknown (R/W)
+  5-6   HWM  R/W Halfword Multiply    ... Modify y0 (and y1?)
+                  0=read y0/y1 directly (full 16bit words)
+                  1=Takes y0>>8 and y1>>8 (logic shift)
+                  2=Takes y0&0xFF and y1&0xFF
+                  3=Takes y0>>8 and y1&&0xFF
   7     S    R/W Shift Mode (0=Arithmetic, 1=Logic)                ;st2.7
   8     OU0  R/W OUSER0 User Output Pin                            ;st2.8
   9     OU1  R/W OUSER1 User Output Pin                            ;st2.9
-  10-11 PS'  R/W ...another shifter      (see "load ps01")         ;st1.10-11 !
+  10-11 PS0  R/W Product Shifter for P0 (see "load ps")(multiply?) ;st1.10-11
   12    -    -   Unknown (reads as zero)
-  13-14 PS'' R/W ...another shifter      (see "load ps01")
+  13-14 PS1  R/W Product Shifter for P1 (see "load ps")(multiply?)
   15    -    -   Unknown (reads as zero)
 ```
 
@@ -26020,7 +26248,11 @@ new opcodes might do this or that.
 ```
   0-7   PAGE R/W Data Memory Page (for MemImm8) (see "load page")  ;st1.0-7
   8-11  -    -   Unknown (reads as zero)
-  12-15 ?    R/W Unknown (R/W)
+  12   STP16 R/W banke opcode (0=exchange cfgi/cfgj, 1=cfgi/cfgj+stepi0/stepj0)
+                  1=use stepi0/j0 instead of stepi/j for stepping Rn registers
+  13   CMD   R/W Change Modulo mode (0=New TL2 style, 1=TL1 style)
+  14   EPI   R/W Unknown (1=Set R3=0 after any "modr R3" or "access[R3]"?)
+  15   EPJ   R/W Unknown (1=Set R7=0 after any "modr R7" or "access[R7]"?)
 ```
 
 
@@ -26029,11 +26261,18 @@ new opcodes might do this or that.
 
 
 ```
-  0-5   Mn   R/W Modulo Enable M0..M5  ;related to R0..R5          ;st2.0-5
-  6-7   M?   R/W ... probably M6..M7
-  8-9   ?    ?   --WEIRD EFFECT-- (1=causes lots of other registers to change)
-  10-15 ?    R/W Unknown (R/W)
+  0-3   MDn  R/W Enable cfgi.modi modulo for R0..R3 (0=Off, 1=On)  ;st2.0-3
+  4-5   MDn  R/W Enable cfgj.modj modulo for R4..R5 (0=Off, 1=On)  ;st2.4-5
+  6-7   MDn  R/W Enable cfgj.modj modulo for R6..R7 (0=Off, 1=On) ;TL2 only
+  8-11  BRn  R/W Step +s for R0..R3 (0=cfgi.stepi, 1=stepi0)
+  12-15 BRn  R/W Step +s for R4..R7 (0=cfgj.stepi, 1=stepj0)
 ```
+
+XXX... bit8-9 seem to mess up my code (that uses r0/r1, but only with +0 step).
+
+"When BRn=1, memory access through Rn will use the bit-reversed value of Rn as
+the address. Note that this also implies that stepi0/j0 will be used,
+regardless of what STP16 says."
 
 
 
@@ -26045,19 +26284,105 @@ new opcodes might do this or that.
   1     IC0  R/W INT0 Context switching enable (0=Off, 1=On)       ;icr.1
   2     IC1  R/W INT1 Context switching enable (0=Off, 1=On)       ;icr.2
   3     IC2  R/W INT2 Context switching enable (0=Off, 1=On)       ;icr.3
-  4     ?    R/W Unknown (R/W) (maybe VINT Context switching ?)
-  5     ?    R/W Unknown (R/W)
-  6     ?    ?   ---DANGER BIT--- (1=hangs/crashes when set)
+  4     OU2  R/W Unknown (R/W)
+  5     OU3  R/W Unknown (R/W)
+  6     OU4  ?   ---DANGER BIT--- (1=hangs/crashes when set)
   7     IE   R/W Interrupt Enable (0=Disable, 1=Enable) ;dint/eint ;st0.1
   8     IM0  R/W Interrupt INT0 Mask (0=Disable, 1=Enable if IE=1) ;st0.2
   9     IM1  R/W Interrupt INT1 Mask (0=Disable, 1=Enable if IE=1) ;st0.3
   10    IM2  R/W Interrupt INT2 Mask (0=Disable, 1=Enable if IE=1) ;st2.6
-  11    ?    R/W Unknown (R/W) (maybe VINT Mask ?)
+  11    IMV  R/W Interrupt VINT Mask (0=Disable, 1=Enable if IE=1?)
   12    -    -   Unknown (reads as zero)
-  13    ?    R/W Unknown (R/W)
-  14    ?    ?   ---DANGER BIT--- (1=does wrong jumps when set)
-  15    ?    R/W Unknown (R/W)
+  13   CCNTA R/W Unknown (R/W)
+  14    CPC  R/W Stack word order for PC on call/ret (0=Normal, 1=Reversed)
+  15    CREP R/W Unknown (R/W)
 ```
+
+Bit14=0: push lowword then push highword on call; pop highword then pop lowword
+on ret.
+
+
+
+
+## <a name="dsiteakcpuaddressconfigstepmodulo"></a>  DSi Teak CPU Address Config/Step/Modulo
+
+
+
+```
+ _______________________________ Address Config _______________________________
+```
+
+
+
+### ar0/ar1
+
+
+```
+  0-2   R/W PM1/PM3 Post Modify Step    (0..7 = +0,+1,-1,+s,+2,-2,+2,-2)
+  3-4   R/W CS1/CS3 Offset              (0..3 = +0,+1,-1,-1)
+  5-7   R/W PM0/PM2 Post Modify Step    (0..7 = +0,+1,-1,+s,+2,-2,+2,-2)
+  8-9   R/W CS0/CS2 Offset              (0..3 = +0,+1,-1,-1)
+  10-12 R/W RN1/RN3 Register            (0..7 = R0..R7)
+  13-15 R/W RN0/RN2 Register            (0..7 = R0..R7)
+```
+
+
+
+### arp0/arp1/arp2/arp3
+
+
+```
+  0-2   R/W PIn     Post Modify Step I  (0..7 = +0,+1,-1,+s,+2,-2,+2,-2)
+  3-4   R/W CIn     Offset I            (0..3 = +0,+1,-1,-1)
+  5-7   R/W PJn     Post Modify Step J  (0..7 = +0,+1,-1,+s,+2,-2,+2,-2)
+  8-9   R/W CJn     Offset J            (0..3 = +0,+1,-1,-1)
+  10-11 R/W RIn     Register I          (0..3 = R0..R3)
+  12    -   -       Unused              (always zero)
+  13-14 R/W RJn     Register J          (0..3 = R4..R7)
+  15    -   -       Unused              (always zero)
+```
+
+
+```
+ ________________________________ Step/Modulo ________________________________
+```
+
+
+
+### cfgi - Step and Mod I (for R0..R3)
+
+
+
+### cfgj - Step and Mod J (for R4..R7)
+
+
+```
+  0-6   stepi/stepj  (7bit) (see "load stepi/stepj")  ;step "Rn+s" ?
+  7-15  modi/modj    (9bit) (see "load modi/modj")
+```
+
+The modulos can be enabled in Control/Status registers. Some opcodes do also
+allow to disable modulos via "dmod" suffix.
+
+On TL2, the above 7bit stepi/stepj can be optionally replaced by new 16bit
+stepi0/stepj0 registers (via flags in mod2 register).
+
+
+
+### stepi0 ;TL2 16bit
+
+
+
+### stepj0 ;TL2 16bit
+
+
+```
+  0-16  stepi0/stepj0
+```
+
+more steps, probably for "modr" with "+s0" (stepII2D2S0)
+
+and for STP16 and BRn?
 
 
 
@@ -26821,13 +27146,13 @@ opcode would be mapped at 6100h-61FFh, 6900h-69FFh, 7100h-71FFh, 7900h-79FFh).
   9000h TL  tstb NoReverse, Implied Not Register@0, Imm4bitno@8
   9018h TL2 tstb NoReverse, Implied Not r6, Imm4bitno@8  ;override tstb a0,Imm4
   0028h TL2 tstb NoReverse, Implied Not SttMod@0, Imm4bitno@16, Unused12@20
-  5F45h TL2 vtrclr vtr0
-  5F47h TL2 vtrclr vtr0, vtr1
-  5F46h TL2 vtrclr vtr1
-  D383h TL2 vtrmov Axl@4
-  D29Ah TL2 vtrmov vtr0, Axl@0
-  D69Ah TL2 vtrmov vtr1, Axl@0
-  D781h TL2 vtrshr
+  5F45h TL2 vtrclr vtr0         ;vtr0=0           ;for Viterbi decoding...
+  5F47h TL2 vtrclr vtr0, vtr1   ;vtr0=0, vtr1=0   ;(saved C/C1 carry flags)
+  5F46h TL2 vtrclr vtr1         ;vtr1=0
+  D383h TL2 vtrmov Axl@4        ;Axl=(vtr1 and FF00h)+(vtr0/100h)
+  D29Ah TL2 vtrmov vtr0, Axl@0  ;Axl=vtr0
+  D69Ah TL2 vtrmov vtr1, Axl@0  ;Axl=vtr1
+  D781h TL2 vtrshr              ;vtr0=vtr0/2+C*8000h, vtr1=vtr1/2+C1*8000h
   D4FAh TL  xor  MemImm16@16, Ax@8
   A400h TL  xor  MemImm8@0, Ax@8
   84C0h TL  xor  Imm16@16, Ax@8
@@ -27025,46 +27350,48 @@ but it's rather unclear which one, maybe stepi is used for r0..r3, and stepj
 for r4..r7, or vice versa... or maybe it depends on each opcode (particulary
 opcodes that allow to use "Rn" (r0..r7) might use the same step in ALL cases).
 
-- offsZI:
-  - 0: ''         ;Z  (zero)
-  - 1: '+'        ;I  (increment)
-- offsI:
-  - 0: '+'        ;I  (increment)
-- offsZIDZ:
-  - 0: ''         ;Z  (zero)
-  - 1: '+'        ;I  (increment)
-  - 2: '-'        ;D  (decrement)
-  - 3: ''         ;Z  (zero)
-- stepZIDS:
-  - 0: ''         ;Z  (zero)
-  - 1: '+1'       ;I  (increment)
-  - 2: '-1'       ;D  (decrement)
-  - 3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
-- modrstepZIDS:
-  - 0: ''         ;Z  (zero)
-  - 1: '+'        ;I  (increment)
-  - 2: '-'        ;D  (decrement)
-  - 3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
-- stepII2D2S:
-  - 0: '+1'       ;I  (increment)
-  - 1: '+2'       ;I2 (increment twice)
-  - 2: '-2'       ;D2 (decrement twice)
-  - 3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
-- stepD2S:
-  - 0: '-2'       ;D2 (decrement twice)
-  - 1: '+s'     ' ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
-- modrstepII2D2S0:
-  - 0: '+'        ;I  (increment)
-  - 1: '+2'       ;I2 (increment twice)
-  - 2: '-2'       ;D2 (decrement twice)
-  - 3: '+s0'      ;S0 (add step0 ?)        ;XXX ??  see "stepi0" and "stepj0"
-- stepII2:
-  - 0: '+1'       ;I  (increment)
-  - 1: '+2'       ;I2 (increment twice)
-- modrstepI2:
-  - 0: '+2'       ;I2 (increment twice)
-- modrstepD2:
-  - 0: '-2'       ;D2 (decrement twice)
+```
+ offsZI:                           ;maybe offsAr01 ?
+  0: ''         ;Z  (zero)
+  1: '+'        ;I  (increment)
+ offsI:
+  0: '+'        ;I  (increment)
+ offsZIDZ:                         ;aka offsAr0123
+  0: ''         ;Z  (zero)
+  1: '+'        ;I  (increment)
+  2: '-'        ;D  (decrement)
+  3: ''         ;Z  (zero)
+ stepZIDS:
+  0: ''         ;Z  (zero)
+  1: '+1'       ;I  (increment)
+  2: '-1'       ;D  (decrement)
+  3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
+ modrstepZIDS:
+  0: ''         ;Z  (zero)
+  1: '+'        ;I  (increment)
+  2: '-'        ;D  (decrement)
+  3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
+ stepII2D2S:                      ;aka stepAr0123@
+  0: '+1'       ;I  (increment)
+  1: '+2'       ;I2 (increment twice)
+  2: '-2'       ;D2 (decrement twice)
+  3: '+s'       ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
+ stepD2S:
+  0: '-2'       ;D2 (decrement twice)
+  1: '+s'     ' ;S  (add step)           ;XXX ?   see "stepi" and "stepj"
+ modrstepII2D2S0:
+  0: '+'        ;I  (increment)
+  1: '+2'       ;I2 (increment twice)
+  2: '-2'       ;D2 (decrement twice)
+  3: '+s0'      ;S0 (add step0 ?)        ;XXX ??  see "stepi0" and "stepj0"
+ stepII2:
+  0: '+1'       ;I  (increment)
+  1: '+2'       ;I2 (increment twice)
+ modrstepI2:
+  0: '+2'       ;I2 (increment twice)
+ modrstepD2:
+  0: '-2'       ;D2 (decrement twice)
+```
 
 
 Note: The "modr" opcodes are probably just incrementing/decrementing registers
@@ -27089,24 +27416,65 @@ in brackets, ie. as if they were doing memory accesses.
   New WRAM-C  256Kbytes (8x32K), mappable to ARM7, ARM9, or DSP-data memory
 ```
 
-New WRAM mapping is done in two steps: First, mapping the physical banks to
-logical slots. And then, mapping those slots to actual memory addresses.
+New WRAM mapping is done in three steps: First, releasing Slot Write Protect
+(on ARM7 side). Then, mapping the physical banks to logical slots (on ARM9
+side). And finally, mapping those slots to actual memory addresses (on ARM7 and
+ARM9 sides). As an extra step, one may set Slot Write Protect flags (on ARM7
+side) to prevent ARM9 from applying further changes.
+
+
+```
+ ____________________________ Slot Write Protect ______________________________
+```
+
+
+MBK9 is READ/WRITE-ABLE only on ARM7 side (and READ-ONLY on ARM7).
 
 
 
-### 4004040h - DSi9 - MBK1.0, WRAM-A0 - 64K, mappable to ARM7, or ARM9
+### 4004060h - DSi9 - MBK9, WRAM-A/B/C Slot Write Protect (undocumented) (R)
 
 
 
-### 4004041h - DSi9 - MBK1.1, WRAM-A1 - 64K, mappable to ARM7, or ARM9
+### 4004060h - DSi7 - MBK9, WRAM-A/B/C Slot Write Protect (undocumented) (R/W)
+
+
+```
+  0-3   WRAM-A, Port 4004040h-4004043h Write (0=Writeable by ARM9, 1=Read-only)
+  4-7   Unknown/Unused (0)
+  8-15  WRAM-B, Port 4004044h-400404Bh Write (0=Writeable by ARM9, 1=Read-only)
+  16-23 WRAM-C, Port 400404Ch-4004053h Write (0=Writeable by ARM9, 1=Read-only)
+  24-31 Unknown/Unused (0)   ;but, carthdr has nonzero data for it?
+```
+
+Selects whether ARM9 may write to WRAM slot registers at 4004040h-4004053h (in
+Read-only mode neither ARM7 nor ARM9 can write to those registers; that applies
+only to that registers, ie. the memory itself isn't write-protected).
+
+
+```
+ ______________________________ Slot Allocation ______________________________
+```
+
+
+MBK1-MBK5 are READ-ONLY on ARM7 side, and either READ-ONLY or READ/WRITE-ABLE
+on ARM9 side (depending on the MBK9 setting).
 
 
 
-### 4004042h - DSi9 - MBK1.2, WRAM-A2 - 64K, mappable to ARM7, or ARM9
+### 4004040h - DSi - MBK1.0, WRAM-A0 - 64K, mappable to ARM7, or ARM9
 
 
 
-### 4004043h - DSi9 - MBK1.3, WRAM-A3 - 64K, mappable to ARM7, or ARM9
+### 4004041h - DSi - MBK1.1, WRAM-A1 - 64K, mappable to ARM7, or ARM9
+
+
+
+### 4004042h - DSi - MBK1.2, WRAM-A2 - 64K, mappable to ARM7, or ARM9
+
+
+
+### 4004043h - DSi - MBK1.3, WRAM-A3 - 64K, mappable to ARM7, or ARM9
 
 
 ```
@@ -27122,35 +27490,35 @@ In cooking coach, above four bytes are locked via MBK9 (not write-able, always
 
 
 
-### 4004044h - DSi9 - MBK2.0, WRAM-B0 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004044h - DSi - MBK2.0, WRAM-B0 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 4004045h - DSi9 - MBK2.1, WRAM-B1 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004045h - DSi - MBK2.1, WRAM-B1 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 4004046h - DSi9 - MBK2.2, WRAM-B2 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004046h - DSi - MBK2.2, WRAM-B2 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 4004047h - DSi9 - MBK2.3, WRAM-B3 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004047h - DSi - MBK2.3, WRAM-B3 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 4004048h - DSi9 - MBK3.0, WRAM-B4 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004048h - DSi - MBK3.0, WRAM-B4 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 4004049h - DSi9 - MBK3.1, WRAM-B5 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 4004049h - DSi - MBK3.1, WRAM-B5 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 400404Ah - DSi9 - MBK3.2, WRAM-B6 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 400404Ah - DSi - MBK3.2, WRAM-B6 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 
-### 400404Bh - DSi9 - MBK3.3, WRAM-B7 - 32K, mappable to ARM7, ARM9, or DSP/code
+### 400404Bh - DSi - MBK3.3, WRAM-B7 - 32K, mappable to ARM7, ARM9, or DSP/code
 
 
 ```
@@ -27162,35 +27530,35 @@ In cooking coach, above four bytes are locked via MBK9 (not write-able, always
 
 
 
-### 400404Ch - DSi9 - MBK4.0, WRAM-C0 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 400404Ch - DSi - MBK4.0, WRAM-C0 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 400404Dh - DSi9 - MBK4.1, WRAM-C1 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 400404Dh - DSi - MBK4.1, WRAM-C1 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 400404Eh - DSi9 - MBK4.2, WRAM-C2 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 400404Eh - DSi - MBK4.2, WRAM-C2 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 400404Fh - DSi9 - MBK4.3, WRAM-C3 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 400404Fh - DSi - MBK4.3, WRAM-C3 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 4004050h - DSi9 - MBK5.0, WRAM-C4 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 4004050h - DSi - MBK5.0, WRAM-C4 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 4004051h - DSi9 - MBK5.1, WRAM-C5 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 4004051h - DSi - MBK5.1, WRAM-C5 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 4004052h - DSi9 - MBK5.2, WRAM-C6 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 4004052h - DSi - MBK5.2, WRAM-C6 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 
-### 4004053h - DSi9 - MBK5.3, WRAM-C7 - 32K, mappable to ARM7, ARM9, or DSP/data
+### 4004053h - DSi - MBK5.3, WRAM-C7 - 32K, mappable to ARM7, ARM9, or DSP/data
 
 
 ```
@@ -27201,8 +27569,17 @@ In cooking coach, above four bytes are locked via MBK9 (not write-able, always
 ```
 
 
+```
+ ______________________________ Address Mapping ______________________________
+```
 
-### 4004054h - DSi9 - MBK6, WRAM-A, 64K..256K mapping
+
+MBK6-8 exist as separate READ/WRITE-ABLE registers on ARM7 and ARM9 side
+(making it six registers in total).
+
+
+
+### 4004054h - DSi - MBK6, WRAM-A, 64K..256K mapping (R/W)
 
 
 ```
@@ -27214,17 +27591,13 @@ In cooking coach, above four bytes are locked via MBK9 (not write-able, always
   29-31 Not used (0)
 ```
 
-Uh, does this affect only ARM9 mapping? Or also ARM7 mapping?
-
-Uh, but, ARM7 3800000h..3FFFFFFh contains OTHER memory (ARM7-WRAM) !?
 
 
-
-### 4004058h - DSi9 - MBK7, WRAM-B
+### 4004058h - DSi - MBK7, WRAM-B (R/W)
 
 
 
-### 400405Ch - DSi9 - MBK8, WRAM-C
+### 400405Ch - DSi - MBK8, WRAM-C (R/W)
 
 
 ```
@@ -27236,41 +27609,13 @@ Uh, but, ARM7 3800000h..3FFFFFFh contains OTHER memory (ARM7-WRAM) !?
   29-31 Not used (0)
 ```
 
-Uh, does this affect only ARM9 mapping? Or also ARM7 and DSP mapping?
 
 Uh, but, ARM7 3800000h..3FFFFFFh contains OTHER memory (ARM7-WRAM) !?
 
 
-
-### 4004060h - DSi9 - MBK9, WRAM-A/B/C Slot Master Selection (undocumented) (R)
-
-
 ```
-  0-3   WRAM-A, Port 4004040h-4004043h Master (0=ARM9, 1=ARM7)
-  4-7   Unknown/Unused (0)
-  8-15  WRAM-B, Port 4004044h-400404Bh Master (0=ARM9, 1=ARM7)
-  16-23 WRAM-C, Port 400404Ch-4004053h Master (0=ARM9, 1=ARM7)
-  24-31 Unknown/Unused (0)
+ ___________________________________ Notes ___________________________________
 ```
-
-Selects which CPU shall control the WRAM slot registers at 4004040h-4004053h
-(when selecting ARM7 as master, then the registers become Read-Only on ARM9
-side).
-
-
-
-### ARM7 Side
-
-
-WRAM-related I/O Ports at ARM7 side are unknown (if any).
-
-GUESS: Maybe ports 4004040h..4004053h exist as mirror?
-
-GUESS: Maybe ports 4004054h..400405Fh exist as separate ARM7 registers?
-
-GUESS: Maybe ports 4004060h..4004063h exist as write-able mirror?
-
-Existing DSi exploits don't permit to access those regs on ARM7 side.
 
 
 
@@ -27292,14 +27637,15 @@ When start=6, and End=12, then (with above example), only following is mapped:
 Observe that the mapped region starts with Slot 2 (not Slot 0) in that case.
 
 Moreover, some slots may be empty (disabled, or mapped to another CPU), so, if
-Slot 3 is empty, then memory might probably look somewhat like so: (?)
+Slot 3 is empty (disabled or mapped to another CPU), then memory appears to
+look somewhat as so:
 
 ```
-  Slots  -,-,-,-,-,-,2,-,0,1,2,-,-,-,-,-,etc.
+  Slots  -,-,-,-,-,-,2,z,0,1,2,z,-,-,-,-,etc.
 ```
 
-If so, unknown what is mapped to those "empty" areas (mirrors, or underlaying
-WRAM's of lower priority, or zeroes, or garbage, or whatever).
+Whereas, the "z" areas seem to read as zerofilled memory blocks (rather than
+mirroring to underlaying WRAM's of lower priority).
 
 
 
@@ -27312,6 +27658,7 @@ WRAM's of lower priority, or zeroes, or garbage, or whatever).
   New Shared-WRAM-C   Low Priority
   Old Shared-WRAM-0/1 Lowest Priority
   Old ARM7-WRAM       Whatever Priority (unknown...)
+  I/O ports 4xxxxxxh  Whatever Priority (unknown...)
 ```
 
 
@@ -27321,6 +27668,16 @@ WRAM's of lower priority, or zeroes, or garbage, or whatever).
 ```
   Unknown what happens when selecting multiple WRAM blocks to the same slot?
 ```
+
+
+The initial MBK values are derived from carthdr.
+
+Exploits for DSi cartridges & DSiware usually have ARM7.MBK registers
+disabled via SCFG\_EXT7, making it impossible to change that ARM7 registers; the
+ARM9.MBK registers are usually kept enabled, nethertheless, the ARM7.MBK9
+setting can apply some restrictions to ARM9 side (for example, in Cooking
+Coach, WRAM-A is controlled via ARM7.MBK1, so ARM9 can control WRAM-B and
+WRAM-C via ARM9.MBK2-5 only).
 
 
 
@@ -27546,7 +27903,7 @@ Maybe, during enabled transfers, ONLY the enable/busy bit is writeable?
   4-12    Unknown/Unused (0)                                               (0?)
   13      Sound/Microphone I2S frequency (0=32.73 kHz, 1=47.61 kHz)  (R or R/W)
   14      Mute status                                (?=Mute WHAT?)       (R/W)
-  15      Enable Microphone (and Sound Output?)          (1=Enable)       (R/W)
+  15      Enable Microphone (and Sound Output!)          (1=Enable)       (R/W)
 ```
 
 NITRO/DSP ratio
@@ -27559,7 +27916,7 @@ The following settings configure the ratio between DSP and NITRO mixer output:
   01h      DSP sound 7/8, NITRO sound 1/8
   02h      DSP sound 6/8, NITRO sound 2/8
   03h      DSP sound 5/8, NITRO sound 3/8
-  04h      DSP sound 4/8, NITRO sound 4/8
+  04h      DSP sound 4/8, NITRO sound 4/8 (=half volume for DSP and NITRO each)
   05h      DSP sound 3/8, NITRO sound 5/8
   06h      DSP sound 2/8, NITRO sound 6/8
   07h      DSP sound 1/8, NITRO sound 7/8
@@ -28556,14 +28913,78 @@ New/changed entries in DSi carts are:
 
 ```
   012h 1    Unitcode (00h=NDS, 02h=NDS+DSi, 03h=DSi) (bit1=DSi)
-  01Ch 1    NDS: Reserved / DSi: Unknown (03h=Normal, 0Bh=Sys, 0Fh=Debug/Sys)
+  01Ch 1    NDS: Reserved / DSi: Flags (03h=Normal, 0Bh=Sys, 0Fh=Debug/Sys)
+              bit0 Has TWL-Exclusive Region      ;MUST be 1 for DSi titles?
+              bit1 Modcrypted (0=No, 1=Yes, see [220h..22Fh])
+              bit2 Modcrypt key select (0=Retail, 1=Debug)
+              bit3 Disable Debug ?
   01Dh 1    NDS: Region   / DSi: Unknown (00h=Normal, 01h=System Settings)
   068h 4    Icon/Title offset (same as NDS, but with new extra entries)
   080h 4    Total Used ROM size, EXCLUDING DSi area
-  088h 4    NDS: Reserved / DSi: Unknown (B8h,D0h,04h,00h)
-  08Ch 4    NDS: Reserved / DSi: Unknown (44h,05h,00h,00h)
-  090h 4    NDS: Reserved / DSi: Unknown (16h,00h,16h,00h)
+  088h 4    NDS: Reserved / ARM9 Parameters Table Offset ???  ;base=[028h]
+  08Ch 4    NDS: Reserved / ARM7 Parameters Table Offset ???  ;base=[038h]
+  090h 2    NDS: Reserved / NTR ROM Region End/80000h   ;\usually both same
+  092h 2    NDS: Reserved / TWL ROM Region Start/80000h ;/(zero for DSiware)
 ```
+
+NDS carts (that don't use DSi features, but are manufactured after DSi release)
+contains these extra entries:
+
+```
+ (012h)1    Unitcode (must be 00h for non-DSi carts)
+ (020h)16   Changed ARM9/ARM7 areas (DSi-in-NDS-mode more restricted than NDS)
+  088h 4    Unknown (B8h,4Bh,00h,00h) (similar as in DSi carts)
+  1BFh 1    Flags (40h=RSA+TwoHMACs, 60h=RSA+ThreeHMACs)
+  33Ch 14   HMAC for Icon/Title (only if [1BFh]=60h)      ;as Whitelist Phase 3
+  378h 14   HMAC for 160h-byte header and ARM9+ARM7 areas ;as Whitelist Phase 1
+  38Ch 14   HMAC for OverlayARM9+NitroFAT (zero if no overlay)      ;as Phase 2
+  F80h 128  RSA signature
+```
+
+All other entries at 160h..FFFh are zerofilled in non-DSi carts.
+
+
+
+### Changed ARM9/ARM7 areas (and new ARM9i/ARM7i areas)
+
+
+NDS allowed ARM9 or ARM7 to occupy about 3.8MB of main RAM. On DSi this is
+restriced to 2.5MB for ARM9 and 0.25MB for ARM7, ie. 2.75MB in total, this
+restriction applies even in NDS-mode, thus making DSi not fully backwards
+compatible with NDS games (officially licensed NDS titles hopefully don't
+conflict with that new restriction). In DSi mode, one can additionally load
+2.5MB for ARM9i and 1MB for ARM7i, ie. 6.25MB in total for all four areas.
+
+The DSi loading is a bit complicated, the areas are first loaded to DEDICATED
+areas:
+
+```
+  ARM9  2004000h..227FFFFh (siz=27C000h) (for NDS mode: 2000000h and up)
+  ARM7  2380000h..23BFFFFh (siz=40000h)
+  ARM9i 2400000h..267FFFFh (siz=280000h)
+  ARM7i 2E80000h..2F87FFFh (siz=108000h)
+```
+
+If the cart header does match with those DEDICATED areas then the data is left
+in place, otherwise it gets relocated to GENERAL areas (shortly before jumping
+to the entrypoint). The GENERAL areas are allowed to be:
+
+```
+  Main  2000000h..2FFC000h (excluding bootstrap at 23FEE00h..23FF000h)
+  WRAM  3000000h..380F000h (excluding bootstrap at 3FFF600h..3FFF800h)
+```
+
+The GENERAL areas may not overlap with another DEDICATED area (eg. ARM7 cannot
+be relocated to the ARM9+ARM9i+ARM7i areas). Concerning the 16K at
+2000000h..2003FFFh: ARM7+ARM9i+ARM7i aren't allow to use that, but ARM9 seems
+to be relocatable to that address (usually that shouldn't be done as it would
+destroy some DSi system variables).
+
+ARM9i+ARM7i areas can have "Size" and "ROM offset" set to zero (but still need
+to have a valid nonzero "RAM Load address").
+
+ARM9/ARM7 entrypoints MUST be within ARM9/ARM7 area respectively (NDS allowed
+entrypoints being anywhere).
 
 
 
@@ -28574,18 +28995,40 @@ New/changed entries in DSi carts are:
   180h 20   Global MBK1..MBK5 Setting, WRAM Slots
   194h 12   Local ARM9 MBK6..MBK8 Setting, WRAM Areas
   1A0h 12   Local ARM7 MBK6..MBK8 Setting, WRAM Areas
-  1ACh 3    Global MBK9 Setting, WRAM Slot Master
-  1AFh 1    ... whatever, rather not 4000247h WRAMCNT ?
-                 (above byte is usually 03h)
-                 (but, it's FCh in System Menu?)
-                 (but, it's 00h in System Settings?)
+  1ACh 3    Global MBK9 Setting, WRAM Slot Write Protect
+  1AFh 1    Global WRAMCNT Setting (usually 03h) (FCh/00h in SysMenu/Settings)
   1B0h 4    Region flags (bit0=JPN, bit1=USA, bit2=EUR, bit3=AUS, bit4=CHN,
               bit5=KOR, bit6-31=Reserved) (FFFFFFFFh=Region Free)
-  1B4h 4    Access control  (uh ???)  ;whatever Flags (AES Key Select?)      ?
-  1B8h 4    ARM7 SCFG_EXT setting (bit0,1,2,10,18,31)
+  1B4h 4    Access control (AES Key Select)
+              bit0 Common Client Key ;want 380F000h=3FFC600h+00h "common key"
+              bit1 AES Slot B  ;380F010h=3FFC400h+180h and KEY1=unchanged
+              bit2 AES Slot C  ;380F020h=3FFC400h+190h and KEY2.Y=3FFC400h+1A0h
+              bit3 SD Card            ;want Device I
+              bit4 NAND Access        ;want Device A-H and KEY3=intact
+              bit5 Game Card Power On                 ;tested with bit8
+              bit6 Shared2 File                       ;used... but WHAT for?
+              bit7 Sign JPEG For Launcher (AES Slot B);select 1 of 2 jpeg keys?
+              bit8 Game Card NTR Mode                 ;tested with bit5
+              bit9 SSL Client Cert (AES Slot A) ;KEY0=3FFC600h+30h (twl-*.der)
+              bit10 Sign JPEG For User (AES Slot B) ;\
+              bit11 Photo Read Access               ; seems to be unused
+              bit12 Photo Write Access              ; (and, usually ZERO,
+              bit13 SD Card Read Access             ; even if the stuff is
+              bit14 SD Card Write Access            ; accessed)
+              bit15 Game Card Save Read Access      ; (bit11 set in flipnote)
+              bit16 Game Card Save Write Access     ;/
+              bit31 Debugger Common Client Key  ;want 380F000h=3FFC600h+10h
+  1B8h 4    ARM7 SCFG_EXT7 setting (bit0,1,2,10,18,31)
   1BCh 3    Reserved/flags? (zerofilled)
-  1BFh 1    Flags? (usually 01h) (DSiware Browser: 0Bh)
+  1BFh 1    Flags (usually 01h) (DSiware Browser: 0Bh)
+              bit0: TSC Touchscreen/Sound Controller Mode (0=NDS, 1=DSi)
+              bit1: Require EULA Agreement
               bit2: Custom Icon  (0=No/Normal, 1=Use banner.sav)
+              bit3: Show Nintendo Wi-Fi Connection icon in Launcher
+              bit4: Show DS Wireless icon in Launcher
+              bit5: NDS cart with icon SHA1  (DSi firmware v1.4 and up)
+              bit6: NDS cart with header RSA (DSi firmware v1.0 and up)
+              bit7: Developer App
   1C0h 4    ARM9i ROM Offset (usually XX03000h, XX=1MB-boundary after NDS area)
   1C4h 4    Reserved (zero)
   1C8h 4    ARM9i RAM Load address
@@ -28604,12 +29047,19 @@ New/changed entries in DSi carts are:
   1FCh 4    Digest Block Hashtable length  ;/in above Sector Hashtable
   200h 4    Digest Sector size       (eg. 400h bytes per sector)
   204h 4    Digest Block sectorcount (eg. 20h sectors per block)
-  208h 4    Icon/Title size (usually 23C0h)
-  20Ch 4    Reserved ??? (00 00 01 00)
-  210h 4    Total Used ROM size, INCLUDING DSi area
-  214h 4    Reserved ?   (00 00 00 00)
-  218h 4    Reserved ??? (84 D0 04 00) whatever, resembles header entry [088h]
-  21Ch 4    Reserved ??? (2C 05 00 00) whatever, resembles header entry [08Ch]
+  208h 4    Icon/Title size (usually 23C0h for DSi) (older 840h-byte works too)
+  20Ch 1    SD/MMC size of "shared2\0000" file in 32Kbyte units? (dsi sound)
+  20Dh 1    SD/MMC size of "shared2\0001" file in 32Kbyte units?
+                ;or are shared2 sizes rather counted in 16Kbyte cluster units?
+  20Eh 1    EULA Version (01h)  ?                                     !
+  20Fh 1    Use Ratings  (00h)  ?                                     !
+  210h 4    Total Used ROM size, INCLUDING DSi area (optional, can be 0)
+  214h 1    SD/MMC size of "shared2\0002" file in 32Kbyte units?
+  215h 1    SD/MMC size of "shared2\0003" file in 32Kbyte units?
+  216h 1    SD/MMC size of "shared2\0004" file in 32Kbyte units?
+  217h 1    SD/MMC size of "shared2\0005" file in 32Kbyte units?
+  218h 4    ARM9i Parameters Table Offset (84 D0 04 00) ???  ;base=[028h]
+  21Ch 4    ARM7i Parameters Table Offset (2C 05 00 00) ???  ;base=[038h]
   220h 4    Modcrypt area 1 offset ;usually same as ARM9i rom offs (XX03000h)
   224h 4    Modcrypt area 1 size   ;usually min(4000h,ARM9iSize+Fh AND not Fh)
   228h 4    Modcrypt area 2 offset (0=None)
@@ -28619,7 +29069,7 @@ New/changed entries in DSi carts are:
               Tools, [0Fh=Non-executable datafile without cart header],
               15h=System Base Tools, 17h=System Menu)
   235h 1    Title ID, Zero     (00h=Normal)
-  236h 1    Title ID, Three    (03h=Normal, why?)
+  236h 1    Title ID, Three    (03h=DSi) (as opposed to Wii or 3DS)
   237h 1    Title ID, Zero     (00h=Normal)
   238h 4    SD/MMC (DSiware) "public.sav" filesize in bytes  (0=none)
   23Ch 4    SD/MMC (DSiware) "private.sav" filesize in bytes (0=none)
@@ -28627,7 +29077,7 @@ New/changed entries in DSi carts are:
 ```
 
 
-### Parental Control Age Ratings
+### Parental Control Age Ratings (set all entries to 80h to allow any age)
 
 
 ```
@@ -28656,18 +29106,19 @@ New/changed entries in DSi carts are:
 ```
 
 
-### SHA1-HMACS and RSA-SHA1
+### SHA1-HMAC's and RSA-SHA1
 
 
 ```
-  300h 20   SHA1-HMAC hash ARM9 (with encrypted secure area)  ;[020h,02Ch]
-  314h 20   SHA1-HMAC hash ARM7                               ;[030h,03Ch]
-  328h 20   SHA1-HMAC hash Digest master                      ;[1F8h,1FCh]
-  33Ch 20   SHA1-HMAC hash Icon/Title                         ;[068h,208h]
-  350h 20   SHA1-HMAC hash ARM9i (decrypted)                  ;[1C0h,1CCh]
-  364h 20   SHA1-HMAC hash ARM7i (decrypted)                  ;[1D0h,1DCh]
-  378h 40   Reserved (zero-filled)
-  3A0h 20   SHA1-HMAC hash ARM9 (without 16Kbyte secure area) ;[020h,02Ch]
+  300h 20   SHA1-HMAC hash ARM9 (with encrypted secure area)     ;[020h,02Ch]
+  314h 20   SHA1-HMAC hash ARM7                                  ;[030h,03Ch]
+  328h 20   SHA1-HMAC hash Digest master                         ;[1F8h,1FCh]
+  33Ch 20   SHA1-HMAC hash Icon/Title (also in newer NDS titles) ;[068h,208h]
+  350h 20   SHA1-HMAC hash ARM9i (decrypted)                     ;[1C0h,1CCh]
+  364h 20   SHA1-HMAC hash ARM7i (decrypted)                     ;[1D0h,1DCh]
+  378h 20   Reserved (zero-filled) (but used for non-whitelisted NDS titles)
+  38Ch 20   Reserved (zero-filled) (but used for non-whitelisted NDS titles)
+  3A0h 20   SHA1-HMAC hash ARM9 (without 16Kbyte secure area)    ;[020h,02Ch]
   3B4h 2636 Reserved (zero-filled)
   E00h 180h Reserved and unchecked region, always zero. Used for passing
               arguments in debug environment.
@@ -28691,7 +29142,7 @@ Files saved on SD card or internal eMMC memory are having the same header as
 ROM carts, with some differences:
 
 ```
-  The ARM7 and ARM9 areas may exceed the 4Mbyte NDS-limit
+  No need for NDS backwards compatibility (since DSiware is DSi only)
   Entry 3A0h can be zero-filled (in LAUNCHER)
 ```
 
@@ -28729,7 +29180,7 @@ preventing to boot unlicensed (homebrew) software.
 
 
 
-### Modcrypt (AES-CTR)
+### Modcrypt (AES-CTR) (optional, carthdr[220h..22Fh] can be all zero)
 
 
 Modcrypt is a new additional way of encrypting parts of the NDS ROM executable
@@ -28747,7 +29198,9 @@ The initial AES Counter value (IV) is:
 
 The AES key depends of flags in the cartridge header:
 
-- IF header[01Ch].Bit2 OR header[1BFh].Bit7 THEN (probably for prototypes)
+- IF header[01Ch].Bit1=0
+  - None (modcrypt disabled)
+- ELSEIF header[01Ch].Bit2 OR header[1BFh].Bit7 THEN (probably for prototypes)
   - Debug KEY[0..F]: First 16 bytes of the header                    [000h..00Fh]
 - ELSE (commonly used for retail software)
   - Retail KEY\_X[0..7]: Fixed 8-byte ASCII string                    ("Nintendo")
@@ -28755,14 +29208,42 @@ The AES key depends of flags in the cartridge header:
   - Retail KEY\_X[C..F]: The 4-byte gamecode, backwards               [00Fh..00Ch]
   - Retail KEY\_Y[0..F]: First 16 bytes of the ARM9i SHA1-HMAC        [350h..35Fh]
 
+Above does describe how modcrypted areas should look like. However, there are
+several circumstances where the firmware can't actually decrypt that areas...
+
 Theoretically, the modcrypt areas can span over any of the ARM9i/ARM7i and
 ARM9/ARM7 areas (in practice, cartridges should never use modcrypt for the
 ARM9/ARM7 areas because NDS consoles would leave them undecrypted; that
-restriction doesn't apply to DSiware).
+restriction doesn't apply to DSiware though).
+
+Theoretically, a large modcrypt area could contain several data areas, but the
+launcher does decrypt only the first matching data area (areas are processed in
+order ARM9, ARM7, ARM9i, ARM7i). Moreover, matching data areas must be INSIDE
+of the modcrypt area (ie. the data area must be same size, or smaller than the
+modrypt area) (whereas, the launcher is weirdly rounding-up the data size to a
+multiple of 20h-bytes when checking that matches) (as a side-effect, each data
+area can be decrypted starting with "IV+0", rather than needing
+"IV+(offset\_within\_modcrypt\_area/10h").
+
+Theoretically, AES decryption could be done byte-wise, however, the AES
+hardware is doing it in 10h-byte chunks, unknown if the launcher does require
+10h-byte alignments; however, in fact, the launcher seems to be rounding the
+modcrypt END address to 20h-byte boundary - so it's safest to stick with
+20h-byte aligned start+size values for modcrypt areas, as well as for
+corresponding data areas.
+
+Note: The size of the modcrypt areas can exceed the AES hardware's size limit
+of max FFFF0h bytes (eg. in DSi Sound utility), in such cases decryption must
+be split to smaller AES chunks; with manually increased IV.
+
+Modcrypt area 1 and 2 can overlap each other (whereas, it doesn't matter which
+of them is processed first, since the encryption/decryption is done by XORing).
+
+Note: The ARM9 code for modcrypt/data areas is at 26A6BB8h in Launcher v1.4E.
 
 
 
-### Digests
+### Digests (optional, carthdr[1E0h..207h] can be all zero)
 
 
 The NDS format has been extended with a hash tree to verify the entire contents
@@ -31687,6 +32168,22 @@ actual Camera Data transfers are done on ARM9 side through 8bit parallel bus:
 - [DSi Cameras](#dsicameras)
 
 
+### Broken Cameras (defunct device 78h/7Ah/A0h/E0h)
+
+
+Consoles should contain two Aptina cameras, or two Unknown cameras. The
+Unlaunch installer is throwing a warning when detecting Unknown cameras, so far
+nobody has reported that case, so Unknown cameras seem to be very rare (if they
+were ever used at all). However, two people reported that warning showing FFh's
+in the ID bytes for most or all cameras (caused by a broken camera with only
+one working camera, or broken camera connector with no working cameras at all).
+
+Bottom line is that broken cameras are more common than unknown cameras, and
+games with optional/extra camera features should support that situation: ie.
+disable the feature in case of broken camera(s) instead of becoming unplayable.
+
+
+
 ### Device 90h (Whatever)
 
 
@@ -31732,6 +32229,20 @@ device number in the device table).
 Delay: required swiWaitByLoop delay
 
 Bit0: I2C\_DATA bit0 set with dev addr required for reading (uh?)
+
+
+
+### DSi Secondary I2C Devices
+
+
+There are also some internal/secondary I2C busses (not connected to the ARM
+CPUs).
+
+```
+  xxh   Power Managment Device                       (connected to BPTWL chip)
+  50h   I2C bus potentiometer (volume D/A converter) (connected to BPTWL chip)
+  A0h   I2C bus EEPROM                        (connected to Atheros wifi chip)
+```
 
 
 
@@ -32098,6 +32609,17 @@ TitleID.MSW should match DSi cart header (or be zero for NDS titles?)
                     removing recharge cord, this value increases/decreases
                     between the real battery level and 0xF, thus the battery
                     level while bit7 is set is useless.
+```
+
+
+
+### BPTWL/BPUTL Chip Names
+
+
+```
+  DSi:    Renesas Electronics "BPTWL, KG07K"     ;reg[00h]=33h
+  DSiXL:  Renesas Electronics "BP UTL-1, KG08"   ;reg[00h]=BBh or B7h
+  3DS:    Renesas Electronics "UC CTR"           ;reg[00h]=?
 ```
 
 
@@ -33503,7 +34025,7 @@ The actual camera data transfers are done with below registers (on ARM9 side).
   5     Unknown (1=Enable?) (0=CamI2C fails?)                        (R or R/W)
   6     Unknown                                                      (R or R/W)
   7     Unknown (gets set automatically?)                                  (R?)
-  0-15  Unknown/Unused (00h)                                               (0?)
+  8-15  Unknown/Unused (00h)                                               (0?)
 ```
 
 Written values are 0000h and 0022h.
@@ -34209,6 +34731,22 @@ a data/write block (and with actually sending a data block to it).
 
 
 
+### 40048F6h/4004AF6h - SD\_WRPROTECT\_2 (RESERVED4) (R)
+
+
+```
+  15-1   Always zero
+  0      WRPROTECT_2 for onboard eMMC (usually/always 0=Unlocked)           (R)
+```
+
+Bit0 is write-protect flag for onboard eMMC (equivalent to the SD/MMC slot's
+write-protect switch in 400481Ch.bit7, but in inverted form: 0=Unlocked for
+eMMC, instead of 0=Locked for SD/MMC). The firmware does check bit0 (and, if
+set, hangs shortly before starting games), but unknown if the TWL CPU and DSi
+mainboard do actually have any solder pads for it.
+
+
+
 ### IRQ Edge-Triggering
 
 
@@ -34281,13 +34819,32 @@ See Timeout Notes below for details.
 The DSi uses HCLK=33.513982 MHz, the SDCLK pin can range from HCLK/512=65kHz to
 HCLK/2=16.757MHz, max transfer rate would be thus 8MByte/s in 4bit mode.
 
-Card detection should be done at a low clock rate (max 400kHz for MMC) (unclear
-why, theoretically all SD devices should support at least 25MHz, and all(?) MMC
-devices 26MHz). For SD/MMC, the DSi starts with HCLK/128, and uses the clock
-specified in CSD register after detection (when extracting bits from CSD: mind
-the different 120bit-without-CRC vs 128bit-with-CRC notations). For SDIO, the
-DSi starts with HCLK/256, and switches to HCLK/2 after reading SDIO Bus Speed
-register (Function0:00013h).
+
+### Max CLK speed:
+
+
+Observe that card detection/initialization should be done at lower CLK rate
+than during normal operation.
+
+For SD/MMC initialization: The DSi firmware starts with HCLK/128=262kHz (max
+allowed would be 400kHz for MMC). This is actually required: The DSi's onboard
+Samsung KMAPF0000M-S998 eMMC chip won't respond to ALL\_GET\_CID when trying to
+use 16MHz CLK). Higher CLK can be used once when detecting max speed (see
+TRAN\_SPEED in CSD register; when extracting bits from CSD: mind the different
+120bit-without-CRC vs 128bit-with-CRC notations).
+
+For SDIO/Wifi initialization: The DSi firmware starts with HCLK/256=131kHz, and
+switches to HCLK/2=16.757MHz after reading SDIO Bus Speed register
+(Function0:00013h).
+
+After init, one can use the detected speeds (see above), it should be also safe
+to assume that HCLK/2=16.757MHz is always supported after initialization (all
+SD devices should support at least 25MHz, and all(?) MMC devices at least
+26MHz, and all DSi SDIO/Wifi boards should be fast enough either).
+
+
+### Notes:
+
 
 The SDCLK pins are permanently pulsed, even for devices deselected via
 SD\_CARD\_PORT\_SELECT.0, and even if no CMD or DATA is being transferred.
@@ -34315,7 +34872,7 @@ writing 0703h) does disable CardIRQ on Data1 pin.
 
 Existing code does set bit8 (prior to changing SD\_DATA16\_BLK\_COUNT).
 
-Existing code does clear bit0 (alongsides with IRQ enable/acknowlege or so).
+Existing code does clear bit0 (alongsides with IRQ enable/acknowledge or so).
 
 
 
@@ -34348,9 +34905,9 @@ Clearing bit0 does force following settings (while and as long as Bit0=0):
   Reading FIFO16 returns 0000h (but old content reappears when releasing reset)
 ```
 
-All other registers seem to be left unaffected (including the the extra IRQ
-flags in 4004900h); though there may be some further hidden effects (like
-aborting transfers or resetting internal registers).
+All other registers seem to be left unaffected (including the extra IRQ flags
+in 4004900h); though there may be some further hidden effects (like aborting
+transfers or resetting internal registers).
 
 Note: The DSi firmware does issue reset by toggling both bit0 and bit1,
 although bit1 does seem to be read-only (always 1), and trying to clear that
@@ -34385,16 +34942,6 @@ only the CLK-Pin output is forced LOW when Bit8=0).
 
 ## <a name="dsisdmmcioportsunknownunusedregisters"></a>  DSi SD/MMC I/O Ports: Unknown/Unused Registers
 
-
-
-
-### 40048F6h/4004AF6h - Firmware tests bit0 (but, that's always 0?) (RESERVED4)
-
-
-```
-  15-1   Always zero
-  0      Unknown (tested by firmware) (usually 0)                           (R)
-```
 
 
 Below registers don't seem to be used by existing software...
@@ -34929,8 +35476,17 @@ SD Mode Response: N/A
 
 SPI Mode Response: R1
 
-Resets all cards to idle state. The command does also seem to reset further
-registers (for example, TRAN\_SPEED is said to be reset to 25MHz).
+Resets all cards to idle state, it's usually sent to (re-)invoke card detection
+and initialization. The command does also seem to reset many further registers
+(for example, TRAN\_SPEED is said to be reset to 25MHz, and, although not
+officially specified, the DSi's eMMC chip appears to get forced back to 1bit
+data bus mode).
+
+Observe that card detection/initialization should be done at lower CLK rate
+than usually (MMC specifies max 400kHz - this is actually required - the DSi's
+onboard Samsung KMAPF0000M-S998 eMMC chip won't respond to ALL\_GET\_CID when
+trying to use 16MHz CLK), higher CLK can be used once when detecting max speed
+(TRAN\_SPEED in CSD register).
 
 The command is also used to enter SPI mode (in SPI mode, the /CS pin is held
 low, while in 1bit/4bit mode that pin would be DAT3=floating/high), SPI
@@ -35042,7 +35598,9 @@ Parameter bits:
 Response: N/A
 
 Sends an addressed card into the Inactive State. This command is used when the
-host explicitly wants to deactivate a card.
+host explicitly wants to deactivate a card once and forever (and won't even
+react to GO\_IDLE\_STATE) until next power-up (aka until ejecting/reinserting the
+card).
 
 
 
@@ -35102,11 +35660,11 @@ The pull-up might be intended for card detection (other than by using the
 slot's card detect switch), and/or for sensing SPI mode (which would drag that
 pin to LOW level when asserting /CS chip select).
 
-During operation, disabling the pull-up might improve data transfers (unless
-for card controllers which do rely on the card pull-up to be present). The
-TC6387XB datasheet recommends external 100K pull-ups on DAT0-2, and only 47K on
-DAT3 (not quite sure why, unless Toshiba believed the parallel 50K+47K pull-ups
-to sum up to 100K, rather than to 25K).
+During operation, disabling the pull-up might improve 4bit mode data transfers
+(unless for card controllers which do rely on the card pull-up to be present).
+The TC6387XB datasheet recommends external 100K pull-ups on DAT0-2, and only
+47K on DAT3 (not quite sure why, unless Toshiba believed the parallel 50K+47K
+pull-ups to sum up to 100K, rather than to 25K).
 
 
 
@@ -35245,7 +35803,9 @@ Response: R1
 Specify block count for CMD18 and CMD25.
 
 
-================ Block-Oriented READ Commands ================
+```
+ ________________________ Block-Oriented READ Commands ________________________
+```
 
 
 
@@ -35311,7 +35871,9 @@ Additional Data Transfer (to card):
 ```
 
 
-================ Block-Oriented WRITE Commands ================
+```
+ _______________________ Block-Oriented WRITE Commands _______________________
+```
 
 
 
@@ -35402,7 +35964,9 @@ Command STOP\_TRAN (CMD12) shall be used to stop the transmission in Write
 Multiple Block whether or not the pre-erase (ACMD23) feature is used.
 
 
-================ Byte-Streaming READ/WRITE Commands ================
+```
+ _____________________ Byte-Streaming READ/WRITE Commands _____________________
+```
 
 
 
@@ -35436,7 +36000,9 @@ terminated by sending STOP\_TRANSMISSION.
 
 
 
-================ Write PROTECTION Commands ================
+```
+ _________________________ Write PROTECTION Commands _________________________
+```
 
 
 
@@ -35520,7 +36086,9 @@ feature).
 The PWD feature provides Read/Write-protection (when not knowing the password).
 
 
-================ Erase Commands ================
+```
+ _______________________________ Erase Commands _______________________________
+```
 
 
 
@@ -35600,7 +36168,9 @@ pre-formatted filesystem headers; which would be bad, because that headers
 should contain cluster sizes somewhat matched to the physical sector sizes).
 
 
-================ I/O Commands ================
+```
+ ________________________________ I/O Commands ________________________________
+```
 
 
 
@@ -35622,7 +36192,9 @@ that allows to access non-memory-card hardware (such like cameras or network
 adaptors).
 
 
-================ Switch Function Commands ================
+```
+ __________________________ Switch Function Commands __________________________
+```
 
 
 
@@ -35685,7 +36257,9 @@ Undoc. Maybe related to above "function group 1..4"?
 Described as so for SPI Mode. Maybe related to above "function group 1..6"?
 
 
-================ Function Extension Commands ================
+```
+ ________________________ Function Extension Commands ________________________
+```
 
 
 
@@ -35915,7 +36489,7 @@ Values for CURRENT\_STATE (bit12-9):
   09h     = btst    ;bus test write (CMD19, MMC only)
   0Ah     = slp     ;sleep (CMD5, MMC only)
   0Bh-0Eh = reserved
-  0Fh     = reserved for I/O mode
+  0Fh     = reserved for I/O mode (SDIO-only devices, without SD-memory)
   N/A     = ina     ;inactive (CMD15) (card is killed, and can't send status)
   N/A     = irq     ;interrupt mode (CMD40, MMC only)
   N/A     = pre     ;pre-idle (MMC only)
@@ -36316,22 +36890,42 @@ AU\_SIZE when the card is operating in UHS-I or UHS-II bus speed modes.
 
 
 
+CMD1 (MMC) and ACMD58 (SD) are intended to exchange OCR information. That is,
+the OCR parameter bits should indicate the host conditions (eg. for DSi:
+40100000h, ie. bit20=3.3V supply, and bit30=HCS support for High Capacity carts
+with more than 2GBytes). The OCR response may then return something like
+007f8000h when busy, and 807f8000h when ready (bit20 indicating the voltage
+being actually supported, bit30 indicating if it's High Capacity card, and
+bit31 indicating if the card is ready & switched from "idle" to "ready"
+state).
+
+Cards do usually send at least one response with bit31=0 (busy), one should
+repeat sending CMD1/ACMD51 until bit31=1 (ready).
+
+Note: All card(s) on the bus will respond to CMD1/ACMD51: with the response
+bits ANDed together (thus returning nonsense in bit30=HCS when actually sharing
+the same bus for multiple cards).
+
+Note: The card switches to "ina" state if the voltage in param bits isn't
+supported.
+
+
 
 ### CMD1 - SD/MMC (For SD Cards: SPI-only) - SPI - SEND\_OP\_COND
 
 
-Parameter For SD Cards (supported in SPI mode only, not in Non-SPI mode):
-
-```
-  31    Reserved (0)
-  30    HCS (Host Capacity Support information)
-  29-0  Reserved (0)
-```
-
 Parameter For MMC Cards (supported in SPI and Non-SPI mode):
 
 ```
-  31-0  "OCR without busy"? (ie. without the power-up busy flag in bit31?)
+  31-0  OCR without busy (ie. without the power-up busy flag in bit31)
+```
+
+Parameter For SD Cards (supported in SPI mode only, not in Non-SPI mode):
+
+```
+  31    Reserved (0)                            ;\special case (applies
+  30    HCS (Host Capacity Support information) ; to SD-cards in SPI-mode
+  29-0  Reserved (0)                            ;/only)
 ```
 
 SD Response: R1
@@ -36469,6 +37063,18 @@ to 1. This bit is not affected by whether VDD2 is supplied or not.
 ### CMD2 - SD/MMC - ALL\_GET\_CID (type=bcr)
 
 
+CMD2 is/was intended for multiple MMC cards on the same SD/MMC bus, the
+connected card(s) should compare the CMD2 response bits seen on the bus, and
+the card with the smallest CID number is switched to "ident" state (and any
+other cards stay in "ready" state until sending further CMD2's).
+
+CMD2 is still required for both SD and MMC during initialization, although
+actually sharing the same bus for multiple cards is rather uncommon/depracted
+(and might envolve various problems: Like conflicting OCR responses,
+conflicting pull-ups on DAT3 pin, signal noise/spikes on insertion/removal of a
+second card while accessing another card, problems with (shared) Write Protect
+and Card Detect switches, and so on).
+
 Parameter bits:
 
 ```
@@ -36478,12 +37084,23 @@ Parameter bits:
 SD Mode Response: R2 (same 136bit response as for CMD10, see there)
 
 Asks any card to send the CID numbers on the CMD line (any card that is
-connected to the host will respond).
+connected to the host will respond - until it sees a "0" bit from another card
+while itself outputting a "1" bit).
+
+Observe that CMD2 (and other card detection/initialization commands) should be
+done at lower CLK rate than usually (MMC specifies max 400kHz - this is
+actually required - the DSi's onboard Samsung KMAPF0000M-S998 eMMC chip won't
+respond to ALL\_GET\_CID when trying to use 16MHz CLK), higher CLK can be used
+once when detecting max speed (TRAN\_SPEED in CSD register).
 
 
 
 ### CMD10 - SD/MMC - SPI - GET\_CID (type=ac)
 
+
+This command should be used for actually READING the CID (as opposed to
+ALL\_GET\_CID which is primarily intended for the connected card(s) to COMPARE
+their CIDs with each other).
 
 Parameter bits:
 
@@ -36555,6 +37172,22 @@ For MMC Cards (smaller date field, range 1997..2012 only):
   0         1  1      Stop bit (always 1)
 ```
 
+
+
+### Known CID's for DSi eMMC chips (excluding CRC in LSB, padded 00 in MSB)
+
+
+```
+  MY ss ss ss ss 03 4D 30 30 46 50 41 00 00 15 00  ;DSi Samsung KMAPF0000M-S998
+  MY ss ss ss ss 32 57 37 31 36 35 4D 00 01 15 00  ;DSi Samsung KLM5617EFW-B301
+  MY ss ss ss ss 30 36 35 32 43 4D 4D 4E 01 FE 00  ;DSi ST NAND02GAH0LZC5 rev30
+  MY ss ss ss ss 31 36 35 32 43 4D 4D 4E 01 FE 00  ;DSi ST NAND02GAH0LZC5 rev31
+  MY ss ss ss ss 03 47 31 30 43 4D 4D 00 01 11 00  ;3DS CID
+```
+
+See also:
+
+- [DSi Console IDs](#dsiconsoleids)
 
 
 
@@ -36680,8 +37313,48 @@ W(1)=writable once, W=multiple writable.
   9-8     2  R/W    SDSC: reserved, R/W            -                   00b
   9-8     2  R      SDHC/SDXC: reserved, R         -                   00b
   7-1     7  R/W    CRC                            CRC                 xxxxxxxb
-  0       1  -      not used, always'1'            -                   1b
+  0       1  -      not used, always '1'           -                   1b
 ```
+
+
+
+### Known CSD's for DSi eMMC chips (excluding CRC in LSB, padded 00 in MSB)
+
+
+```
+  8  16 24 32 40 48 56 64 72 80 88 96 104112120pad ;<--bit numbers
+  40 40 96 E9 7F DB F6 DF 01 59 0F 2A 01 26 90 00  ;DSi CSD KMAPF0000M-S998
+  40 40 8E FF 03 DB F6 DF 01 59 0F 32 01 27 90 00  ;DSi CSD KLM5617EFW-B301
+  00 40 8A E0 BF FF 7F F5 80 59 0F 32 01 2F 90 00  ;DSi CSD NAND02GAH0LZC5 rev30
+  00 40 8A E0 BF FF 7F F5 80 59 0F 32 01 2F 90 00  ;DSi CSD NAND02GAH0LZC5 rev31
+  ?                                            00  ;3DS CSD
+```
+
+That is, differences are:
+
+```
+  bit     name            KMAPF0000M  KLM5617EFW NAND02GAH0LZC5
+  112-119 TAAC            26h=1.5ms   27h=15ms   2Fh=20ms
+  96-103  TRAN_SPEED      2Ah=20MHz   32h=25MHz  32h=25MHz
+  79      READ_BL_PARTIAL 0=No(?)     0=No(?)    1=Yes
+  62-73   C_SIZE          77Fh=240MB  77Fh=240MB 3D5h=245.5MB
+  59-61   VDD_R_CURR_MIN  6=60mA      6=60mA     7=100mA
+  56-58   VDD_R_CURR_MAX  6=80mA      6=80mA     7=200mA
+  53-55   VDD_W_CURR_MIN  6=60mA      6=60mA     7=100mA
+  50-52   VDD_W_CURR_MAX  6=80mA      6=80mA     7=200mA
+  47-49   C_SIZE_MULT     6=256       6=256      7=512
+  42-46   ERASE_GRP_SIZE  1Fh=32x32   00h=1x32   1Fh=32x32
+  32-36   WP_GRP_SIZE     09h=10      1Fh=32     00h=1
+  26-28   R2W_FACTOR      05h=32x     03h=8x     02h=4x
+  14      COPY            1=Copy      1=Copy     0=Original
+```
+
+Not sure if that values are really correct, or if the manufacturer has screwed
+up some bits. TAAC being 10x slower in newer chips looks weird, 20MHz would be
+for 1bit MCC (whilst 4bit MMCplus/MMCmobile should support 26MHz), erase group
+32x32x512 bytes would somewhat require 512Kbyte clusters, write protect group
+size 10 decimal looks a bit odd (though it could be true), and, well, faster
+writing in newer chips looks plausible.
 
 
 
@@ -37460,22 +38133,22 @@ These modes can be changed by the host by means of the SWITCH command.
   - 195       1  -     Reserved(1)                   -
   - 194       1  R     CSD Structure Version         CSD\_STRUCTURE
   - 193       1  -     Reserved(1)                   -
-  - 192       1  R     Extended CSD Revision         EXT\_CSD\_REV
+  - 192 C0h   1  R     Extended CSD Revision         EXT\_CSD\_REV
 
 ### Modes Segment
 
-  - 191       1  R/W   Command Set                   CMD\_SET
-  - 190       1  -     Reserved(1)                   -
-  - 189       1  RO    Command Set Revision          CMD\_SET\_REV
-  - 188       1  -     Reserved(1)                   -
-  - 187       1  R/W   Power Class                   POWER\_CLASS
-  - 186       1  -     Reserved(1)                   -
-  - 185       1  R/W   High Speed Interface Timing   HS\_TIMING
-  - 184       1  -     Reserved(1)                   -
-  - 183       1  WO    Bus Width Mode                BUS\_WIDTH
-  - 182          ?     ?
-  - 181       1  -     Reserved                      -
-  - 180       1  RO    moviNAND only: Erased Memory Content   ERASED\_MEM\_CONT
+  - 191 BFh   1  R/W   Command Set                   CMD\_SET
+  - 190 BEh   1  -     Reserved(1)                   -
+  - 189 BDh   1  RO    Command Set Revision          CMD\_SET\_REV
+  - 188 BCh   1  -     Reserved(1)                   -
+  - 187 BBh   1  R/W   Power Class                   POWER\_CLASS
+  - 186 BAh   1  -     Reserved(1)                   -
+  - 185 B9h   1  R/W   High Speed Interface Timing   HS\_TIMING
+  - 184 B8h   1  -     Reserved(1)                   -
+  - 183 B7h   1  WO    Bus Width Mode                BUS\_WIDTH
+  - 182 B6h      ?     ?
+  - 181 B5h   1  -     Reserved                      -
+  - 180 B h   1  RO    moviNAND only: Erased Memory Content   ERASED\_MEM\_CONT
   - 180-0   181  -     Reserved(a)                   -
 
 (a) Reserved(a) bits should read as '0'.
@@ -37731,11 +38404,20 @@ command.
 
 ```
   Value   Bus Mode
-  0       1 bit data bus
-  1       4 bit data bus
-  2       8 bit data bus
+  0       1 bit data bus (MMC, with old 7pin connector)
+  1       4 bit data bus (MMCplus, with SD-card-compatible 9pin connector)
+  2       8 bit data bus (MMCplus, with special 13pin connector)
   3-255   Reserved
 ```
+
+For detecting cards with 4bit/8bit data bus support: Switch the SD/MMC
+controller to 4bit/8bit modes, and use BUSTEST\_W and BUSTEST\_R to test if the
+card sends a proper response, see
+https://www.mikrocontroller.net/attachment/101561/AN\_MMCA050419.pdf
+
+Note: The SD/MMC controller in the DSi supports 1bit/4bit modes only (no 8bit
+mode). For the DSi's onboard eMMC it's safe to assume 4bit being supported,
+however, external MMC cards do require detecting 4bit support.
 
 
 
@@ -38345,7 +39027,7 @@ SPI specific commands like CMD58/CMD59 are supported only in "unknown" state).
   CMD16 SET_BLOCKLEN          ---- ---- ---- ---- ok   ---- ---- ---- ---- ----
   CMD17 READ_SINGLE_BLOCK     ---- ---- ---- ---- data ---- ---- ---- ---- ----
   CMD18 READ_MULTIPLE_BLOCK   ---- ---- ---- ---- data ---- ---- ---- ---- ----
-  CMD19 SEND_TUNING_PATTERN   ---- ---- ---- ---- data ---- ---- ---- ---- ----
+  CMD19 SEND_TUNING_BLOCK     ---- ---- ---- ---- data ---- ---- ---- ---- ----
   CMD20 SPEED_CLASS_CONTROL   ---- ---- ---- ---- prg  ---- ---- ---- ---- ----
   CMD23                       ---- ---- ---- ---- ok   ---- ---- ---- ---- ----
   class 4
@@ -38583,7 +39265,8 @@ XXX...
 ### CMD52 - SDIO: IO\_RW\_DIRECT
 
 
-Read/write single byte.
+Read/write single byte. Mostly used for detection/configuration via SDIO
+Function 0 commands.
 
 ```
   31     R/W Flag               (0=Read, 1=Write)
@@ -38635,6 +39318,8 @@ SPI Mode Response: R5:
 ### CMD53 - SDIO: IO\_RW\_EXTENDED
 
 
+Mostly used for actual command/data transfers via SDIO Function 1 commands.
+
 ```
   31     R/W Flag               (0=Read, 1=Write)
   30-28  Function Number (3bit) (0=CIA)
@@ -38651,7 +39336,7 @@ Data Transfer:
 ```
   For Byte Mode: Similar to CMD17/CMD24 (single block)
   For Block Mode: Similar to CMD18/CMD25 (multiple block)
-  For Block Mode: STOP_TRANSMISSION only needed if using "Infinite Blocks"
+  For Block Mode: CMD52:STOP_TRANSMISSION only needed if using "InfiniteBlocks"
 ```
 
 
@@ -38716,7 +39401,70 @@ SPI Mode Response: R4:
 ```
 
 
-I/O Commands for MMC:
+
+### DSi SDIO Wifi Init
+
+
+Related required registers/bits are:
+
+```
+ - SCFG_EXT7.bit19 needed for SDIO controller (else 4004Axxh-4004Bxxh disabled)
+ - SCFG_CLK7.bit??? maybe SDIO clock enable somewhere here?
+ - SCFG_WL.bit0 probably needed, too
+ - GPIO_WIFI.bit8 needed for AR6013G chips (else SDIO Function 1 fails)
+ - BPTWL[30h] needed for LED and SDIO (else SDIO fails badly)
+ - RTC.FOUT pin as configured by firmware (else WMI commands/events fail)
+```
+
+DSi init sequence is trying to send one CMD52 command first; if that fails,
+then the DSi is sending several CMD5's, followed by CMD3+CMD7.
+
+
+
+### SDIO State
+
+
+```
+  Command                 ini  stb  cmd  trn  ina
+  CMD3  SET_RELATIVE_ADDR stb  ok   ---  ---  ---
+  CMD5  IO_SEND_OP_COND   ok   ---  ---  ---  ---
+         ocr bad          ina  ---  ---  ---  ---
+  CMD7  SELECT_CARD       ---  cmd  ok   ---  ---
+        DESELECT_CARD     ---  ok   stb  ---  ---
+  CMD15 GO_INACTIVE_STATE ina  ina  ina  ---  ---
+  CMD52 IO_RW_DIRECT      ---  ---  ok   (cmd)---
+  CMD53 IO_RW_EXTENDED    ---  ---  trn  ---  ---
+```
+
+Note: In CMD52, state "dis" can mean state "ini","stb","ina" (though,
+theoretically CMD52 cannot be used in that states, so one should never see the
+"dis" state at all).
+
+
+
+### More SD commands that are (occassionally) used for SDIO
+
+
+```
+  CMD0  GO_IDLE_STATE     for entering SPI mode only (but does NOT reset SDIO)
+  CMD8  SEND_IF_COND      optional for SDHC/SDXC
+  CMD11 VOLTAGE_SWITCH    optional for UHS-I
+  CMD19 SEND_TUNING_BLOCK optional for UHS-I
+  CMD59 CRC_ON_OFF        spi-only
+```
+
+Moreover a combo card (a SDIO device with built-in SD memory card) may
+implement various SD commands; these commands will affect only the SD memory
+card side, not the SDIO device).
+
+SDIO doesn't have CID or CSD registers, nor commands for STOP\_TRANSMISSION,
+SET\_BUSWIDTH, or SET\_BLOCKLEN (but CMD52 can do equivalent stuff via SDIO
+Function 0 registers).
+
+
+```
+ ____________________________ I/O Commands for MMC____________________________
+```
 
 
 
@@ -39431,7 +40179,7 @@ and Directories (so they use some virtual FAT12 inside of the real FAT16).
 ### DSi eMMC Partition table
 
 
-The decrypted DSi MBR contains:
+The decrypted DSi MBR contains (for 240MB chips; 3rd part differs for 245.5MB):
 
 ```
   0000  00 00 00 00 00 00 00 00 .. .. .. .. 00 00        ;bootcode (zero)
@@ -39553,9 +40301,9 @@ see:
   01Ah 2   heads / disk            (DSi: 0010h)
   01Ch 2   number of reserved sectors    (DSi: None such entry!)
   01Ch 4   LBA First "hidden"      (DSi: A:00000877h, B:0006784Dh)
-  020h 4   LBA Size                (DSi: A:00066F89h, B:000105B3h)
+  020h 4   LBA Size (total sectors)(DSi: A:00066F89h, B:000105B3h)
   024h 1   Drive Number            (DSi: A:00h, B:01h)
-  025h 1   Flags                   (DSi: 00h)
+  025h 1   Flags (reserved)        (DSi: 00h)
   026h 1   EBPB Version            (DSi: 29h) (that is, DOS 4.0 EBPB)
   027h 4   Volume Serial Number    (DSi: 12345678h)
   02Bh 11  Volume Label            (DSi: "           ")
@@ -39564,7 +40312,40 @@ see:
   1FEh 2   Signature               (DSi: 55h,AAh)
 ```
 
-http://en.wikipedia.org/wiki/BIOS\_Parameter\_Block
+SDHC carts use FAT32, which differs in entries 011h, 016h and 024h-059h:
+
+```
+  011h 2   Must be 0 (number of root entries, is variable-length FAT chain)
+  016h 2   Must be 0 (sectors per fat, instead use 32bit value at 024h)
+  024h 4   sectors / FAT  (new 32bit value instead of old entry 016h)
+  028h 2   ExtFlags (related to "active" FAT copy)
+  02Ah 2   Version of FAT32 filesystem (minor, major) (should be 0.0)
+  02Ch 4   Cluster number of first Root directory cluster (usually/often 2)
+  030h 2   Sector number of FSINFO in reserved area (usually 0001h)
+  032h 2   Sector number of VBR backup copy in reserved area (usually 0006h)
+  034h 12  Reserved for future   ;Should be zerofilled
+  040h 1   Drive Number                                               ;\
+  041h 1   Flags (reserved)                                           ; as old
+  042h 1   EBPB Version          ;Must be 29h (that is, DOS 4.0 EBPB) ; entries
+  043h 4   Volume Serial Number                                       ; at 024h
+  047h 11  Volume Label                                               ;
+  052h 8   Filesystem Type       ;Must be "FAT32   "                  ;/
+```
+
+Moreover, FAT32 has the "FSINFO" sector:
+
+```
+  000h 4   Value 41615252h (aka "RRaA")
+  004h 480 Reserved (should be 0)
+  1E4h 4   Value 61417272h (aka "rrAa")
+  1E8h 4   Hint on number of free clusters   (or FFFFFFFFh=unknown)
+  1ECh 4   Hint on first free cluster number (or FFFFFFFFh=unknown)
+  1F0h 12  Reserved (should be 0)
+  1FCh 4   Value AA550000h
+```
+
+For more info see http://en.wikipedia.org/wiki/BIOS\_Parameter\_Block and
+fatgen103.pdf (official specs from microsoft).
 
 
 
@@ -39572,16 +40353,19 @@ http://en.wikipedia.org/wiki/BIOS\_Parameter\_Block
 
 
 The following sectors are occupied by the File Allocation Table (FAT), which
-contains 12- or 16-bit entries for each cluster:
+contains 12bit, 16bit, or 32bit entries (for FAT12/16/32) for each cluster:
 
 ```
-  (0)000      unused, free
-  (0)001      ???
-  (0)002...   pointer to next cluster in chain (0)002..(F)FEF
-  (F)FF0-6    reserved (no part of chain, not free)
-  (F)FF7      defect cluster, don't use
-  (F)FF8-F    last cluster of chain
+  (x000)(0)000      unused, free
+  (x000)(0)001      ???
+  (x000)(0)002...   pointer to next cluster in chain (0)002..(F)FEF
+  (xFFF)(F)FF0-6    reserved (no part of chain, not free)
+  (xFFF)(F)FF7      defect cluster, don't use
+  (xFFF)(F)FF8-F    last cluster of chain
 ```
+
+The "x" in MSB of FAT32 entries is reserved (ie. FAT32 is restricted to 28bit
+cluster numbers).
 
 Number and size of FATs can be calculated by the information in the boot
 sector.
@@ -39607,7 +40391,8 @@ introduced the BPB with media descriptor byte.)"
 
 
 The following sectors are the Root directory, again, size depends on the info
-in bootsector. Each entry consists of 32 bytes:
+in bootsector (on FAT32 is it's a normal cluster chain with variable size).
+Each entry consists of 32 bytes:
 
 ```
   00-07  8    Filename (first byte: 00=free entry, 2E=dir, E5=deleted entry)
@@ -39687,7 +40472,8 @@ whatever purposes).
 
 
 Finally all following sectors are data clusters. The first cluster is called
-cluster number (0)002, followed by number (0)003, (0)004, and so on.
+cluster number (000)(0)002, followed by number (000)(0)003, (000)(0)004, and so
+on.
 
 
 http://en.wikipedia.org/wiki/Design\_of\_the\_FAT\_file\_system
@@ -39736,9 +40522,14 @@ Most sectors are encrypted with a per-console key.
   0010EE00h  CDF1200h 1st partition (205.9Mbyte) (main, encrypted, FAT16)
   0CF00000h  9A00h    Unused (all 00h)
   0CF09A00h  20B6600h 2nd partition (32.7Mbyte)  (photo, encrypted, FAT12)
+ For 240.0MB chips (Samsung KMAPF0000M-S998 or KLM5617EFW-B301):
   0EFC0000h  BA00h    Unused (all 00h)
   0EFCBA00h  34600h   3rd partition (0.2Mbyte)   (extra, unformatted)
-  0F000000h           End of 240MByte Address Space
+  0F000000h  -        End of 240MByte Address Space
+ For 245.5MB chips (ST NAND02GAH0LZC5, both rev30 and rev31):
+  0EFC0000h  B600h    Unused (all 00h?) (smaller unused area as in 240MB chip)
+  0EFCB600h  5B4A00h  3rd partition (5.7Mbyte)   (extra, unformatted)
+  0F580000h  -        End of 245.5MByte Address Space
 ```
 
 
@@ -39762,7 +40553,7 @@ Most sectors are encrypted with a per-console key.
   180h 14h Global MBK1..MBK5 Slot Settings
   194h 0Ch Local ARM9 MBK6..MBK8 Settings
   1A0h 0Ch Local ARM7 MBK6..MBK8 Settings
-  1ACh 4   Global MBK9 Slot Master Setting (FF000000h)
+  1ACh 4   Global MBK9 Slot Write Protect (FF000000h)
   1B0h 50h Zerofilled
 ```
 
@@ -39776,7 +40567,7 @@ The above RSA Block contains 74h bytes of information (plus 0Bh bytes padding):
   24h  14h  SHA1 on decrypted ARM9 Bootcode, with the actual binary size.
   38h  14h  SHA1 on decrypted ARM7 Bootcode, with the actual binary size.
   4Ch  14h  Zerofilled
-  60h  14h  SHA1? (63,D2,FC,6E,A9,E7,99,00,00,79,5C,FE,F1,E8,26,C4,C0,C9,CF,A5)
+  60h  14h  SHA1 on above 60h-byte area at [00h..5Fh] (63,D2,FC,6E,...)
 ```
 
 
@@ -39847,6 +40638,7 @@ See also:
   "NUS Downloader" allows to download and decrypt system updates
   "DSi SRL Extract" allows to decrypt DSiware files (when copied to SD card)
   "TWLTool" decrypt/encrypt eMMC images (firmware downgrading, dsiware-hax)
+  "TWLbf" and "bfCL" bruteforce Console ID or CID (or both) from eMMC images
 ```
 
 
@@ -40018,13 +40810,13 @@ Format of the 54h-byte device list entries:
   02h  1    Access Rights (bit1=Write, bit2=Read)
   03h  1    Zero
   04h  10h  Device Name (eg. "nand" or "dataPub") (zeropadded)
-  14h  40h  Path (zeropadded)
+  14h  40h  Path        (eg. "/" or "nand:/shared1") (zeropadded)
 ```
 
 Bits in Flags byte:
 
 ```
-  0    Physical Drive (0=External SD Slot, 1=Internal eMMC)
+  0    Physical Drive (0=External SD/MMC Slot, 1=Internal eMMC)
   1-2  Zero (maybe MSBs of Drive)
   3-4  Device Type (0=Physical, 1=Virtual/File, 2=Virtual/Folder, 3=Reserved)
   5    Partition (0=1st, 1=2nd)
@@ -40050,6 +40842,10 @@ The DSi has 9 default devices ("A"-"I"):
 Depending on the cartheader, usually only 5-8 of that 9 devices are copied to
 the device list in RAM, and Access Rights for some devices can be crippled in
 the RAM list entries).
+
+Caution: The list may not contain forward references (eg. one can redirect
+"dataPub" to "sdmc:/flipnote.pub", but that works only if "sdmc" was already
+defined in one of the previous entries).
 
 A and B: These physical eMMC partitions are always included in the list
 (because they are needed as parent entries for Virtual devices), however, their
@@ -40337,7 +41133,7 @@ space in "Blocks" (aka 128Mbytes units, aka 1Mbit units).
 The DSi is using weird numeric strings as file/folder names:
 
 ```
-  000000vv Title Version (hex? decimal?) as carthdr[1Eh]
+  000000vv Title Version (lowercase hex32bit) from tmd[1E4h] as carthdr[1Eh]
   4ggggggg Title ID Gamecode (hex) as carthdr[230h..233h]
   000300tt Title ID Filetype (hex) as carthdr[234h..237h]
   HNI_nnnn Camera photo/frame files (nnnn = 0001..0100 decimal)
@@ -40367,13 +41163,13 @@ The "4ggggggg" can be (last two digits are region(s), or "41" for all regions):
   484e47gg Nintendo DSi Browser
   484e4841 Nintendo DS Cart Whitelist (non-executable datafile) (all regions)
   484e49gg Nintendo DSi Camera
-  484e4agg Nintendo Zone
+  484e4agg Nintendo Zone (doesn't exist in Korea)
   484e4bgg Nintendo DSi Sound
   484e4cgg Version Data (non-executable datafile)
-  484e4fgg Nintendo 3DS Transfer Tool (non-freeware)
+  484e4fgg Nintendo 3DS Transfer Tool
   484E494A Nintendo DSi Camera Data (uppercase) ("japan") (aka all regions)
   4b44474a Dokodemo Wii no Ma (japan only)
-  4b4755gg Flipnote Studio
+  4b4755gg Flipnote Studio (doesn't exist in Korea/China)
   4bgggggg DSiware games... (whatever games you have purchased, if any)
 ```
 
@@ -40415,7 +41211,7 @@ FAT16 (outside of the ticket and title folders):
   FAT16:\sys\log\shop.log               ;32 bytes
   FAT16:\sys\HWINFO_S.dat               ;16K
   FAT16:\sys\HWINFO_N.dat               ;16K
-  FAT16:\sys\cert.sys                   ;3904 bytes
+  FAT16:\sys\cert.sys                   ;3904 bytes (or 2560 bytes)
   FAT16:\sys\HWID.sgn                   ;256 bytes (unknown purpose/content)
   FAT16:\sys\TWLFontTable.dat           ;843.1K (D2C40h bytes) (compressed)
   FAT16:\sys\dev.kp                     ;446 bytes (encrypted)
@@ -40471,12 +41267,14 @@ Flipnote "movies" can be also saved on SD card:
   SD:\private\ds\app\4B4755GG\gif\XNNNNN_NNNNNNNNNNNNN_NNN.gif          ;gif
 ```
 
-The Nintendo DSi Sound utility can read AAC files from SD card (though it
-doesn't seem to allow to save your own recordings to SD card?). There appears
-to be no special folder location, ie. the AAC files can be anywhere:
+The Nintendo DSi Sound utility can read .AAC (and .M4A) files from SD card
+(though it doesn't seem to allow to save your own recordings to SD card?).
+There appears to be no special folder location, ie. the AAC/M4A files can be
+anywhere:
 
 ```
-  SD:\...\*.AAC
+  SD:\...\*.aac
+  SD:\...\*.m4a
 ```
 
 
@@ -40544,9 +41342,7 @@ separate files).
 ### Emulation
 
 
-Current no$gba version is also able to emulate read-access to eMMC images
-(write-access will require further research; or further guessing, since eMMC
-access cannot be tested on real hardware, at least not without sudokuhax).
+No$gba emulates read/write-accesses to eMMC images.
 
 Another idea for future would be using files & folders on the PC filesystem
 instead of a single image file (that might be easier to deal with in some
@@ -40573,9 +41369,13 @@ a 40h-byte Footer at the end of the file:
   0000000h ..  Encrypted eMMC image (usually 240Mbyte for DSi)
   F000000h 16  Footer ID      ("DSi eMMC CID/CPU")
   F000010h 16  eMMC CID       (dd ss ss ss ss 03 4D 30 30 46 50 41 00 00 15 00)
-  F000020h 8   CPU/Console ID (nn n1 nn nn nn 0n A2 08)
+  F000020h 8   CPU/Console ID (nn n1 nn nn nn nn xn 08)
   F000028h 24  Reserved       (zerofilled)
 ```
+
+Alternately, the "footer" can be stored in the zerofilled area at eMMC offset
+FF800h..FF83Fh (using that area, the data can be kept in place even when using
+other tools; that were getting confused by the data appended at end of file).
 
 
 
@@ -40592,7 +41392,7 @@ should contain a pre-formatted MBR and FAT (as real SD cards do).
 
 note: no$gba does currently support only 128MB SDSC images (the CID, CSD, OCR,
 SCR, SSR registers are hardcoded for images with 125698048 byte size), there is
-a .zip file with empry pre-formatted SD image in the no$gba package (if you
+a .zip file with an empty pre-formatted SD image in the no$gba package (if you
 want to use that image: unzip it to the no$gba folder).
 
 
@@ -40696,9 +41496,21 @@ for dev.kp):
 ```
 
 - [DSi ES Block Encryption](#dsiesblockencryption)
+Caution: There are some ways to modify .tmd files, but that can cause the whole
+title to be deleted when starting one of the following three tools:
+
+```
+  Data Management (in System Settings), DSi Shop, and 3DS transfer tool
+```
+
+These tools will delete the titles "content" folder (with .app and .tmd files)
+and the "data" folder (with .sav files). As a workaroung: Set read-only
+attribute for .tmd and .app files (the deletion aborts once when hitting a
+read-only file; with the files being processed as ordered in the directory).
+
 Note: Tickets are kept stored in eMMC even after deleting titles (that's
-allowing to redownload the titles for free; at least as long as the DSi shop is
-online).
+allowing to redownload the titles for free; at least that's been the case when
+the DSi shop was still online).
 
 
 Below "wrap.bin" and "menusave.dat" files are containing lists of installed
@@ -40714,7 +41526,7 @@ Contains a list of installed DSiware Title IDs (in no specific order).
 
 ```
   0000h 14h   SHA1 on entries [014h..03Fh]
-  0014h 14h   SHA1 on entries [028h..177h]
+  0014h 14h   SHA1 on entries [040h..177h]
   0028h 4     ID ("APWR") (aka 'WRAP' with mis-ordered letters)
   002Ch 4     Size of entries at [040h..177h] (00000138h, aka 39*8)
   0030h 10h   Zerofilled
@@ -40747,6 +41559,9 @@ most recently selected title is stored in the TWLCFGn.dat files).
 
 Note that the "Nintendo Zone" utility isn't included in this list (even though
 it's present in title & ticket folders, and listed in wrap.bin).
+
+The System Menu works even if data\private.sav doesn't exist (however, the
+sort-order is stored only if data\private.sav does exist).
 
 
 
@@ -40885,6 +41700,30 @@ extract" utility).
   2C0h  180h   TW cert, specific to a console (see dev.kp)
 ```
 
+More in depth, the above two cert's look as so:
+
+```
+  140h 4    Signature Type (00,01,00,02) (ECC, sect233r1, non-RSA)  ;\
+  144h 3Ch  Signature Hex numbers... across... below?               ; AP cert
+  180h 40h  Signature padding/alignment (zerofilled)                ; 180h-byte
+  1C0h 40h  Signature Name "Root-CA..-MS..-TW..-08..", 00h-padded   ;
+            "Root-CA00000001-MS00000008-TWxxxxxxxx-08nnnnnnnnnnn1nn";
+  200h 4    Key Type (00,00,00,02)       (ECC, sect233r1, non-RSA)  ;
+  204h 40h  Key Name "AP00030015484e42gg", 00h-padded ;sys.settings ;
+  244h 4    Key Random/time/type/flags/chksum?   ;<-- ZERO here     ;
+  248h 3Ch  Key Public ECC Key (point X,Y) (random/per game?)       ;
+  284h 3Ch  Key padding/alignment (zerofilled)                      ;/
+  2C0h 4    Signature Type (00,01,00,02) (ECC, sect233r1, non-RSA)  ;\
+  2C4h 3Ch  Signature Hex numbers... across... below?               ; TW cert
+  300h 40h  Signature padding/alignment (zerofilled)                ; 180h-byte
+  340h 40h  Signature Name "Root-CA00000001-MS00000008", 00h-padded ; (same as
+  380h 4    Key Type (00,00,00,02)       (ECC, sect233r1, non-RSA)  ; dev.kp,
+  384h 40h  Key Name "TWxxxxxxxx-08nnnnnnnnnnn1nn", 00h-padded      ; excluding
+  3C4h 4    Key Random/time/type/flags/chksum?                      ; private
+  3C8h 3Ch  Key Public ECC Key (point X,Y)                          ; key)
+  404h 3Ch  Key padding/alignment (zerofilled)                      ;/
+```
+
 
 Much like the Wii, the DSi carries with it a private ECC key that it can use to
 sign things, and a certificate signed by Nintendo that attests to the fact that
@@ -41007,6 +41846,13 @@ Older versions are usually deleted on internal eMMC storage, so only the
 
 
 
+Below describes the "raw" ticket+tmd formats. For more info on the data being
+stored/encrypted in various locations, see these chapters:
+
+- [DSi SD/MMC DSiware Files on Internal eMMC Storage](#dsisdmmcdsiwarefilesoninternalemmcstorage)
+- [DSi SD/MMC DSiware Files on External SD Card (.bin aka Tad Files)](#dsisdmmcdsiwarefilesonexternalsdcardbinakatadfiles)
+- [DSi SD/MMC DSiware Files from Nintendo's Server](#dsisdmmcdsiwarefilesfromnintendosserver)
+
 
 ### Ticket (cetk aka .tik)
 
@@ -41041,7 +41887,7 @@ stuff.
   1E8h  4    Zero (Wii: Permitted Titles Mask)
   1ECh  4    Zero (Wii: Permit mask)
   1F0h  1    Zero (Wii: Allow Title Export using PRNG key, 0=No, 1=Yes)
-  1F1h  1    Zero (Wii: Common Key Index, 0=Normal, 1=Korea)
+  1F1h  1    Zero (Wii: Common Key Index, 0=Normal, 1=Korea) (DSi: Always 0)
   1F2h  2Fh  Zero
   221h  1    Unknown (01h) (Wii: Unknown, 00h=Non-VC, 01h=VC)
   222h  20h  FFh-filled (Wii: Content access permissions, 1 bit per content)
@@ -41106,7 +41952,7 @@ one content (the ".app" file).
   1DEh        2    Number of contents (at 1E4h and up) (usually 00h,01h)
   1E0h        2    boot index    (0)
   1E2h        2    Zerofilled (padding/align 4h)
-  1E4h+N*24h  4    Content ID    (00,00,00,vv)                ;"0000000vv.app"
+  1E4h+N*24h  4    Content ID    (00,00,00,vv) ;lowercase/hex ;"0000000vv.app"
   1E8h+N*24h  2    Content Index (00,00)
   1EAh+N*24h  2    Content Type  (00,01)  ;aka DSi .app
   1ECh+N*24h  8    Content Size  (00,00,00,00,00,19,E4,00) ;NEWEST ;cart[210h]
@@ -41121,7 +41967,8 @@ version (when renaming the .app to match the .tmd's Content ID, but that'd be a
 messy solution, and it's better to use the correct .tmd per .app).
 
 Note: title.tmd is usually/always 208h bytes (one content), max permitted size
-is 49E4h (200h contents).
+is 49E4h (200h contents), a larger filesize can crash the firmware (used by
+Unlaunch.dsi exploit).
 
 
 
@@ -41177,17 +42024,18 @@ certificate) and CETK (2468 bytes; with included certificate).
 
 
 
-### FAT16:\sys\cert.sys                   ;3904 bytes
+### FAT16:\sys\cert.sys  ;3904 bytes (or 2560 bytes for Korea, or for no-Shop?)
 
 
 Data in this file is same on all retail DSi consoles (even for different
-regions like US and EUR).
+regions like US and EUR and KOR).
 
 ```
   000h 300h  Public RSA Key "XS00000006" signed by "Root-CA00000001"
   300h 400h  Public RSA Key "CA00000001" signed by "Root"
   700h 300h  Public RSA Key "CP00000007" signed by "Root-CA00000001"
-  A00h 240h  Private/Public ECC Keys "MS00000008" signed by "Root-CA00000001"
+ Below NOT in Korea? Or NOT when notyet connected to DSi Shop?
+  A00h 240h  Public ECC Key "MS00000008" signed by "Root-CA00000001"
   C40h 300h  Public RSA Key "XS00000003" signed by "Root-CA00000001"
 ```
 
@@ -41233,14 +42081,15 @@ More detailed, the retail version of cert.sys looks as so:
   8C8h 100h Key Public RSA Key (93,BC,0D,1F..)                  ;
   9C8h 4    Key Public RSA Exponent? (00,01,00,01)              ;
   9CCh 34h  Key padding/alignment (zerofilled)                  ;/
+ Below NOT in Korea? Or NOT when notyet connected to DSi Shop?
   A00h 4    Signature Type (00,01,00,01) (100h-byte RSA)        ;\
   A04h 100h Signature RSA-OpenPGP-SHA1 across B40h..C3F         ;
   B04h 3Ch  Signature padding/alignment (zerofilled)            ;
   B40h 40h  Signature Name "Root-CA00000001", 00h-padded        ;
-  B80h 4    Key Type (00,00,00,02)    ;<-- ECC (not RSA)        ;
+  B80h 4    Key Type (00,00,00,02)   (ECC, sect233r1, non-RSA)  ;
   B84h 40h  Key Name "MS00000008", 00h-padded                   ;
   BC4h 4    Key Random/time/type/flags/chksum?                  ;
-  BC8h 3Ch  Key Public ECC Key? (01,93,6D,08..)                 ;
+  BC8h 3Ch  Key Public ECC Key (point X,Y) (01,93,6D,08..)      ;
   C04h 3Ch  Key padding/alignment (zerofilled)                  ;/
   C40h 4    Signature Type (00,01,00,01) (100h-byte RSA)        ;\
   C44h 100h Signature RSA-OpenPGP-SHA1 across D80h..F3F         ;
@@ -41283,21 +42132,19 @@ for .tik files):
 ```
 
 - [DSi ES Block Encryption](#dsiesblockencryption)
-The contents of an example dev.kp file after decryption is shown below.
+The decrypted dev.kp contains following entries:
 
 ```
-  000h 4    Signature Type (00,01,00,02) (ECC, non-RSA) (!)         ;\
+  000h 4    Signature Type (00,01,00,02) (ECC, sect233r1, non-RSA)  ;\
   004h 3Ch  Signature Hex numbers... across... below?               ;
   040h 40h  Signature padding/alignment (zerofilled)                ;
   080h 40h  Signature Name "Root-CA00000001-MS00000008", 00h-padded ;
-  0C0h 4    Key Type (00,00,00,02)       (ECC, non-RSA) (!)         ;
+  0C0h 4    Key Type (00,00,00,02)       (ECC, sect233r1, non-RSA)  ;
   0C4h 40h  Key Name "TWxxxxxxxx-08nnnnnnnnnnn1nn", 00h-padded      ;
   104h 4    Key Random/time/type/flags/chksum?                      ;
-  108h 1Eh  Key Public ECC Key                                      ;
-  126h 2    Key padding/alignment (zerofilled)                      ;
-  128h 1Ch  Unknown hex numbers?                                    ;
+  108h 3Ch  Key Public ECC Key (point X,Y)       ;<-- public key    ;
   144h 3Ch  Key padding/alignment (zerofilled)                      ;
-  180h 1Eh  Key Private ECC Key                                     ;/
+  180h 1Eh  Key Private ECC Key                  ;<-- private key   ;/
 ```
 
 The "TWxxxxxxxx-08nnnnnnnnnnn1nn" string may vary:
@@ -41397,7 +42244,11 @@ server.
 
 
 
-### FAT16:\sys\TWLFontTable.dat           ;843.1K (D2C40h bytes) (compressed)
+### FAT16:\sys\TWLFontTable.dat ;843.1K (D2C40h bytes) (compressed) (Normal)
+
+
+
+### FAT16:\sys\TWLFontTable.dat ;158.9K (27B80h bytes) (compressed) (Korea)
 
 
 This file contains LZrev-compressed fonts in the NFTR (Nitro font) format.
@@ -41412,10 +42263,12 @@ applications may not use these fonts.
 
 ```
   0000h       80h  RSA-SHA1 on entries [0080h..009Fh] (23h,8Bh,F9h,08h,...)
-  0080h       4    Unknown (00h,31h,07h,08h) (maybe date, or whatever?)
-  0084h       1    Number of NFTR resources (3)
-  0085h       7    Zerofilled
-  008Ch       14h  SHA1 on below resource headers at [00A0h+(0..3*40h-1)]
+  0080h       4    Date? (00h,31h,07h,08h=Norm, 27h,05h,09h=Korea)
+  0084h       1    Number of NFTR resources (3=Norm, 9=Korea)
+  0085h       1    Zerofilled
+  0086h       1    Unknown (0=Norm, 5=Korea)
+  0087h       5    Zerofilled
+  008Ch       14h  SHA1 on below resource headers at [00A0h+(0..NUM*40h-1)]
   00A0h+N*40h 20h  Resource Name in ASCII, padded with 00h
   00C0h+N*40h 4    Compressed Resource Size in .dat file   ;\compressed
   00C4h+N*40h 4    Compressed Resource Start in .dat file  ;/
@@ -41424,12 +42277,21 @@ applications may not use these fonts.
   ...         ..   Compressed Font Resources (with 16-byte alignment padding)
 ```
 
-The three resources are containing the same font (differing only in size):
+The resources are containing the same font thrice (at three different sizes),
+normal consoles have only three resources (0,1,2), korean consoles have nine
+resources (6,7,8 used, plus zerofilled 40h-byte entries for resource 0-5). The
+name strings of the resources are:
 
 ```
-  "TBF1_l.NFTR"  ;Large font:  16x21 pixels, 2bpp, 7365 characters, Unicode
-  "TBF1_m.NFTR"  ;Medium font: 12x16 pixels, 2bpp, 7365 characters, Unicode
-  "TBF1_s.NFTR"  ;Small font:  10x12 pixels, 2bpp, 7365 characters, Unicode
+  "TBF1_l.NFTR"     ;0 Large  16x21 pixels ;\Normal (blurry: 4 colors used)
+  "TBF1_m.NFTR"     ;1 Medium 12x16 pixels ; 2bpp, 7365 characters, Unicode
+  "TBF1_s.NFTR"     ;2 Small  10x12 pixels ;/
+  (china?)          ;3
+  (china?)          ;4
+  (china?)          ;5
+  "TBF1-kr_l.NFTR"  ;6 Large  16x21 pixels ;\Korea (crisp-clear: 2 colors used)
+  "TBF1-kr_m.NFTR"  ;7 Medium 12x16 pixels ; 2bpp, 3679 characters, Unicode
+  "TBF1-kr_s.NFTR"  ;8 Small  10x12 pixels ;/
 ```
 
 All characters have proportional width (as defined in the Character Width
@@ -41443,11 +42305,11 @@ custom nintendo-specific symbols (like buttons and Wii symbols).
 
 
 
-### China/Korea/Japan
+### China/Japan
 
 
-Unknown if chinese/korean DSi's are containing a different font file, or an
-extra font file.
+Unknown if chinese DSi's are containing a different font file, or an extra font
+file.
 
 Unknown if the japanese letters are actually legible (especially for the
 smaller font sizes).
@@ -41507,7 +42369,7 @@ compressed data (starting with the first compression flag byte, following by
 the first chunk header). For details, see:
 
 - [LZ Decompression Functions](#lzdecompressionfunctions)
-The DSi's "\sys\TWLFontTable.dat" contains three fonts, use a special LZ
+The DSi's "\sys\TWLFontTable.dat" contains three fonts, using a special LZ
 compression variant (with the data decompressed backwards, starting at highest
 memory address). For details, see:
 
@@ -41542,7 +42404,7 @@ Either way, the decompressed fonts are looking as follows:
   0Bh      2    Unknown/unused (zero)
   0Dh xxx  1    Width           ;\or Width+1
   0Eh xxx  1    Width_bis (?)   ;/
-  0Fh      1    Encoding (0/UTF8, 1/UNICODE, 2/SJIS, 3/CP1252) (usually 1)
+  0Fh      1    Encoding (0=UTF8, 1=Unicode, 2=SJIS, 3=CP1252) (usually 1)
   10h      4    Offset to Character Glyph chunk, plus 8
   14h      4    Offset to Character Width chunk, plus 8
   18h      4    Offset to first Character Map chunk, plus 8
@@ -41637,7 +42499,7 @@ For Map Type1, Custom TileNo's assigned to increasing CharNo's:
 
 ```
   14h+N*2  2    TileNo's for First..Last Char (FFFFh=None; no tile assigned)
-  ...      ...  Padding to 4-byte boundary (zerofilled)
+  ...      0/2  Padding to 4-byte boundary (zerofilled)
 ```
 
 For Map Type2, Custom TileNo's assigned to custom CharNo's:
@@ -41646,12 +42508,13 @@ For Map Type2, Custom TileNo's assigned to custom CharNo's:
   14h      2    Number of following Char=Tile groups...
   16h+N*4  2    Character Number
   18h+N*4  2    Tile Number
-  ...      ...  Padding to 4-byte boundary (zerofilled)
+  ...      2    Padding to 4-byte boundary (zerofilled)
 ```
 
-These chunks are contain tables for translating character numbers (eg. Unicode
-numbers, or whatever format is selected in the the Font Info chunk) to actual
-Tile Numbers (ie. the way how tiles are ordered in the Glyph and Width chunks).
+These chunks are containing tables for translating character numbers (eg.
+Unicode numbers, or whatever format is selected in the Font Info chunk) to
+actual Tile Numbers (ie. the way how tiles are ordered in the Glyph and Width
+chunks).
 
 Font files can contain several Character Map chunks (eg. some Type0 chunks for
 Char 0020h..007Eh and Char 00A0h..00FFh, plus some Type1 chunks for areas like
@@ -41885,7 +42748,7 @@ abbreviated to "xxxx..xx", and some lines are replaced by "...").
 ```
   0000h 80h   RSA-SHA1-HMAC across entries [0088h..00A3h]
               (with RSA key from Bootsectors, and also from Launcher)
-              (with SHA1-HMAC key = SHA1([4004D00h..4004D07h])
+              (with SHA1-HMAC key = SHA1([4004D00h..4004D07h], aka Console ID)
   0080h 4     Header, Version or so (00000001h)
   0084h 4     Header, Size of entries at [0088h..00A3h] (0000001Ch)
   0088h 4     Bitmask for Supported Languages (3Eh for Europe) (as wifi_flash)
@@ -41893,11 +42756,14 @@ abbreviated to "xxxx..xx", and some lines are replaced by "...").
   0090h 1     Console Region (0=JPN, 1=USA, 2=EUR, 3=AUS, 4=CHN, 5=KOR)
   0091h 12    Serial/Barcode (ASCII, 11-12 characters; see console sticker)
   009Dh 3     Unknown (00,00,3C)                     ;"<"
-  00A0h 4     String "PANH" (aka HNAP=Launcher spelled backwards?)
+  00A0h 4     Title ID LSBs for Launcher ("PANH", aka HNAP spelled backwards)
   00A4h 3F5Ch Unused (FFh-filled)
 ```
 
-Entries [0088h..009Fh] are copied to [2FFFD68h..2FFFD7Fh].
+Entries [0088h..009Fh] are copied to [2FFFD68h..2FFFD7Fh]. Entry [00A0h] is
+used to construct the region-specific filename of the Launcher (System Menu).
+
+The RSA with Console ID means that one cannot change the region/language stuff.
 
 
 
@@ -41913,6 +42779,8 @@ Entries [0088h..009Fh] are copied to [2FFFD68h..2FFFD7Fh].
   008Ch 10h   Some per-console ID (used in "Tad Files")
   009Ch 3F64h Unused (FFh-filled)
 ```
+
+Entries [0088h..009Bh] are copied to [2000600h..2000613h].
 
 
 
@@ -42041,8 +42909,8 @@ situations?).
   13BD4h 10h    Part 2.b database  (00002F80h,00000FC0h,00000002h,0053F040h) ;
   13BE4h 10h    Part 2.c stub/code (00003F40h,00000312h,00000004h,00527000h) ;
   13BF4h 10h    Part 2.d stub/data (00004260h,00000038h,00000005h,00524C00h) ;
-  13C04h 8      Part 2 ChipID 1 ;some IDs?             (0D000000h,23000024h) ;
-  13C0Ch 8      Part 2 ChipID 2 ;some IDs?             (0D000001h,23000024h) ;
+  13C04h 8      Part 2 ChipID 1 ;CHIP_ID, ROM_VERSION  (0D000000h,23000024h) ;
+  13C0Ch 8      Part 2 ChipID 2 ;alternate IDs?        (0D000001h,23000024h) ;
   13C14h 4      Part 2 Firmware Version: 2.3.0.108               (2300006Ch) ;
   13C18h 0Ch    Part 2 RAM vars/base/size    (00520000h,00520000h,00020000h) ;
   13C24h 1Ch    Zerofilled                                                   ;
@@ -42145,6 +43013,7 @@ defaults to French when using English as system language).
   090h 008h 4     RTC Offset (difference in seconds on change)  ;fmw_user[068h]
   094h 00Ch 4     Zerofilled (or FFh-filled) (=MSBs of above?)
   098h 010h 1     Flags (01h) (bit0 set when EULA was accepted) (0=newcountry?)
+                  ...or EULA version (to be same/higher than carthdr[20Eh])?
   099h 011h 9     Zerofilled
   0A2h 01Ah 1     Alarm Hour   (0..17h)                         ;fmw_user[052h]
   0A3h 01Bh 1     Alarm Minute (0..3Bh)                         ;fmw_user[053h]
@@ -42208,7 +43077,19 @@ Parental controls fields are all zero when not in use.
 
 verdata (00030005-HNLx) is a bundle of data which corresponds to a release of
 the "System Menu" -- every time Nintendo announces a new version of the system
-menu, they will update one or more other titles and then update this title.
+menu, they will update one or more other titles and then update this title. The
+verdata filesize is constant for all versions/regions (1B50h bytes). Existing
+verdata downloads on Nintendo's server are:
+
+```
+  00000001..00000009  jpn         (9 versions)
+  00000003..00000009  usa/eur/aus (7 versions)
+  00000001..00000006  chn         (6 versions)
+  00000002..00000006  kor         (5 versions)
+```
+
+Apart from those downloads/updates, each region did probably originally have an
+older version pre-installed.
 
 
 
@@ -42236,7 +43117,7 @@ The NARC archive contains the following files:
  nup_host.bin        - server to query for the next system update,
                        generally nus.t.shop.nintendowifi.net:443
  time_stamp.bin      - build date for this version, eg. 00281108 (28 Nov 2008)
- user_area_size.bin  - eg. 00000008
+ user_area_size.bin  - eg. 08000000h (signed) (=128Mbyte?) (aka 1024 "blocks"?)
  version.bin         - machine and human-readable version numbers for this
                        version of the System Menu, eg.
    0000: 01000300 31002e00 33004500 00000000  ....1...3.E.....
@@ -42263,7 +43144,8 @@ Other titles access the NARC by reading from eg. "verdata:/version.bin".
 
 
 ```
-  1.0    22 Oct 2008  First Update to Japanese Region DSi System Menu
+  1.0    22 Oct 2008  First Update(??) to Japanese Region DSi System Menu
+  1.1    ?            dsibrew:NoneSuch?, wikipedia:Preinstalled1stJpnVersion??
   1.2    18 Dec 2008  Second Update to Japanese Region DSi System Menu
   1.3    03 Apr 2009  Launch Day (USA, EUR, AUS), new "start DSi Camera" button
   1.4    29 Jul 2009  Blocks NDS flashcarts, Facebook support to share photos
@@ -42275,16 +43157,20 @@ Other titles access the NARC by reading from eg. "verdata:/version.bin".
 ```
 
 JAP region launched first (unknown if there was any pre-installed version prior
-to the v1.0 update, unknown if v1.1 did also exist).
+to the v1.0 update (or if v1.0 was really released as "update" at all), unknown
+if v1.1 did also exist).
 
 USA/EUR/AUS regions launched on 03 Apr 2009 (so only v1.3 and up exist as
-update?; but they must have had an older version pre-installed).
+update?; but they had an older version pre-installed: v1.2U is known to exist).
 
-KOR region launched at unknown date.
+CHN region launched on 11 Sep 2010 with firmware v1.4.2C (or more probably with
+v1.4.1C pre-installed?).
 
-CHN region launched on 11 Sep 2010 with firmware v1.4.2C (which is essentially
-same as v1.4.1 for other regions; for some weird reason, the chinese version
-numbers are one step "ahead" of the normal numbering).
+KOR region launched at unknown date (probably near chinese launch date) (korean
+v1.4.1K is known to exist).
+
+CHN and KOR do have version numbers one step higher than normal regions (ie.
+v1.4 through v1.4.5 are called v1.4.1 through v1.4.6 in china/korea).
 
 
 
@@ -42317,7 +43203,7 @@ Below Whitelist example is from firmware v1.4E:
   - 286ACh 80h        RSA-SHA1 on [2872Ch..4AFBFh]                             ;
   - 2872Ch 4          Number of titles (000013BCh) (=5052)                     ;
   - 28730h 13BCh\*1Ch  Titles (1Ch bytes each, only one SHA1)                   ;/
-- Part 3 ("NDHI") is differs in v1.4 versus v1.4.5 (doesn't exist in v1.3):
+- Part 3 ("NDHI") differs in v1.4 versus v1.4.5 (doesn't exist in v1.3):
   - 4AFC0h 4          ID "NDHI"                                                ;\
   - 4AFC4h 80h        RSA-SHA1 on [4B044h..4B1B7h]                             ;
   - 4B044h 4          Number of titles (04h in v1.4E)    ;60h in v1.4.5E       ;
@@ -42342,30 +43228,27 @@ signatures).
 
 NDHT Title Structure (30h bytes each):
 
-```
-  Start Length  Description
-  000h  4   Title ID (Gamecode)
-  004h  4   Title version
-  008h  20  Phase 1 SHA1-HMAC on 160h-byte cartheader and ARM9+ARM7 areas (?)
-  01Ch  20  Phase 2 SHA1-HMAC on ARM9 Overlay and NitroFAT etc            (?)
-```
+- This contains all NDS titles released prior to DSi firmware v1.0.
+  - Start Length  Description
+  - 000h  4   Title ID (Gamecode)
+  - 004h  4   Title version
+  - 008h  20  Phase 1 SHA1-HMAC on 160h-byte cartheader and ARM9+ARM7 areas (?)
+  - 01Ch  20  Phase 2 SHA1-HMAC on ARM9 Overlay and NitroFAT (zero if no overlay)
 
 NDHX Title Structure (1Ch bytes each):
 
-```
-  000h  4   Title ID (Gamecode)
-  004h  4   Title version
-  008h  20  Phase 3 SHA1-HMAC on Icon/Title
-```
+- This contains all NDS titles released prior to DSi firmware v1.4.
+  - 000h  4   Title ID (Gamecode)
+  - 004h  4   Title version
+  - 008h  20  Phase 3 SHA1-HMAC on Icon/Title
 
 NDHI Title Structure (5Ch bytes each):
 
-```
-  000h  4   Title ID (Gamecode)
-  004h  4   Title version
-  008h  8*8 Offset+Length for up to 8 regions (or 0,0=None)
-  048h  20  Phase 4 SHA1-HMAC on above region(s)
-```
+- This contains extra checks for detecting hacked/exploited NDS titles.
+  - 000h  4   Title ID (Gamecode)
+  - 004h  4   Title version
+  - 008h  8\*8 Offset+Length for up to 8 regions (or 0,0=None)
+  - 048h  20  Phase 4 SHA1-HMAC on above region(s)
 
 The 40h-byte SHA1-HMAC keys are contained in Launcher (61h,BDh,DDh,72h,... for
 Phase 1+2, and 85h,29h,48h,F3h,... for Phase 3+4). The RSA key is also
@@ -42391,6 +43274,29 @@ Specials related to games:
   NTR-A6WE-USA = FIFA World Cup 2006
   NTR-YF7E-USA = Fish Tycoon
   NTR-YOUF-FRA = Samantha Oups!
+```
+
+
+
+### Newer NDS Carts with RSA
+
+
+NDS games released after DSi firmware v1.0 have RSA headers without Icon SHA1
+
+NDS games released after DSi firmware v1.4 have RSA headers with Icon SHA1
+
+Accordingly, NDS games released between DSi firmware v1.0 and v1.4 do have
+whitelist NDHX entries (for the icon), but don't need NDHT entries (since
+that's already covered by the RSA header).
+
+Related carthdr flags are:
+
+```
+  cart[1BFh].bit6 = Cart Header RSA Signature exists
+  cart[1BFh].bit5 = Cart Header has Icon SHA1 at [33Ch]
+  cart[378h]      = SHA1 (same as whitelist Phase 1)
+  cart[38Ch]      = SHA1 (same as whitelist Phase 2)
+  cart[33Ch]      = SHA1 (same as whitelist Phase 3) (if above bit5=1)
 ```
 
 
@@ -42918,7 +43824,7 @@ Flipnotes animation files.
 
 The RSA signature is in OpenPGP SHA1 format (as used by SWI 23h, however
 Flipnote is using it's own RSA functions instead of the BIOS SWIs). The RSA
-public/private keys are contain in the Flipnote executable (in the modcrypted
+public/private keys are contained in the Flipnote executable (in the modcrypted
 area).
 
 
@@ -46101,7 +47007,7 @@ WMI\_GET\_CHANNEL\_LIST\_CMD reply ;aka WMI\_CHANNEL\_LIST\_REPLY
 ```
   00h  A_UINT8  1    reserved1;
   01h  A_UINT8  1    numChannels;            /* number of channels in reply
-  02h  A_UINT16 N*2  channelList[1];         /* channel in Mhz */
+  02h  A_UINT16 N*2  channelList[1];         /* channel in MHz */
 ```
 
 
@@ -46116,7 +47022,7 @@ Parameters (04h+N\*2 bytes):
   01h  A_UINT8  1   scanParam;              /* set if enable scan */
   02h  A_UINT8  1   phyMode;                /* see WMI_PHY_MODE */
   03h  A_UINT8  1   numChannels;            /* how many channels follow */
-  04h  A_UINT16 N*2 channelList[1];         /* channels in Mhz */
+  04h  A_UINT16 N*2 channelList[1];         /* channels in MHz */
 ```
 
 WMI\_PHY\_MODE values:
@@ -46275,7 +47181,7 @@ Parameters:
   ..   A_UINT32 4   forceScanInterval   Time interval between scans (msec)
   ..   A_UINT8  1   scanType            WMI_SCAN_TYPE
   ..   A_UINT8  1   numChannels         how many channels follow
-  ..   A_UINT16 N*2 channelList[1]      channels in Mhz
+  ..   A_UINT16 N*2 channelList[1]      channels in MHz
 ```
 
 WMI\_SCAN\_TYPE values:
@@ -48419,7 +49325,7 @@ Parameters:
 Parameters:
 
 ```
-  00h  A_UINT16 2  channel   ;frequency in Mhz
+  00h  A_UINT16 2  channel   ;frequency in MHz
   --  //A_UINT8 -  mode      ;outcommented (HT20 or HT40 flag?)
   --  //A_UINT8 -  secondary ;outcommented (HT40 2nd channel above/below flag?)
 ```
@@ -51097,7 +52003,7 @@ Parameters:
   00h  A_UINT32 4   basicRateMask;    /* bit mask of basic rates
   04h  A_UINT32 4   beaconIntval;     /* TUs
   08h  A_UINT16 2   atimWindow;       /* TUs
-  0Ah  A_UINT16 2   channel;          /* frequency in Mhz
+  0Ah  A_UINT16 2   channel;          /* frequency in MHz
   0Ch  A_UINT8  1   networkType;      /* INFRA_NETWORK | ADHOC_NETWORK
   0Dh  A_UINT8  1   ssidLength;       /* 0 - 32
   0Eh  A_UINT8  1   probe;            /* != 0 : issue probe req at start
@@ -52691,7 +53597,7 @@ of those I/O locations).
   IRAM Size (Kbyte)   N/A       N/A       160K?     ?         ?
   ROM ID version      2.0.0.392 ?         ?         2.3.0.36  ?
   Firmware version    2.1.0.123 ?         ?         2.3.0.108 ?
-  ROM Base            0E0000h   0E0000h   100000h   ?         ?
+  ROM Base            0E0000h   0E0000h   100000h   0E0000h   ?
   ROM Reset Entry     8E0000h   ?         ?         ?         ?
   RAM Base            100000h   140000h?  000000h?? 120000h?  ?
   RAM Host Interest   500400h   540600h   400600h?? 520000h   ?
@@ -52703,7 +53609,7 @@ of those I/O locations).
   RAM Size (hex)      2E000h    40000h    4xxxxh?   20000h?   ?
   ROM ID hex          20000188h ?         ?         23000024h ?
   Firm ID hex         2100007Bh ?         ?         2300006Ch ?
-  CHIP_ID used        02000001h ?         ?         ?         ?
+  CHIP_ID used        02000001h ?         ?         0D000000h ?
   CHIP_ID alternate?  02010001h ?         ?         0D00000xh ?
   BB_D2_CHIP_ID       has any?  ?         ?         ?         ?
 ```
@@ -56288,6 +57194,27 @@ using some software parser for extracting relevant definitions).
 
 
 
+### some partial hw4.0 memory dump...
+
+
+```
+  000000 zerofilled
+  004000 sth (01 00 00 00, 00 00 00 00)                        ;"RTC"
+  005000 zerofilled
+  040000 Deadbeef
+  080000 zerofilled
+  0E0000 06 10 00 00 21 22 22 22 00 00 00 E0 83 00 8E 00 ...   ;ROM?
+  109DC0 zerofilled                                            ;ROM?
+  10C000 14 19 52 00 ...                                       ;ROM?
+  114000 zerofilled                                            ;ROM?
+  120000 A0 B2 52 00     ;=52B2A0h (app_defined_area)   ;RAM
+  140000 zerofilled
+  200000 Deadbeef
+  400000..FFFFFFFF not checked (probably mirrors of above?)
+```
+
+
+
 
 ## <a name="dsiatheroswifiinternalio004000hrtcclocksochw2hw4hw6"></a>  DSi Atheros Wifi - Internal I/O - 004000h - RTC/Clock SOC (hw2/hw4/hw6)
 
@@ -56306,7 +57233,7 @@ using some software parser for extracting relevant definitions).
   5      hw2/hw4: MAC_COLD_RST  ;-moved to 005000h.bit1 in hw6  ;/
   6      CPU_WARM_RST
   7      hw2/hw4: WARM_RST      ;-moved to 005000h.bit2 in hw6  ;-hw2/hw4 only
-  8      COLD_RST               ;-also in 005000h.bit3 in hw6
+  8      COLD_RST (0=no change, 1=reset)  ;-also in 005000h.bit3 in hw6
   9      RST_OUT
   10     hw2/hw4: VMC_REMAP_RESET   ;removed in hw6             ;-hw2/hw4 only
   11     CPU_INIT_RESET
@@ -57279,7 +58206,7 @@ Maybe equivalent/similar to one of the PMU\_CONFIG[0..1] entries in hw4?
 ```
 
 Maybe this is related to the Nintendo DSi's backwards compatibilty mode (in
-which, the Atheros chip is simulating a Mitsume BB/RF chip for use with older
+which, the Atheros chip is simulating a Mitsumi BB/RF chip for use with older
 NDS games)?
 
 
@@ -57406,7 +58333,7 @@ NDS games)?
   0-9    DIV
   12-15  hw2/hw4: REFDIV (4bit)
   10-13  hw6:     REFDIV (4bit, now here)
-  14-15  hw6:     CLK_SEL ;<-- maybe replaces removed "CLK" in WLAN_QUADRATURE?
+  14-15  hw6:     CLK_SEL ;<-- maybe replaces removed "SEL" in WLAN_QUADRATURE?
   16     BYPASS
   17     UPDATING                       (R)
   18     NOPWD
@@ -71829,7 +72756,7 @@ EFUSE exists in hw4/hw6, with some differences
   4     GPIO33[0] Probably "GPIO330" test point on mainboard
   5     GPIO33[1] Headphone connect (HP#SP) (0=None, 1=Connected)
   6     GPIO33[2] Powerbutton interrupt (0=Short Keydown Pulse, 1=Normal)
-  7     GPIO33[3] Maybe the "via" near GPIO330 test point    (TSC related?)
+  7     GPIO33[3] sound enable output (ie. not a useful input)
 ```
 
 One of the above is probably the "IRQ\_O" signal on mainboard (possibly the
@@ -71838,9 +72765,11 @@ the "BPTWL" chip, rather than being solely related to the power button).
 
 Bit0-2 might be unused "NC" pins. Bit4 might be GPIO330, which might be just a
 test point without other connection. Bit7 might be connected to one of unknown
-vias, and which might connect to somewhere (the cooking coach cart sets
-interrupt edge select bit7; which hints that the pin could be used for
-something; the interrupt isn't actually enabled though).
+vias (maybe that near GPIO330 test point?), and which might connect to
+somewhere (probably to TSC/sound as the bit seems to enable sound output -
+though, the cooking coach cart sets interrupt edge select bit7; which hints
+that the pin could be used for something; the interrupt isn't actually enabled
+though).
 
 Some bits seem to be floating high-z (when switching from output/low to input
 they won't \<instantly> get high).
@@ -71856,7 +72785,7 @@ they won't \<instantly> get high).
   4-7   GPIO33[0-3] Data Output (0=Low, 1=High)
 ```
 
-Used only when below is set to direction=out.
+Used only when below is set to direction=out. Should be 80h (sound enable).
 
 
 
@@ -71869,8 +72798,9 @@ Used only when below is set to direction=out.
   4-7   GPIO33[0-3] Data Direction (0=Normal/Input, 1=Output)
 ```
 
-Should be usually set to 00h=Input. When using output direction, the "Data In"
-register will return the "Data Out" value ANDed with external inputs.
+Should be usually set to 80h (bit0-6=Input, bit7=Output). When using output
+direction, the "Data In" register will return the "Data Out" value ANDed with
+external inputs.
 
 
 Observe that HP#SP could be used as Output (output/low will probably cause the
@@ -71901,6 +72831,25 @@ speakers to be enabled; possible with/without disabling the headphones?).
 
 
 
+### 4004C04h - DSi7 - GPIO\_WIFI (R/W)
+
+
+```
+  0     Unknown (firmware keeps this bit unchanged when writing)
+  1-7   Zero
+  8     Wifi Mode (0=New Atheros/DSi-Wifi mode, 1=Old NDS-Wifi mode)
+  9-15  Zero
+```
+
+Bit8 must be properly configured for DWM-W024 wifi boards (must be 1 for
+NDS-Wifi mode, and must be 0 for DSi-Wifi; else SDIO Function 1 commands won't
+work).
+
+DWM-W015 boards seem to work fine regardless of that bit (unknown if the bit
+does have any (minor) effects on that boards at all).
+
+
+
 
 ## <a name="dsiconsoleids"></a>  DSi Console IDs
 
@@ -71918,7 +72867,7 @@ The DSi contains several unique per-console numbers:
 
 
 
-### 4004D00h - DSi7 - CPU/Console ID Code (64bit)
+### 4004D00h - DSi7 - CPU/Console ID Code (64bit) (R)
 
 
 ```
@@ -71930,23 +72879,28 @@ initialize KEY\_X values for eMMC encryption/decryption. Common 64bit settings
 are:
 
 ```
+  08201nnnnnnnn1nnh  for DSi (EUR) and DSi XL (USA)
+  08202nnnnnnnn1nnh  for DSi XL
+  08203nnnnnnnn1nnh  for DSi XL
+  08204nnnnnnnn1nnh  for DSi
+  08A15???????????h  for DSi
+  08A18nnnnnnnn1nnh  for DSi (USA) (black)
+  08A19nnnnnnnn1nnh  for DSi (USA)
   08A20nnnnnnnn1nnh  for DSi
-  08A19???????????h  for some other DSi
-  08A15???????????h  for some other DSi
-  08201nnnnnnnn1nnh  for DSi XL
+  08A21nnnnnnnn1nnh  for DSi
+  08A22???????????h  for DSi (USA)
   6B27D20002000000h  for n3DS
 ```
 
 The "n" digits appear to be always in BCD range (0..9), the other digits appear
-to be fixed (on all known consoles; ie. on three DSi's and two DSi XL's and
-null 3DS's). For 3DS it's unknown if 4004D00h exists in DSi mode (though
-there's probably a similar register in 3DS mode). The 64bit value is also
-stored as 16-byte ASCII string in "dev.kp". And, the ASCII string is also
-stored in footer of "Tad Files on SD Cards".
+to be fixed (on known consoles).
+
+The 64bit value is also stored as 16-byte ASCII string in "dev.kp". And, the
+ASCII string is also stored in footer of "Tad Files on SD Cards".
 
 Port 4004D00h should be read only if the flag in 4004D08h is zero. Moreover,
 Port 4004D00h can be read only by firmware, and get's disabled for all known
-games, so exploits will only see zeroes in 4004D00h..4004D08h.
+games, so most exploits will only see zeroes in 4004D00h..4004D08h.
 
 Easiest way to obtain the 64bit value would be extracting it from SD Card
 (using modified "DSi SRL Extract" source code).
@@ -71958,29 +72912,32 @@ With sudokuhax it can be simply "read" from 40044E0h (LSW) and 40044ECh (MSW).
 Whereas, that ports are write-only, so it needs some small efforts to "read"
 them.
 
-With other exploits it's a bit more difficult: The values at 40044D4h..40044FBh
-are destroyed, but 40044D0h..40044D3h is left intact, which can be used to
-compute the original MSW value at 40044ECh, using a bunch of constants and
-maths operations (caution: the result may depend on carry-in from unknown LSBs,
-eg. the MSW may appear as 08A2nnnnh or 08E2nnnnh). Next, one can simply
-brute-force the LSW (there should be only 10 million combinations (assuming it
-to be a BCD number with one fixed digit), which could be scanned within less
-than 6 minutes using the DSi AES hardware).
+With DSi cartridge exploits it's a bit more difficult: The values at
+40044D4h..40044FBh are destroyed, but 40044D0h..40044D3h is left intact, which
+can be used to compute the original MSW value at 40044ECh, using a bunch of
+constants and maths operations (caution: the result may depend on carry-in from
+unknown LSBs, eg. the MSW may appear as 08A2nnnnh or 08E2nnnnh). Next, one can
+simply brute-force the LSW (there should be only 10 million combinations
+(assuming it to be a BCD number with one fixed digit), which could be scanned
+within less than 6 minutes using the DSi AES hardware).
+
+Note: JimmyZ made some PC tools ("TWLbf" and "bfCL") that can bruteforce the
+Console ID or CID (or both) from encrypted eMMC images.
 
 
 
-### 4004D08h - DSi7 - CPU/Console ID Flag (1bit)
+### 4004D08h - DSi7 - CPU/Console ID Flag (1bit) (R)
 
 
 ```
-  0     CPU/Console ID Flag (0=Okay, 1=Bad)
+  0     CPU/Console ID Flag (0=Okay/Ready, 1=Bad/Busy)
   1-15  Unknown/Unused (0)
 ```
 
 Some flag that indicates whether one can read the CPU/Console ID from Port
 4004D00h. The flag should be usually zero (unknown when it could be nonzero,
-maybe when the internal PROM wasn't programmed yet; which should never happen
-in retail units).
+maybe shortly after power-up, or maybe when the internal PROM wasn't programmed
+yet; which should never happen in retail units).
 
 
 
@@ -71992,9 +72949,11 @@ RAM; the RAM value is little-endian 120bit (ie. without the CRC7 byte),
 zeropadded to 16-bytes (with 00h in MSB); the value looks as so;
 
 ```
-  MY ss ss ss ss 03 4D 30 30 46 50 41 00 00 15 00  ;DSi CID KMAPF0000M-S998
-  MY ss ss ss ss 32 57 37 31 36 35 4D 00 01 15 00  ;DSi CID KLM5617EFW-B301
-  MY ss ss ss ss 03 47 31 30 43 4D 4D 00 01 11 00  ;3DS CID
+  MY ss ss ss ss 03 4D 30 30 46 50 41 00 00 15 00  ;DSi Samsung KMAPF0000M-S998
+  MY ss ss ss ss 32 57 37 31 36 35 4D 00 01 15 00  ;DSi Samsumg KLM5617EFW-B301
+  MY ss ss ss ss 30 36 35 32 43 4D 4D 4E 01 FE 00  ;DSi ST NAND02GAH0LZC5 rev30
+  MY ss ss ss ss 31 36 35 32 43 4D 4D 4E 01 FE 00  ;DSi ST NAND02GAH0LZC5 rev31
+  MY ss ss ss ss 03 47 31 30 43 4D 4D 00 01 11 00  ;3DS
 ```
 
 The value is used to initialize AES\_IV register for eMMC encryption/decryption.
@@ -72003,12 +72962,26 @@ The "MY" byte contains month/year; with Y=0Bh..0Dh for 2008..2010 (Y=0Eh..0Fh
 would be 2011..2012, but there aren't any known DSi/3DS consoles using that
 values) (unknown how 2013 and up would be assigned; JEDEC didn't seem to mind
 to define them yet). The "ss" digits are a 32bit serial number (or actually it
-looks more like a 32bit random number, not like a incrementing serial value).
+looks more like a 32bit random number, not like an incrementing serial value).
 
 Without a working exploit (for reading RAM at 2FFD7BCh), the CID could be
 obtained by connecting wires to the eMMC chip. However, this might require
 whatever custom hardware/software setup (unknown if any standard tools like PC
 card readers are able to read the CID value).
+
+Note: JimmyZ made some PC tools ("TWLbf" and "bfCL") that can bruteforce the
+Console ID or CID (or both) using hex values extracted from encrypted eMMC
+images.
+
+To speedup CID bruting, one can extract the MY datecode from "Samsung YWW,
+KMAPF0000M-S998" text printed on the eMMC chip: the "YWW" is year/week, eg. 8xx
+means 2008, and translates to year "B" in the "MY" field.
+
+For the ST chips, there seems to me a similar year/week (reading "KOR 99 YWW",
+but the year/week on ST chips is usually about a month older than the
+month/year in CID). Known ST date codes are AC/BC (Oct2009/Nov2009) for the
+"rev0" ones, and CC/1D (Dec2009/Jan2010) for the "rev1" ones (ie. the ST chips
+seem to have been mostly used in early DSi XL models).
 
 
 
@@ -72167,34 +73140,6 @@ be also some other stuff like BIAS for signed/unsigned data selection).
 
 
 
-### 4004C04h - DSi7 - GPIO? Unknown - usually zero? or used as input?
-
-
-
-### 4004C05h - DSi7 - GPIO? Unknown - usually toggled every 1-2 seconds?
-
-
-```
-  0     Unknown
-  1-7   Zero
-```
-
-Maybe GPIO related, or something else.
-
-The firmware is somewhat forwarding bit0 from 4004C04h/input to
-4004C05h/output.
-
-
-
-### Dead Registers
-
-
-The 4004000h-40040FFh System Control registers are disabled in all current
-exploits on ARM7-side (though ARM9-side isn't disabled), accordingly, there
-isn't much known about them since they cannot be used/tested yet.
-
-
-
 
 ## <a name="dsinotes"></a>  DSi Notes
 
@@ -72287,7 +73232,44 @@ unlicensed code).
 
 
 
-### DSiware Exploits (DSi shop downloads)
+### Unlaunch.dsi - first ever released DSi bootcode exploit
+
+
+This exploit allows to get control of the DSi almost immediately after power-up
+with full SCFG\_EXT access rights. That's making it the best possible exploit
+for any purpose.
+
+It can be installed via any DSiware exploits (eg. Flipnote), or via hardmod.
+
+
+
+### Ready for use DSiware Exploits (crashing system titles from SD card)
+
+
+Currently there's only one exploitable title that can be exploited via simple
+SD card files (without needing hardmod or downgrading): Flipnote
+
+Flipnote exists for US+EUR+AUS+JAP regions (not CHN or KOR), and it has been
+available for free (either pre-installed, or free download from DSi shop), so
+many people should have that title (though, surprisingly, quite some people
+don't have it because they had never downloaded it for free when the DSi shop
+was still online; and some might have deleted it).
+
+Anyways, if you have flipnote: Use the "Flipnote Lenny (or whatever it is
+called)" exploit, working for all four flipnote regions (US+EUR+AUS+JAP), the
+download URL seems to be this weird link:
+
+```
+  https://davejmurphy.com/%25CD%25A1-%25CD%259C%25CA%2596-%25CD%25A1/
+```
+
+downloading seems to require buying a newer PC, and a browser with strong https
+support and youtube playing capabilities for watching the installation guide
+(unless the download contains instructions in regular .txt format).
+
+
+
+### Other DSiware Exploits (DSi shop downloads crashed with .sav files)
 
 
 Installing DSiware exploits requires downgrading the firmware (and in case of
@@ -72305,12 +73287,13 @@ navigation; apart from getting through a "touch to start" screen).
   US,...?      Free  Zelda 4 Swords                   (no longer in DSi shop)
 ```
 
-Once when installed, the exploits will boot a file called "boot.nds" from SD
-card (eg. rename dslink to that name for wifi boot).
+Once when the game+exploit are installed, the exploits will boot a file called
+"boot.nds" from SD card (eg. rename dslink to that name for wifi boot).
 
-Legally buying DSiware can be quite expensive (ie. buying a $15 wii/dsi point
-card works, but you cannot resell or reuse the remaining dsi points on other
-consoles).
+The DSi shop closed in 2017, so one can no longer legally buy DSiware. One
+could install pirate copies with tweaked .tik files for exploitable games, but
+it would be pointless (doing so would require a hardmod, and if you have a
+hardmod, then you could as well install unlaunch directly).
 
 Note: Originally, dsiwarehax were installed via SD card without soldering, but
 that works only when having downloaded the exploitable games prior to release
@@ -72318,10 +73301,11 @@ of firmware 1.4.2.
 
 As of 2017, the DSi shop is closing (one cannot add new DSi points to the shop
 account, but can still use old DSi points that are already on the account for a
-few months). When still having spare DSi points, it would be recommended to
-download an exploitable game before the shop closes completely. Apart from
-legal issues, it should be also possible to copy DSiware titles from one
-console to another (with some tweaking on the .tik file).
+few months).
+
+Note: Buying DSiware was quite expensive (ie. buying a $15 wii/dsi point card
+worked, but you couldn't resell or reuse the remaining dsi points on other
+consoles).
 
 
 
@@ -72376,7 +73360,7 @@ The UK, ES, FR, IT, DE versions are working on all european consoles.
 
 
 
-### DSi Exploit Restrictions
+### DSi Exploit Restrictions (for anything except Unlaunch exploit)
 
 
 Initial memory content and register settings may be changed by the exploited
@@ -72394,6 +73378,21 @@ Exploits are booted with some hardware features disabled:
 Currently, the only known way to get control of that hardware features would be
 using scanlime's Main Memory Hack (ie. soldering about 50 wires to the DSi
 mainboard).
+
+
+
+### Whitelist exploit (unreleased)
+
+
+Rocketlauncher was supposed to get full control over the DSi via buffer
+overflows during NDS cart whitelist checks (via invalid Offset+Length values in
+the "NDHI" section of the Whitelist file, matched to the currently inserted NDS
+cartridge).
+
+Unfortunately, that exploit was never finished/released - and, as by now,
+Unlaunch.dsi can do the same thing (even earlier after power-up, working with
+all retail firmware versions/regions, and without needing a NDS cart to trigger
+the whitelist check).
 
 
 
@@ -72427,32 +73426,60 @@ them could be easily found in the corresponding DSi Firmwares:
   Check the "Country" option, that should list all countries of your region.
 ```
 
-
-
-### JP Region
-
-
-Languages: Unknown (supposedly Japanese, and maybe English or so)
-
-Contries: Unknown (supposedly including Japan)
+The options are usually in page 4 (with options for Language, Country, System
+Update, and Format System Memory).
 
 
 
-### Chinese Region
+### JP Region - 1 country, 1 language
 
 
-Languages: Unknown (supposedly Chinese, and maybe English or so)
+Languages:
 
-Contries: Unknown (supposedly including China or Taiwan)
+```
+  Japanese (only japanese, there is no language option at all)
+```
+
+Contries:
+
+```
+  Japan (only japan, there is no country option at all)
+```
 
 
 
-### Korean Region
+### Chinese Region (iQue)
 
 
-Languages: Unknown (supposedly Korean, and maybe English or so)
+Languages: Unknown (supposedly Chinese/Mandarin?, and maybe English or so)
 
-Contries: Unknown (supposedly including North or South Korea)
+Contries: Unknown (supposedly China only)
+
+China appears to refer to chinese mainland only (hongkong/taiwan are reportedly
+selling japanese consoles, and chinese mainland users may have imported
+consoles before iQue DSi launch - meaning that many chinese speaking users will
+be hardly able to play chinese DSi games; unless the games were released as
+"region-free" titles).
+
+
+
+### Korean Region - 1 country, 1 language
+
+
+Languages:
+
+```
+  Koerean (only korean, there is no language option at all)
+```
+
+Contries:
+
+```
+  Korea (only korea, there is no country option at all)
+```
+
+Korea appears to refer to South Korea only (ie. there are no separate
+country/parental settings for North Korea).
 
 
 
@@ -74805,10 +75832,9 @@ Example: LSL Rd,Rs,#nn ; Rd = Rs \<\< nn ; ARM equivalent: MOVS Rd,Rs,LSL
 #nn
 
 Zero shift amount is having special meaning (same as for ARM shifts), LSL#0
-performs no shift (the the carry flag remains unchanged), LSR/ASR#0 are
-interpreted as LSR/ASR#32. Attempts to specify LSR/ASR#0 in source code are
-automatically redirected as LSL#0, and source LSR/ASR#32 is redirected as
-opcode LSR/ASR#0.
+performs no shift (the carry flag remains unchanged), LSR/ASR#0 are interpreted
+as LSR/ASR#32. Attempts to specify LSR/ASR#0 in source code are automatically
+redirected as LSL#0, and source LSR/ASR#32 is redirected as opcode LSR/ASR#0.
 
 Execution Time: 1S
 
@@ -75658,7 +76684,7 @@ Other coprocessor opcodes (CDP, LDC, STC) cannot be used with P15.
   C1,C0,0      Control Register (R/W, or R=Fixed)
   C2,C0,0      PU Cachability Bits for Data/Unified Protection Region
   C2,C0,1      PU Cachability Bits for Instruction Protection Region
-  C3,C0,0      PU Write-Bufferability Bits for Data Protection Regions
+  C3,C0,0      PU Cache Write-Bufferability Bits for Data Protection Regions
   C5,C0,0      PU Access Permission Data/Unified Protection Region
   C5,C0,1      PU Access Permission Instruction Protection Region
   C5,C0,2      PU Extended Access Permission Data/Unified Protection Region
@@ -75729,7 +76755,8 @@ Pre-ARM7 Processors
   12-31 Processor ID MSBs (fixed, 41560h)
 ```
 
-Note: On the NDS9, this register is 41059461h. NDS7 and GBA don't have CP15s.
+Note: On the NDS9, this register is 41059461h (ARMv5TE, ARM946, rev1). NDS7 and
+GBA don't have CP15s.
 
 
 
@@ -75746,7 +76773,7 @@ Note: On the NDS9, this register is 41059461h. NDS7 and GBA don't have CP15s.
          1    Write-back     Read data block        Not supported
          2    Write-back     Register 7 operations  Not supported
          6    Write-back     Register 7 operations  Format A
-         7    Write-back     Register 7 operations  Format B
+         7    Write-back     Register 7 operations  Format B      ;<-- NDS9
   29-31 Reserved (zero)
 ```
 
@@ -75760,6 +76787,10 @@ The 12bit Instruction/Data values are decoded as shown below,
 ```
 
 For Unified cache (Bit 24=0), Instruction and Data values are identical.
+
+Note: On the NDS9, this register is 0F0D2112h (Code=2000h bytes, Data=1000h
+bytes, assoc=whatver, and line size 32 bytes each). NDS7 and GBA don't have
+CP15s (nor any code/data cache).
 
 
 
@@ -75777,6 +76808,9 @@ For Unified cache (Bit 24=0), Instruction and Data values are identical.
   18-21 DTCM Size   (Size = 512 SHL N) (or 0=None)
   22-31 Reserved    (0)
 ```
+
+Note: On the NDS9, this register is 00140180h (ITCM=8000h bytes, DTCM=4000h
+bytes)). NDS7 and GBA don't have CP15s (nor any ITCM/DTCM).
 
 
 
@@ -75873,16 +76907,29 @@ Protection Unit can be enabled in Bit0 of C1,C0,0 (Control Register).
 
 
 
-### C3,C0,0 - Write-Bufferability Bits for Data Protection Regions (R/W)
+### C3,C0,0 - Cache Write-Bufferability Bits for Data Protection Regions (R/W)
 
+
+Allows to select what to do when writing to a cached memory snippet:
+
+Write-Through stores the data in the cache line (so subsequent cache reads
+return correct data), and additionally writes the data to underlaying memory.
+
+Write-Back stores the data in the cache line only, and marks the line as dirty,
+but doesn't update the underlaying memory (underlaying memory is updated only
+when the CPU decides to use the cache line for other purposes, or when the user
+is manually "Cleaning" the cache line).
 
 ```
-  0-7  Bufferable (B) bits for region 0-7
+  0-7  Bufferable (B) bits for region 0-7  (0=Write-Through, 1=Write-Back)
   8-31 Reserved/zero
 ```
 
 Instruction fetches are, obviously, always read-operations. So, there are no
 write-bufferability bits for Instruction Protection Regions.
+
+Note: Unrelated to the "Cache Write-Bufferability", the ARM does also have a
+"Write Buffer" (a small FIFO that can queue only a few writes).
 
 
 
@@ -75971,9 +77018,11 @@ are NOT unified (separate registers exists for code and data settings).
 
 
 
-Cache enabled/controlled by Bit 2,3,12,14 in Control Register.
+Cache is enabled/controlled by Bit 2,3,12,14 in Control Register.
 
-Cache type detected in Cache Type Register.
+Cache regions are controlled via Protection Unit (PU).
+
+Cache type can be detected via Cache Type Register.
 
 
 
@@ -76017,6 +77066,14 @@ Parameter values (Rd) formats:
   0    Not used, should be zero
   VA   Virtual Address
   S/I  Set/index; Bit 31..(32-A) = Index, Bit (L+S-1)..L = Set ?
+```
+
+Note:
+
+```
+  Invalidate means to forget all data
+  Clean means to write-back dirty cache lines to underlaying memory
+  (Clean is important when having "Cache Write-Bufferability" enabled in PU)
 ```
 
 
@@ -77289,7 +78346,7 @@ of 8bits. For the Vram function the destination must be halfword aligned, data
 is written in units of 16bits.
 
 CAUTION: Writing 16bit units to [dest-1] instead of 8bit units to [dest] means
-the reading from [dest-1] won't work, ie. the "Vram" function works only with
+that reading from [dest-1] won't work, ie. the "Vram" function works only with
 disp=001h..FFFh, but not with disp=000h.
 
 If the size of the compressed data is not a multiple of 4, please adjust it as
@@ -77755,17 +78812,27 @@ memory, which provides reliable timings (regardless of the memory waitstates
   r0  Delay value (should be in range 1..7FFFFFFFh)
 ```
 
-Execution Time: NDS7: R0\*4 cycles, plus some overload on SWI handling.
+Execution time varies for ARM7 vs ARM9. On ARM9 it does also depend on whether
+ROM is cached, and on DSi it does further depended on the ARM9 CPU clock, and
+on whether using NDS or DSi BIOS ROM (NDS uses faster THUMB code, whilst DSi
+uses ARM code, which is slow on uncached ARM9 ROM reads). For example, to get a
+1 millisecond delay, use following values:
 
-Execution Time: NDS9: R0\*2 (cache on), or R0\*8 (cache off), plus overload.
-
-Note: Both NDS7 and NDS9 timings are counted in 33.51MHz units.
+```
+  CPU  Clock     Cache   BIOS     Value for 1ms
+  ARM7 33.51MHz  none    NDS/DSi  r0=20BAh    ;=20BAh  ;-ARM7
+  ARM9 67.03MHz  on      NDS/DSi  r0=20BAh*2  ;=4174h  ;\ARM9 with cache
+  ARM9 134.06MHz on      DSi      r0=20BAh*4  ;=82E8h  ;/
+  ARM9 67.03MHz  off     NDS      r0=20BAh/2  ;=105Dh  ;\
+  ARM9 67.03MHz  off     DSi      r0=20BAh/4  ;=082Eh  ; ARM9 without cache
+  ARM9 134.06MHz off     DSi      r0=20BAh/3  ;=0AE8h  ;/
+```
 
 Return: No return value.
 
 
 
-### SWI 0Eh (NDS7/NDS9) - GetCRC16
+### SWI 0Eh (NDS7/NDS9/DSi7/DSi9) - GetCRC16
 
 
 ```
@@ -77852,7 +78919,7 @@ Return: r0 = Desired Entry (00h..7Fh) (unsigned)
 
 
 
-### SWI 1Fh (NDS9/DSi7) - CustomPost
+### SWI 1Fh (NDS9/DSi9) - CustomPost
 
 
 Writes to the POSTFLG register, probably for use by Firmware boot procedure.
@@ -78729,8 +79796,9 @@ that BIT0 thing is something common in the RSA world?
   cert.sys       (93,BC,0D,1F..) CP00000007 key for tmd's        (100h bytes)
   cert.sys       (AD,07,A9,37..) XS00000003 key for shop-tickets (100h bytes)
   cert.sys       (92,FF,96,40..) XS00000006 key for free-tickets (100h bytes)
-  cert.sys       (...)           MS00000008 key for dev.kp       (ECC, non-RSA)
+  cert.sys       (01,93,6D,08..) MS00000008 key for dev.kp       (ECC, non-RSA)
   dev.kp         (per-console)   TWxxxxxxxx... key for tad files (ECC, non-RSA)
+  *.bin          (random?)       AP00030015484e42gg in tad files (ECC, non-RSA)
   Launcher+Boot  (BC,FD,A1,FF..) Debug0: System Menu (Launcher, Debug version)
   Launcher       (E9,9E,A7,9F..) Debug1:
   Launcher       (A7,9F,54,A0..) Debug2:
@@ -78759,6 +79827,7 @@ for the developer's debug version).
 ```
   Flipnote       (26,A7,53,7E..) Private key for Flipnote .ppm files
   dev.kp         (per-console)   TWxxxxxxxx... key for tad files (ECC, non-RSA)
+  (temp/unsaved?)(random?)       AP00030015484e42gg    tad files (ECC, non-RSA)
   verdata        (...)           Private keys in Version Data file?
   Debug Updater  (77,FC,77,9E..) Private key for Debug HWID.sgn (100h bytes)
   Debug Updater  (B5,7C,C2,85..) Private key for Debug HWInfo
@@ -78917,7 +79986,7 @@ it's quite impossible to guess (or brute-force) one of the prime numbers.
 
 
 ```
-  base(rsa__number_size), bigbuf(_number_size*2)
+  base(rsa__number_size), bigbuf(rsa_number_size*2)
   [base]=[src], [dst]=1, pow8bit=01h                ;-init base, result, powbit
   for i=1 to num_exp_bits
     if [exp] AND pow8bit then rsa_mpi_mul_mod(dst,base)   ;-mul result
@@ -78940,7 +80009,7 @@ on the final result).
 
 The parameters and result for "rsa\_mpi\_pow\_mod" must be in little-endian. Ie.
 for DSi, reverse byte the byte order of the incoming/outgoing values. And, on
-DSi, use rsa\_\_number\_size=80h (aka 128 bytes, aka for 1024bit RSA).
+DSi, use rsa\_number\_size=80h (aka 128 bytes, aka for 1024bit RSA).
 
 
 
@@ -79239,6 +80308,15 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
 
 
 ```
+  2000000h 8    Whatever Title ID    ;carthdr[230h]
+  2000008h 1    Whatever Unknown/Unused
+  2000009h 1    Whatever Flags (03h=Stuff is used?)
+  200000Ah 2    Whatever Maker code  ;carthdr[010h]
+  200000Ch 2    Whatever Unknown  ;\counter/length/indices/whatever?
+  200000Eh 2    Whatever Unknown  ;/
+  2000010h 2    Whatever CRC16 [2000000h..20002FFh] ini=FFFFh,[2000010h]=0000h
+  2000012h 2    Whatever Unknown/Unused
+  2000014h 2ECh Whatever Unknown... some buffer... string maybe?
   2000300h 5   Warmboot ID ("TLNC",00h) (also requires BPTWL[70h]=01h)
   2000305h 1   Warmboot Length of data at 2000308h (01h..18h, for CRC)
   2000306h 2   Warmboot CRC16 of data at 2000308h (with initial value FFFFh)
@@ -79250,10 +80328,13 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   20005E0h 1     WlFirm Type (1=DWM-W015, 2=DWM-W024) (as wifi_flash[1FDh])
   20005E1h 1     WlFirm Unknown (zero)
   20005E2h 2     WlFirm CRC16 with initial value FFFFh on [20005E4h..20005EFh]
-  20005E4h 0Ch   WlFirm Version? RAM_area? (as from "Wifi Firmware" file)
+  20005E4h 4     WlFirm RAM vars (500400h)  ;\
+  20005E8h 4     WlFirm RAM base (500000h)  ; as from "Wifi Firmware" file
+  20005ECh 4     WlFirm RAM size (02E000h)  ;/
   20005F0h 10h   WlFirm Unknown (zero)
   2000600h 14h   Hexvalues from HWINFO_N.dat
   23FEE00h 200h  DSi9 bootstrap relict
+  ---
   2FEE120h 4     "nand"   <--- passed as so to launcher
   2FF80xxh
   2FF82xxh
@@ -79273,6 +80354,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   2FFA6xxh
   2FFA680h 12    02FD4D80h,00000000h,00001980h
   2FFA68Ch ..    Zerofilled
+  ---
   2FFC000h 1000h Full Cart Header (as at 2FFE000h, but, FOR NDS ROM CARTRIDGE)
   2FFD000h 7B0h  Zerofilled
   2FFD7B0h 8+1   Version Data Filename (eg. 30,30,30,30,30,30,30,34,00)
@@ -79282,7 +80364,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   2FFD7BCh 15+1  eMMC CID (dd,ss,ss,ss,ss,03,4D,30,30,46,50,41,00,00,15), 00
   2FFD7CCh 15+1  eMMC CSD (40,40,96,E9,7F,DB,F6,DF,01,59,0F,2A,01,26,90), 00
   2FFD7DCh 4     eMMC OCR (80,80,FF,80)                                  ;20h
-  2FFD7E0h 8     eMMC SCR (00,04,00,00,00,00,00,00) (uh for MMC = what?) ;24h
+  2FFD7E0h 8     eMMC SCR (00,04,00,00,00,00,00,00) (for MMC: dummy/4bit);24h
   2FFD7E8h 2     eMMC RCA (01,00)                                        ;2Ch
   2FFD7EAh 2     eMMC Typ (01,00) (0=SD Card, 1=MMC Card)                ;2Eh
   2FFD7ECh 2     eMMC HCS (00,00) ;copy of OCR.bit30 (sector addressing) ;30h
@@ -79418,6 +80500,7 @@ requires only a few memory blocks in ITCM, ARM7 WRAM, and AES keyslots:
   DSi9 BIOS 64K (about 41K dumpable)
   DSiWifi BIOS 80K on older DSi (fully dumpable)
   DSiWifi BIOS Unknown size on newer DSi (probably fully dumpable)
+  3DSWifi BIOS Unknown size on 3DS (probably fully dumpable)
 ```
 
 
@@ -79485,8 +80568,9 @@ booting, and there's no known way to dump them directly. However, portions of
 that memory are relocated to RAM/TCM before locking, and that relocated copies
 can be dumped.
 
-On a DSi, the following DSi ROM data can be dumped (via Main Memory hacks, ie.
-with complex external hardware soldered to the mainboard):
+On a DSi, the following DSi ROM data can be dumped (originally done via Main
+Memory hacks, ie. with complex external hardware soldered to the mainboard, but
+it's now also possible via Unlaunch.dsi exploit):
 
 ```
   ROM:FFFF87F4h / TCM:1FFC400h (400h)  (C3 02 93 DE ..) Whatever, 8x80h RSA?
@@ -79539,7 +80623,7 @@ found in AES keyslots, eg. the "Nintendo" string).
   08308h 80h   64515306h                ;
   08388h 3250h ?                        ;
   0B5D8h 20h   85BE2749h                ; ARM7
-  0B5F8h 10h   180DF59Bh  (3ds only)    ;
+  0B5F8h 10h   25A46A54h  (3ds only)    ;
   0B608h 10h   E882B9A9h                ;
   0B618h 10B8h ?                        ;
   0C6D0h 1048h 3B5CDF06h                ;
@@ -79581,6 +80665,26 @@ The Wifi BIOS can be dumped by using the WINDOW\_DATA register via SDIO CMD53.
 
 The DSi cameras and several other I2C/SPI devices are probably having BIOS
 ROMs, too. Unknown if/how that ROMs are dumpable.
+
+
+
+### DSi BIOS Dumping via voltage errors
+
+
+Lowering VDD12 for a moment does work quite reliable for crashing the ARM9 and
+trapping the 2FFFD9Ch vector in Main RAM. The problem is that Main RAM seems to
+be disabled during bootstage 1 (it gets enabled at begin of bootstage 2 via
+EXMEMCNT, that is, shortly after the upper BIOS 32Kbyte areas are disabled).
+More on that here:
+
+```
+  http://4dsdev.kuribo64.net/thread.php?id=130
+```
+
+One theory/idea (from dark\_samus) is that EXMEMCNT controls the CE2 pin on the
+Main RAM chip, so one could try to rewire that pin to get Main RAM enabled
+regardless of EXMEMCNT, if that's actually working, then trapping the 2FFFD9Ch
+vector should work even while BIOS ROMs are fully readable.
 
 
 
@@ -80036,6 +81140,10 @@ Note that the LOCK tab on SD cards is just a small piece of plastic without any
 electronics attached to it, the actual switch/sensor is located in the SD card
 socket (ie. the LOCK works much like the write-protect tabs on audio tapes,
 video tapes, and floppy discs).
+
+Card detect can be an actual switch (however, some sockets are simply having
+dual contacts for Pin 3 (GND), one being GND, and the other becoming GNDed when
+a cartridge is inserted).
 
 
 
@@ -80594,7 +81702,7 @@ Top Cover Disassembly:
 
 
 
-### P1  19pin   NDS/DSi cartridge slot (17pin slot + 2pin switch at right side)
+### P1 - 19pin - NDS/DSi cartridge slot (17pin slot + 2pin switch at right side)
 
 
 ```
@@ -80622,7 +81730,7 @@ Top Cover Disassembly:
 
 
 
-### P4   8pin   External microphone/headphone combo socket
+### P4 - 8pin - External microphone/headphone combo socket
 
 
 ```
@@ -80638,17 +81746,17 @@ Top Cover Disassembly:
 
 
 
-### P5  50pin   Wifi-Daughterboard
+### P5 - 50pin - DSi Wifi-Daughterboard (DWM-W015, DWM-W024, or J27H020)
 
 
 ```
-                           GND   2  1   maybe SDIO ?   ;\
-                         VDD18   4  3   GND            ; probably SDIO for
-                         VDD18   6  5   maybe SDIO ?   ; Atheros Wifi
-                           GND   8  7   maybe SDIO ?   ; (CLK, CMD, DATA0-3)
-                         VDD33  10  9   maybe SDIO ?   ;
-                         VDD33  12  11  maybe SDIO ?   ;
-                           GND  14  13  maybe SDIO ?   ;/
+                           GND   2  1   SDIO.CLK       ;\
+                         VDD18   4  3   GND            ; SDIO for
+                         VDD18   6  5   SDIO.DAT0      ; Atheros Wifi
+                           GND   8  7   SDIO.DAT3      ; (CLK, CMD, DATA0-3)
+                         VDD33  10  9   SDIO.DAT1      ;
+                         VDD33  12  11  SDIO.CMD       ;
+                           GND  14  13  SDIO.DAT2      ;/
                       ATH_TX_H  16  15  DSi: NC (connected at wifi side!!!)
                      /WIFI_RST  18  17  DSi: NC (connected at wifi side?)
   NC (connected at wifi side?)  20  19  GND
@@ -80671,7 +81779,7 @@ Top Cover Disassembly:
 
 
 
-### P7  47pin   To UPPER lcd screen (video+backlight+speakers) (on PCB backside)
+### P7 - 47pin - To UPPER lcd screen (video+backlight+speakers) (on PCB backside)
 
 
 ```
@@ -80703,7 +81811,7 @@ Top Cover Disassembly:
 
 
 
-### P8  37pin   To LOWER lcd screen (video signals)
+### P8 - 37pin - To LOWER lcd screen (video signals)
 
 
 ```
@@ -80730,7 +81838,7 @@ Top Cover Disassembly:
 
 
 
-### P9  25pin   To UPPER lcd screen (signals for both cameras, and camera led)
+### P9 - 25pin - To UPPER lcd screen (signals for both cameras, and camera led)
 
 
 ```
@@ -80751,7 +81859,7 @@ Top Cover Disassembly:
 
 
 
-### P10  4pin   To LOWER lcd screen (touchpad X-,Y-,X+,Y+)
+### P10 - 4pin - To LOWER lcd screen (touchpad X-,Y-,X+,Y+)
 
 
 ```
@@ -80774,14 +81882,14 @@ Top Cover Disassembly:
 
 
 
-### P15 15pin   To battery/DPAD/PowerButton board (and onwards to 3xLEDs)
+### P15 - 15pin - To battery/DPAD/PowerButton board (and onwards to 3xLEDs)
 
 
 ```
-  dpad up button      P06  1  2  ORANGE (LED)
-  dpad right button   P04  3  4  BLUE (LED)
-  dpad left button    P05  5  6  YELLOW (LED)
-  dpad down button    P07  7  8  RED (LED)
+  dpad up button      P06  1  2  ORANGE (LED) Battery Charge
+  dpad right button   P04  3  4  BLUE   (LED) Power On/Good
+  dpad left button    P05  5  6  YELLOW (LED) Wifi
+  dpad down button    P07  7  8  RED    (LED) Power On/Low
                       GND  9  10 VDD42 (to LEDs)
                       GND 11  12 TH on DPAD board (via R102 to TH on main)
   middle battery pin  DET 13  14 GND
@@ -80792,7 +81900,7 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### P16 26pin   To bottom cover (SD Slot and L/R/VOL+/- buttons)
+### P16 - 26pin - To bottom cover (SD Slot and L/R/VOL+/- buttons)
 
 
 ```
@@ -80813,7 +81921,7 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### P17  2pin   Battery cable (lower-right) ;see text-layer (B)
+### P17 - 2pin - Battery cable (lower-right) ;see text-layer (B)
 
 
 ```
@@ -80823,7 +81931,7 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### P18  4pin   To LOWER lcd screen (backlight cathode/anode)
+### P18 - 4pin - To LOWER lcd screen (backlight cathode/anode)
 
 
 ```
@@ -80835,15 +81943,15 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### P19  1pin   Shielding-Plate for CPU (lower clip)
+### P19 - 1pin - Shielding-Plate for CPU (lower clip)
 
 
 
-### P20  1pin   Shielding-Plate for CPU (upper clip)
+### P20 - 1pin - Shielding-Plate for CPU (upper clip)
 
 
 
-### P21  1pin   Shielding-Plate for CPU (right clip)
+### P21 - 1pin - Shielding-Plate for CPU (right clip)
 
 
 ```
@@ -80852,7 +81960,7 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### P23  2pin   To Internal Microphone (via orange shielded wire)
+### P23 - 2pin - To Internal Microphone (via orange shielded wire)
 
 
 ```
@@ -80862,15 +81970,15 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
-### DPAD-BOARD P2  6pin
+### DPAD-BOARD - P2 - 6pin - To LEDs
 
 
 ```
-  1  YELLOW
-  2  BLUE
-  3  ORANGE
+  1  YELLOW  Wifi
+  2  BLUE    Power On/Good
+  3  ORANGE  Battery Charge
   4  GND   (for red+orange)
-  5  RED
+  5  RED     Power On/Low
   6  VDD42 (for yellow+blue)
 ```
 
@@ -80894,23 +82002,23 @@ be found at:
 
 
 ```
-       Wifi   MC2 maybe      MC1           SD/MMC  eMMC  SPI     RTC   IRQs
+      Wifi    MC2 maybe      MC1           SD/MMC  eMMC  SPI     RTC   IRQs
   .---.---.---------------.---------------.-------.---.-------.-------.---.---.
-  |NC |WIF|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
+  |NC |wif|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
   +---'   |               |               |       |   |       |   .---'   '---+
-  |WIF WIF|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
+  |wif wif|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
   |       |               |               |       |   |       +---+---.   .---+
-  |WIF WIF|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
+  |wif wif|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
   |       '---.       .---+           .---'   .---'   '---.---+       '---'   |
-  |WIF WIF WIF|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
+  |wif wif wif|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
   |           '---+---'   '-----------'-------'-----------'---+               |
-  |WIF WIF RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
-  |               |                                           +-----------.   |
-  |WIF WIF WIF ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
-  |               |                                           |           '---+
-  |WIF WIF WIF WIF|V33 GND V12 V33 GND V12 G?  V12 GND GND V33|PMO VC5 PMS X  |
+  |wif wif RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
+  | . .           |                                           +-----------.   |
+  |DT3|wif wif ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
+  |   '. . . . . .|                                           |           '---+
+  |CLK DT2 DT1 DT0|V33 GND V12 V33 GND V12 G?  V12 GND GND V33|PMO VC5 PMS X  |
   +-----------.   |                                           '-----------.   |
-  |V33 NC  GND|WIF|V12 GND V33 GND V12 V33 GND V33 V12 V12 V33 GND GND GND|X  |
+  |V33 NC  GND|CMD|V12 GND V33 GND V12 V33 GND V33 V12 V12 V33 GND GND GND|X  |
   |           '---'               .-----------.               .-----------'   |
   |V33 NC  V33 V33 GND V33 GND V33|-   -   -  |GND GND GND GND|HP# IRQ ?   GND|
   +---.   .---.                   |           |               |               |
@@ -81309,11 +82417,11 @@ Smaller misc chips.
   6  VDD18
   7  VDD18
   8  GND
-  9
+  9  NC
   10 GND
   11 GND
   12 GND
-  13
+  13 NC
   14 /RESET
   ---
   15 ... to DSi mainboard connector pin 36
@@ -81326,7 +82434,7 @@ Smaller misc chips.
   22 GND
   23 ... via nearby big component ... to DSi mainboard connector pin 47 ?
   24 VDD18
-  25
+  25 NC
   26 22MHz
   27 22MHz'
   28 ... to DSi mainboard connector pin 43 (with cap to GND and via 0 ohm)
@@ -81356,10 +82464,10 @@ Smaller misc chips.
   50 ... shortcut to MM3218.pin44, and via resistor to MM3218.pin46
   51 ... via resistor to GND
   52 VDD18
-  53
-  54
-  55
-  56
+  53 NC
+  54 NC
+  55 NC
+  56 NC
 ```
 
 
@@ -81402,11 +82510,103 @@ Smaller misc chips.
 ### DSi DWM-W024 Wifi Daughterboard - Atheros AR6013 chip
 
 
+```
+  1  1.2V
+  2  VDD18
+  3  NC
+  4  NC
+  5  VDD18
+  6  NC
+  7  1.2V
+  8  VDD18
+  9  1.2V
+  10 NC
+  11 NC (except, wired to tespoint)
+  12 VDD33
+  13 via 0 ohm to ATH_TX_H  ;<--with 0 ohm connection
+  14 via (N/A) to ATH_TX_H  ;<--connection not installed
+  15 to a dead-end-via
+  16 to a dead-end-via
+  17 1.2V
+  18 P5.pin24 (plus testpoint)
+  19 NC (except, wired to tespoint)
+  ---
+  20 VDD18
+  21 1.2V
+  22 I2C.SCL
+  23 I2C.SDA
+  24 P5.pin21 RTC 32KHZ via 0 ohm
+  25 /WIFI_RST
+  26 ATH_TX_H
+  27 SDKI.CMD
+  28 SDIO.CLK
+  29 VDD33
+  30 SDIO.DAT0
+  31 SDIO.DAT2
+  32 SDIO.DAT1
+  33 SDIO.DAT3
+  34 P5.pin22
+  35 P5.pin20
+  36 P5.pin17
+  37 1.2V
+  38 P5.pin15
+  ---
+  39 P5.pin36
+  40 VDD33
+  41 1.2V
+  42 P5.pin46
+  43 P5.pin44
+  44 P5.pin40
+  45 WL_TXPE
+  46 WL_RXPE
+  47 P5.pin47
+  48 P5.pin33    and 6.9ohm to P5.47 ?
+  49 P5.pin35
+  50 P5.pin39
+  51 VDD33
+  52 P5.pin37
+  53 P5.pin41
+  54 P5.pin29
+  55 P5.pin31
+  56 P5.pin26 ... IRQ?
+  57 1.2V
+  ---
+  58 VDD18
+  59 XTALx
+  60 XTALx
+  61 1.2V
+  62 1.2V
+  63 VDD18
+  64 NC (except, wired to tespoint)
+  65 NC (except, wired to tespoint)
+  66 NC (except, wired to tespoint)
+  67 NC (except, wired to tespoint)
+  68 NC
+  69 via 6.1K to GND
+  70 1.2V
+  71 NC
+  72 NC
+  73 VDD18
+  74 RF2.OUTx
+  75 RF2.OUTx
+  76 VDD18
+  ---
+  GND center plates
+  P5.pin43 = NC on AR6013 boards?
+  P5.pin25 = NC on AR6013 boards? (and NC on mainboard, too)
+  P5.pin50 = RESET goes to Wifi FLASH only (not to MM3218 clone within AR6013G)
+```
+
+
 
 ### 3DS DWM-W028 Wifi Daughterboard - Atheros AR6014 chip
 
 
 Pinouts unknown.
+
+
+There is a 3rd part number, J27H020, made by hon hai (Foxconn) instead of
+Mitsumi.
 
 
 
@@ -82865,6 +84065,7 @@ Don't trust anything else. Never.
 - [DSi Teak I/O Ports (on Teak Side)](#dsiteakioportsonteakside)
 - [DSi Teak CPU Registers](#dsiteakcpuregisters)
 - [DSi Teak CPU Control/Status Registers](#dsiteakcpucontrolstatusregisters)
+- [DSi Teak CPU Address Config/Step/Modulo](#dsiteakcpuaddressconfigstepmodulo)
 - [DSi TeakLite II Instruction Set Encoding](#dsiteakliteiiinstructionsetencoding)
 - [DSi TeakLite II Operand Encoding](#dsiteakliteiioperandencoding)
 - [DSi New Shared WRAM (for ARM7, ARM9, DSP)](#dsinewsharedwramforarm7arm9dsp)
@@ -83124,6 +84325,6 @@ Don't trust anything else. Never.
 - [AUX Xboo Burst Boot Backdoor](#auxxbooburstbootbackdoor)
 - [About this Document](#aboutthisdocument)
 
-[extracted from no$gba v2.8f documentation]
+[extracted from no$gba v2.9b documentation]
 
 
