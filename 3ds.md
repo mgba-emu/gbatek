@@ -528,10 +528,10 @@ Standard SD cards may require HCLK/4 on 3DS (unless the card was detected to
 support HCLK/2; don't know if it requires further card initialization to enable
 fast mode?).
 
-- [DSi SD/MMC Protocol and I/O Ports](#dsisdmmcprotocolandioports)
-- [DSi SD/MMC Filesystem](#dsisdmmcfilesystem)
-- [DSi Atheros Wifi SDIO Interface](#dsiatheroswifisdiointerface)
-- [DSi Atheros Wifi Internal Hardware](#dsiatheroswifiinternalhardware)
+- [DSi SD/MMC Protocol and I/O Ports](ds.html#dsisdmmcprotocolandioports)
+- [DSi SD/MMC Filesystem](ds.html#dsisdmmcfilesystem)
+- [DSi Atheros Wifi SDIO Interface](ds.html#dsiatheroswifisdiointerface)
+- [DSi Atheros Wifi Internal Hardware](ds.html#dsiatheroswifiinternalhardware)
 
 
 ## IRQ\_STAT
@@ -664,7 +664,7 @@ LDR/STR when changing the IRQ bits.
 
 FIFO
 
-- [DS Inter Process Communication (IPC)](#dsinterprocesscommunicationipc)
+- [DS Inter Process Communication (IPC)](ds.html#dsinterprocesscommunicationipc)
 
 
 ## ARM11-to-ARM11 Messages
@@ -1149,7 +1149,7 @@ NDS side).
 
 Most of these registers are same as on DSi:
 
-- [DSi AES I/O Ports](#dsiaesioports)
+- [DSi AES I/O Ports](ds.html#dsiaesioports)
 New features are more keyslots, CBC/ECB modes, optional big-endian mode, and a
 new Key X/Y scrambler.
 
@@ -2319,7 +2319,7 @@ and texture data, and for rendering to framebuffer.
 
 Same as DSi, except, there seem to be 8 channels (instead of 4).
 
-- [DSi New DMA (NDMA)](#dsinewdmandma)
+- [DSi New DMA (NDMA)](ds.html#dsinewdmandma)
 And with new bit in NDMAGCNT register:
 
 ```
@@ -3277,7 +3277,7 @@ return data=FFh when trying to read from the cartridge).
 Same as SCFG\_MC on DSi (but with the bits for 2nd cartridge slot removed). See
 DSi specs for cartridge power on/off sequences.
 
-- [DSi Control Registers (SCFG)](#dsicontrolregistersscfg)
+- [DSi Control Registers (SCFG)](ds.html#dsicontrolregistersscfg)
 
 
 ## 10000012h - CFG9\_CARD\_INSERT\_DELAY (usually 1988h = 100ms) (R/W)
@@ -4962,9 +4962,9 @@ configure GBA/NDS/DSi mode.
 
 For specs on GBA/NDS/DSi mode:
 
-- [GBA Reference](#gbareference)
+- [GBA Reference](gba.html#gbareference)
 - [NDS Reference](#ndsreference)
-- [DSi Reference](#dsireference)
+- [DSi Reference](ds.html#dsireference)
 The ARM7\_RTC\_xxx registers are emulating the GBA cartridge RTC. The RTC for
 NDS/DSi mode is emulated separately via registers in the 3DS GPIO register
 space:
@@ -5360,7 +5360,7 @@ branch to more copied code (GBA)."
 - [3DS I2C MCU[40h-51h] - Accelerometer/Pedometer](#3dsi2cmcu40h51haccelerometerpedometer)
 - [3DS I2C MCU[60h-7Fh] - Misc Status](#3dsi2cmcu60h7fhmiscstatus)
 - [3DS I2C MCU secondary I2C Devices (on MCU bus)](#3dsi2cmcusecondaryi2cdevicesonmcubus)
-- [DSi I2C Device 4Ah (BPTWL chip)](#dsii2cdevice4ahbptwlchip)
+- [DSi I2C Device 4Ah (BPTWL chip)](ds.html#dsii2cdevice4ahbptwlchip)
 - [3DS I2C Gyroscope (old version)](#3dsi2cgyroscopeoldversion)
 - [3DS I2C Gyroscope (new version)](#3dsi2cgyroscopenewversion)
 - [3DS I2C Infrared Receiver/Transmitter (IrDA)](#3dsi2cinfraredreceivertransmitterirda)
@@ -5443,7 +5443,7 @@ Manual access mode works same as on DSi. Max transfer rate is 8MHz, 1bit mode
 only, and the manual byte-by-byte transfer adds some software overload to the
 transfer time.
 
-- [DS Serial Peripheral Interface Bus (SPI)](#dsserialperipheralinterfacebusspi)
+- [DS Serial Peripheral Interface Bus (SPI)](ds.html#dsserialperipheralinterfacebusspi)
 One advantage is that the manual mode supports true bi-directional SPI
 transfers (which aren't really needed because most SPI chips use only one
 direction at a time, with dummy data in opposite direction).
@@ -5603,7 +5603,7 @@ Bit0 also fires on each autopoll try? No: it does not fire on autopoll.
 
 The old power managment SPI registers are mostly for NDS mode:
 
-- [DS Power Management Device](#dspowermanagementdevice)
+- [DS Power Management Device](ds.html#dspowermanagementdevice)
 On 3DS, backlight and power-down are controlled via MCU.
 
 
@@ -5614,11 +5614,11 @@ On 3DS, backlight and power-down are controlled via MCU.
 This chip did contain the firmware in NDS consoles. On 3DS it does merely
 contain some wifi/user settings, mostly for NDS titles.
 
-- [DS Firmware Serial Flash Memory](#dsfirmwareserialflashmemory)
-- [DS Firmware Header](#dsfirmwareheader)
-- [DS Firmware Wifi Calibration Data](#dsfirmwarewificalibrationdata)
-- [DS Firmware Wifi Internet Access Points](#dsfirmwarewifiinternetaccesspoints)
-- [DS Firmware User Settings](#dsfirmwareusersettings)
+- [DS Firmware Serial Flash Memory](ds.html#dsfirmwareserialflashmemory)
+- [DS Firmware Header](ds.html#dsfirmwareheader)
+- [DS Firmware Wifi Calibration Data](ds.html#dsfirmwarewificalibrationdata)
+- [DS Firmware Wifi Internet Access Points](ds.html#dsfirmwarewifiinternetaccesspoints)
+- [DS Firmware User Settings](ds.html#dsfirmwareusersettings)
 The 3DS does probably additionally store User settings (and maybe also Wifi
 Acess Point info) in a eMMC file, but unknown where?
 
@@ -5629,7 +5629,7 @@ Acess Point info) in a eMMC file, but unknown where?
 
 This SPI bus is used for accessing the TSC chip in DSi mode.
 
-- [DSi Touchscreen/Sound Controller](#dsitouchscreensoundcontroller)
+- [DSi Touchscreen/Sound Controller](ds.html#dsitouchscreensoundcontroller)
 Touchscreen calibration points for NDS/DSi titles are in Wifi FLASH (matched to
 the current NDS/DSi screen resolution, which can be 256x192pix or fullscreen;
 selected by holding Start+Select when starting NDS/DSi title).
@@ -18158,10 +18158,10 @@ is unknown how this feature is enabled specifically.
 
 The ARM registers are similar (but not identical) as for DSi cameras,
 
-- [DSi Cameras](#dsicameras)
+- [DSi Cameras](ds.html#dsicameras)
 The I2C bus camera init does work same as on DSi (for Aptina cameras),
 
-- [DSi I2C Bus](#dsii2cbus)
+- [DSi I2C Bus](ds.html#dsii2cbus)
 Cameras must be enabled in CFG11\_CAMERA\_CNT (Port 10141224h).
 
 
@@ -19188,7 +19188,7 @@ These registers are disabled by default (always zero), use CFG11\_DSP\_CNT (Port
 
 These are same as on DSi.
 
-- [DSi XpertTeak (DSP)](#dsixpertteakdsp)
+- [DSi XpertTeak (DSP)](ds.html#dsixpertteakdsp)
 3DS software is commonly using the DSP to play music recordings in AAC format,
 and reportedly there is something called DSP-ADPCM (maybe something similar to
 IMA-ADPCM)?
@@ -19202,7 +19202,7 @@ IMA-ADPCM)?
 The sound hardware works very similar to NDS sound, see there for details about
 PCM, IMA-ADPCM and PSG formats.
 
-- [DS Sound](#dssound)
+- [DS Sound](ds.html#dssound)
 Differences are twice as many sound channels, some moved control bits, and
 simplified volume control (without sound/panning/master volumes).
 
@@ -19461,7 +19461,7 @@ Maybe some further bits here resemble DSi's SNDEXCNT...?
 
 These are about same as for DSi.
 
-- [DSi Microphone and SoundExt](#dsimicrophoneandsoundext)
+- [DSi Microphone and SoundExt](ds.html#dsimicrophoneandsoundext)
 The microphone must be unmuted in touchscreen TSC registers.
 
 The microphone must be enabled in Port 10145000h.
@@ -19598,7 +19598,7 @@ kinda useless and works only for RSA signed official titles with region lock
 
 These registers are same as the old NDS Cartridge registers, see
 
-- [DS Cartridge I/O Ports](#dscartridgeioports)
+- [DS Cartridge I/O Ports](ds.html#dscartridgeioports)
 ```
   10164000h 2  REG_NTRCARD_MCNT    ;40001A0h 2  Gamecard ROM and SPI Control
   10164002h 2  REG_NTRCARD_MDATA   ;40001A2h 2  Gamecard SPI Bus Data/Strobe
@@ -19852,7 +19852,7 @@ Same as GBA/NDS/DSi, except, reportedly faster & with stunning accuracy:
 which would be an estimated error of about +/- 1 cycle per century, or +/- 1
 second per a few billions of years.
 
-- [GBA Timers](#gbatimers)
+- [GBA Timers](gba.html#gbatimers)
 
 
 
@@ -23683,7 +23683,7 @@ eMCC or on SD Cards).
 Tickets are a format used to store an encrypted titlekey (using AES-CBC). With
 3DS, the Ticket format was updated (now v1) from Wii/DSi format (v0).
 
-- [DSi SD/MMC DSiware Tickets and Title metadata](#dsisdmmcdsiwareticketsandtitlemetadata)
+- [DSi SD/MMC DSiware Tickets and Title metadata](ds.html#dsisdmmcdsiwareticketsandtitlemetadata)
 
 
 ## Ticket format
@@ -23936,7 +23936,7 @@ NATIVE\_FIRM (unknown where though, knowing the first some bytes would help)
 
 The DSi has a similar file called cert.sys:
 
-- [DSi SD/MMC Firmware dev.kp and cert.sys Certificate Files](#dsisdmmcfirmwaredevkpandcertsyscertificatefiles)
+- [DSi SD/MMC Firmware dev.kp and cert.sys Certificate Files](ds.html#dsisdmmcfirmwaredevkpandcertsyscertificatefiles)
 The DIFF container uses the standard DISA/DIFF format
 
 - [3DS Files - Savedata DISA and DIFF](#3dsfilessavedatadisaanddiff)
@@ -24509,7 +24509,7 @@ The .bin files are AES-CBC encrypted using keyslot 0Dh (as set by bootrom):
 
 The decrypted files are in .der format:
 
-- [DSi SD/MMC Firmware Certificate/Keys (DER)](#dsisdmmcfirmwarecertificatekeysder)
+- [DSi SD/MMC Firmware Certificate/Keys (DER)](ds.html#dsisdmmcfirmwarecertificatekeysder)
 The files are used by SSL module, the retail cert name is "CTR Common Prod 1".
 
 
@@ -26176,7 +26176,7 @@ Network structure (used twice in the above WiFi slot structure):
 
 The above data is (slightly reordered) also stored in Wifi FLASH:
 
-- [DS Firmware Wifi Internet Access Points](#dsfirmwarewifiinternetaccesspoints)
+- [DS Firmware Wifi Internet Access Points](ds.html#dsfirmwarewifiinternetaccesspoints)
 The DSi did have support for six access points (3xWEP and 3xWEP/WPA), unknown
 if the old 3xWEP ones are still supported on 3DS, and if so, if they are also
 stored in the Config Samegame file.
@@ -30795,7 +30795,7 @@ are changed to absolute in memory offsets.
 
 The format is based on the Nitro Font format for DS/DSi:
 
-- [DS Cartridge Nitro Font Resource Format](#dscartridgenitrofontresourceformat)
+- [DS Cartridge Nitro Font Resource Format](ds.html#dscartridgenitrofontresourceformat)
 
 
 ## CFNT Header
@@ -31166,7 +31166,7 @@ The 3DS Browser .pem file uses 0Ah for linebreaks, and 64 chars per binary
 line, terminated by "-" in the END CERTIFICATE string. The decoded BASE64
 blocks contain standard .DER files.
 
-- [DSi SD/MMC Firmware Certificate/Keys (DER)](#dsisdmmcfirmwarecertificatekeysder)
+- [DSi SD/MMC Firmware Certificate/Keys (DER)](ds.html#dsisdmmcfirmwarecertificatekeysder)
 The comments contain a summary of the DER entries (eg. O=OrganizationName).
 
 
@@ -41390,7 +41390,7 @@ an additional obstacle, memory at 0000h..1203h can be dumped only by opcodes
 within 0000h..1203h (that memory does mainly contain data, but some of the data
 values can serve as THUMB LDR opcodes). For details see:
 
-- [DS Memory Control - BIOS](#dsmemorycontrolbios)
+- [DS Memory Control - BIOS](ds.html#dsmemorycontrolbios)
 Note: DSi consoles are containing a copy of the NDS BIOSes, but with BIOSPROT
 set to 0020h (even when running in NDS mode), so the first 20h bytes of the
 DSi's NDS7 BIOS aren't dumpable (except via tracing, see below), that 20h bytes
@@ -41603,7 +41603,7 @@ vector should work even while BIOS ROMs are fully readable.
 - [AUX Xboo PC-to-GBA Multiboot Cable](#auxxboopctogbamultibootcable)
 - [AUX Xboo Flashcard Upload](#auxxbooflashcardupload)
 - [AUX Xboo Burst Boot Backdoor](#auxxbooburstbootbackdoor)
-- [DS Xboo](#dsxboo)
+- [DS Xboo](ds.html#dsxboo)
 
 
 

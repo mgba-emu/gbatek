@@ -5940,7 +5940,7 @@ S3511 - 8pin RTC with 3-wire serial bus (used in Boktai)
 
 The RTC chip is (almost) the same as used in NDS consoles:
 
-- [DS Real-Time Clock (RTC)](#dsrealtimeclockrtc)
+- [DS Real-Time Clock (RTC)](ds.html#dsrealtimeclockrtc)
 The chip is accessed via 4bit I/O port (only 3bits are used for RTC):
 
 - [GBA Cart I/O Port (GPIO)](#gbacartioportgpio)
@@ -6277,7 +6277,7 @@ Additionally, there's a Rumble Pak for the NDS, which connects to the GBA slot,
 so it can be used also for GBA games (provided that the game doesn't require
 the GBA slot, eg. GBA multiboot games).
 
-- [DS Cart Rumble Pak](#dscartrumblepak)
+- [DS Cart Rumble Pak](ds.html#dscartrumblepak)
 
 
 ## Gamecube Rumble
@@ -17777,7 +17777,7 @@ an additional obstacle, memory at 0000h..1203h can be dumped only by opcodes
 within 0000h..1203h (that memory does mainly contain data, but some of the data
 values can serve as THUMB LDR opcodes). For details see:
 
-- [DS Memory Control - BIOS](#dsmemorycontrolbios)
+- [DS Memory Control - BIOS](ds.html#dsmemorycontrolbios)
 Note: DSi consoles are containing a copy of the NDS BIOSes, but with BIOSPROT
 set to 0020h (even when running in NDS mode), so the first 20h bytes of the
 DSi's NDS7 BIOS aren't dumpable (except via tracing, see below), that 20h bytes
@@ -17990,7 +17990,7 @@ vector should work even while BIOS ROMs are fully readable.
 - [AUX Xboo PC-to-GBA Multiboot Cable](#auxxboopctogbamultibootcable)
 - [AUX Xboo Flashcard Upload](#auxxbooflashcardupload)
 - [AUX Xboo Burst Boot Backdoor](#auxxbooburstbootbackdoor)
-- [DS Xboo](#dsxboo)
+- [DS Xboo](ds.html#dsxboo)
 
 
 

@@ -9,22 +9,22 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 
 ## Overview
 
-- [GBA Technical Data](#gbatechnicaldata)
-- [GBA Memory Map](#gbamemorymap)
-- [GBA I/O Map](#gbaiomap)
+- [GBA Technical Data](gba.html#gbatechnicaldata)
+- [GBA Memory Map](gba.html#gbamemorymap)
+- [GBA I/O Map](gba.html#gbaiomap)
 
 ## Hardware Programming
 
-- [GBA LCD Video Controller](#gbalcdvideocontroller)
-- [GBA Sound Controller](#gbasoundcontroller)
-- [GBA Timers](#gbatimers)
-- [GBA DMA Transfers](#gbadmatransfers)
-- [GBA Communication Ports](#gbacommunicationports)
-- [GBA Keypad Input](#gbakeypadinput)
-- [GBA Interrupt Control](#gbainterruptcontrol)
-- [GBA System Control](#gbasystemcontrol)
-- [GBA Cartridges](#gbacartridges)
-- [GBA Unpredictable Things](#gbaunpredictablethings)
+- [GBA LCD Video Controller](gba.html#gbalcdvideocontroller)
+- [GBA Sound Controller](gba.html#gbasoundcontroller)
+- [GBA Timers](gba.html#gbatimers)
+- [GBA DMA Transfers](gba.html#gbadmatransfers)
+- [GBA Communication Ports](gba.html#gbacommunicationports)
+- [GBA Keypad Input](gba.html#gbakeypadinput)
+- [GBA Interrupt Control](gba.html#gbainterruptcontrol)
+- [GBA System Control](gba.html#gbasystemcontrol)
+- [GBA Cartridges](gba.html#gbacartridges)
+- [GBA Unpredictable Things](gba.html#gbaunpredictablethings)
 
 ## Other
 
@@ -380,7 +380,7 @@ ARM9 I/O Map
   400006Ch  2    2D Engine A - MASTER_BRIGHT - Master Brightness Up/Down
 ```
 
-- [GBA I/O Map](#gbaiomap)
+- [GBA I/O Map](gba.html#gbaiomap)
 
 ## ARM9 DMA, Timers, and Keypad
 
@@ -1434,7 +1434,7 @@ Note: VRAM being mapped to NDS7 is always free of additional waits.
 
 The NDS has two 2D Video Engines, each basically the same as in GBA, see
 
-- [GBA LCD Video Controller](#gbalcdvideocontroller)
+- [GBA LCD Video Controller](gba.html#gbalcdvideocontroller)
 
 
 ## NDS Specific 2D Video Features
@@ -7475,7 +7475,7 @@ Stereo blocks are ordered: LeftBlock1, RightBlock1, LeftBlock2, etc.
 The DS includes four DMA channels for each CPU (ie. eight channels in total),
 which are working more or less the same as on GBA:
 
-- [GBA DMA Transfers](#gbadmatransfers)
+- [GBA DMA Transfers](gba.html#gbadmatransfers)
 All NDS9 and NDS7 DMA Registers are R/W. The gamepak bit (Bit 27) has been
 removed (on the NDS9 the bit is used to expand the mode setting to 3bits).
 
@@ -7596,7 +7596,7 @@ Main RAM.
 
 Same as GBA, except F = 33.513982 MHz (for both NDS9 and NDS7).
 
-- [GBA Timers](#gbatimers)
+- [GBA Timers](gba.html#gbatimers)
 Both NDS9 and NDS7 have four Timers each, eight Timers in total.
 
 The NDS sound controller is having its own frequency generators (unlike GBA,
@@ -7993,7 +7993,7 @@ be acknowledged even while that conditions are true.
 For the GBA-buttons: Same as GBA, both ARM7 and ARM9 have keyboard input
 registers, and each its own keypad IRQ control register.
 
-- [GBA Keypad Input](#gbakeypadinput)
+- [GBA Keypad Input](gba.html#gbakeypadinput)
 
 For Touchscreen (and Microphone) inputs, see
 
@@ -8046,7 +8046,7 @@ Interrupts are reportedly not supported for X,Y buttons.
 The DS doesn't have a Serial Link Port Socket, however, internally, the NDS7
 contains the complete set of Serial I/O Ports, as contained in the GBA:
 
-- [GBA Communication Ports](#gbacommunicationports)
+- [GBA Communication Ports](gba.html#gbacommunicationports)
 
 In GBA mode, the ports are working as on real GBA (as when no cable is
 connected). In NDS mode, the ports are even containing some additional bits:
@@ -10906,7 +10906,7 @@ can be as expansion port, or for importing data from GBA games.
 In DS mode, ROM, SRAM, FLASH backup, and whatever peripherals contained in
 older GBA cartridges can be accessed (almost) identically as in GBA mode,
 
-- [GBA Cartridges](#gbacartridges)
+- [GBA Cartridges](gba.html#gbacartridges)
 
 
 ## Addressing
@@ -11008,7 +11008,7 @@ as long as the latched AD8 value is "1").
 There are also a few GBA games that contain built-in Rumble, and which could be
 used by NDS games as well. To be user friendly, best support both types.
 
-- [GBA Cart Rumble](#gbacartrumble)
+- [GBA Cart Rumble](gba.html#gbacartrumble)
 
 
 
@@ -42768,7 +42768,7 @@ make the footer entries & file size word aligned).
 Apart from the above chubby functions, there are at least two compression
 schemes trying to implement real serious compression:
 
-- [GBA Cart e-Reader VPK Decompression](#gbacartereadervpkdecompression)
+- [GBA Cart e-Reader VPK Decompression](gba.html#gbacartereadervpkdecompression)
 - [LZ Decompression Functions ASH0](#lzdecompressionfunctionsash0)
 Some titles contain regular .zip files (with Stored and Deflated files):
 
