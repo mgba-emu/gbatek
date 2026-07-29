@@ -1,5 +1,5 @@
 <a name="contents"></a><a name="gbatek"></a>
-Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$gba version 3.04
+Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$gba version 3.06
 
 [About this Document](#aboutthisdocument)
 
@@ -81,6 +81,7 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 - [GBA Interrupt Control](#gbainterruptcontrol)
 - [GBA System Control](#gbasystemcontrol)
 - [GBA Cartridges](#gbacartridges)
+- [GBA Backwards Compatibility CGB Mode](#gbabackwardscompatibilitycgbmode)
 - [GBA Unpredictable Things](#gbaunpredictablethings)
 
 
@@ -349,6 +350,34 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 
 ```
   As DSi, but bigger case, and bigger 4.2" screens
+```
+
+
+
+## Nintendo 3DS (Old3DS)
+
+
+```
+     _____________________________________
+    |      __________CAM____________      | <-- internal camera
+    |  .  |                         |  .  |     (and two back cameras and LED
+    |. . .|     x.xx" TFT SCREEN    |. . .|     on backside)
+    |  .  |   800x240pix  XXxXXmm   |  .  |
+    |     |        BACKLIGHT        |    .|
+    |     |     STEREOSCOPIC 3D     |    || <-- 3D slider
+    |     |_________________________|    '|
+    |___  _ _ _ _ _ _ _ _ _ _ _ _ _ _ ____|  <-- gap between screens: XXmm
+   L| __ |___________________________| __o|R   <-- Notify RGB LED    (XX pix)
+    |  .-.   _____________________        |
+ VOL| (   ) |                     |   X   |  <-- wifi LED
+    |  '-'  |   x.xx" TFT SCREEN  | Y   A |  <-- wifi Button
+    |   _   | 320x240pix  XXxXXmm |   B   |
+    | _| |_ |      BACKLIGHT      |       |
+  SD||_   _||    TOUCH SCREEN     |       |
+    |  |_|  |_____________________|       |
+    |         SELECT  HOME  START  oPOWER |
+    |_____________________________________|
+                     PHONES       LEDs (power/charge)
 ```
 
 
@@ -2805,6 +2834,8 @@ Amplitude Resolution/Sampling Cycle (0-3):
   3  6bit / 262.144kHz  (Best for PSG channels 1-4)
 ```
 
+The Bias Level has no audible effect on 3DS in GBA mode.
+
 For more information on this register, read the descriptions below.
 
 
@@ -3047,7 +3078,7 @@ DMA1 and DMA2 - can be used to feed digital sample data to the Sound FIFOs.
 
 DMA3 - can be used to write to Game Pak ROM/FlashROM (but not GamePak SRAM).
 
-Beside for that, each DMA 0-3 may be used for whatever general purposes.
+Aside from that, each DMA 0-3 may be used for whatever general purposes.
 
 
 
@@ -3859,6 +3890,11 @@ This communication mode uses Nintendo's standardized JOY Bus protocol. When
 using this communication mode, the GBA is always operated as SLAVE!
 
 
+The JOY BUS mode is intended for communicating with Nintendo Gamecube (DOL)
+consoles, where the GBA would somehow act as peripheral for the Gamecube
+(unknown if/which Gamecube games are supporting that feature).
+
+
 In this mode, SI and SO pins are data lines (apparently synchronized by
 Start/Stop bits?), SC and SD are set to low (including during active
 transfer?), the transfer rate is unknown?
@@ -3931,9 +3967,9 @@ Send/receive data registers.
 ```
   Bit   Expl.
   0     Not used
-  1     Receive Status Flag   (0=Remote GBA is/was receiving) (Read Only?)
+  1     Receive Status Flag   (0=Remote Side is/was receiving) (Read Only?)
   2     Not used
-  3     Send Status Flag      (1=Remote GBA is/was sending)   (Read Only?)
+  3     Send Status Flag      (1=Remote Side is/was sending)   (Read Only?)
   4-5   General Purpose Flag  (Not assigned, may be used for whatever purpose)
   6-31  Not used
 ```
@@ -3955,9 +3991,9 @@ by the master unit.
 
 ```
   Receive FFh (Command)
-  Send    00h (GBA Type number LSB (or MSB?))
-  Send    04h (GBA Type number MSB (or LSB?))
-  Send    XXh (lower 8bits of SIOSTAT register)
+  Send    00h (GBA Type number LSB)
+  Send    04h (GBA Type number MSB)
+  Send    XXh (lower 8bits of JOYSTAT register)
 ```
 
 
@@ -3967,9 +4003,9 @@ by the master unit.
 
 ```
   Receive 00h (Command)
-  Send    00h (GBA Type number LSB (or MSB?))
-  Send    04h (GBA Type number MSB (or LSB?))
-  Send    XXh (lower 8bits of SIOSTAT register)
+  Send    00h (GBA Type number LSB)
+  Send    04h (GBA Type number MSB)
+  Send    XXh (lower 8bits of JOYSTAT register)
 ```
 
 
@@ -3983,7 +4019,7 @@ by the master unit.
   Receive XXh (Upper 8bits of JOY_RECV_L)
   Receive XXh (Lower 8bits of JOY_RECV_H)
   Receive XXh (Upper 8bits of JOY_RECV_H)
-  Send    XXh (lower 8bits of SIOSTAT register)
+  Send    XXh (lower 8bits of JOYSTAT register)
 ```
 
 
@@ -3997,9 +4033,15 @@ by the master unit.
   Send    XXh (Upper 8bits of JOY_TRANS_L)
   Send    XXh (Lower 8bits of JOY_TRANS_H)
   Send    XXh (Upper 8bits of JOY_TRANS_H)
-  Send    XXh (lower 8bits of SIOSTAT register)
+  Send    XXh (lower 8bits of JOYSTAT register)
 ```
 
+
+
+## See also
+
+
+- [https://hitmen.c02.at/files/yagcd/yagcd/chap9.html](https://hitmen.c02.at/files/yagcd/yagcd/chap9.html)
 
 
 
@@ -4563,8 +4605,8 @@ are invoking their keypad handlers from within VBlank IRQ.
   8     Button R        (etc.)
   9     Button L        (etc.)
   10-13 Not used
-  14    IRQ Enable Flag (0=Disable, 1=Enable)
-  15    IRQ Condition   (0=Logical OR, 1=Logical AND)
+  14    Button IRQ Enable      (0=Disable, 1=Enable)
+  15    Button IRQ Condition   (0=Logical OR, 1=Logical AND)
 ```
 
 In logical OR mode, an interrupt is requested when at least one of the selected
@@ -4908,10 +4950,14 @@ register is mirrored across the whole I/O area (in increments of 64K, ie. at
 ```
   Bit   Expl.
   0     Disable 32K+256K WRAM (0=Normal, 1=Disable) (when off: empty/prefetch)
-  1-3   Unknown          (Read/Write-able)
-  4     Unknown          (Always zero, not used or write only)
+         From endrift: bit0 swaps 00000000h-01FFFFFFh and 02000000h-03FFFFFFh
+         in GBA mode (but keeps BIOS protection)
+  1     Unknown          (Read/Write-able)
+  2     Unknown          (Read/Write-able)
+  3     Disable CGB Bootrom (0=Normal, 1=Disable, start cart at 0000h)
+  4     Unused (0)
   5     Enable 256K WRAM (0=Disable, 1=Normal) (when off: mirror of 32K WRAM)
-  6-23  Unknown          (Always zero, not used or write only)
+  6-23  Unused (0)
   24-27 Wait Control WRAM 256K (0-14 = 15..1 Waitstates, 15=Lockup)
   28-31 Unknown          (Read/Write-able)
 ```
@@ -5150,7 +5196,7 @@ The first character (U) is usually "A" or "B", in detail:
   C  Normal game; Not used yet, but might be used for even newer titles
   F  Famicom/Classic NES Series (software emulated NES games)
   K  Yoshi and Koro Koro Puzzle (acceleration sensor)
-  P  e-Reader (dot-code scanner)
+  P  e-Reader (dot-code scanner) (or NDS PassMe image when gamecode="PASS")
   R  Warioware Twisted (cartridge with rumble and z-axis gyro sensor)
   U  Boktai 1 and 2 (cartridge with RTC and solar sensor)
   V  Drill Dozer (cartridge with rumble)
@@ -5619,6 +5665,13 @@ The EEPROM chips are having only 8 pins, these are connected, Pin 1..8, to
 ROMCS, RD, WR, AD0, GND, GND, A23, VDD of the GamePak bus. Carts with 32MB ROM
 must have A7..A22 logically ANDed with A23.
 
+The chips seem to be some custom design, the pinout, transfer protocol and
+8-byte pages don't resemble any standard serial EEPROMs.
+
+The chips have no other markings than 9853 or 9854 (plus some datecode),
+without any manufacturer info (
+- [https://gbhwdb.gekkio.fi/](https://gbhwdb.gekkio.fi/) declares them as Rohm chips).
+
 
 
 ## Notes
@@ -5975,7 +6028,7 @@ The chip is accessed via 4bit I/O port (only 3bits are used for RTC):
   4   -   Not used
   5   R/W Unknown?
   6   R/W 12/24-hour Mode                  (0=12h, 1=24h) (usually 1)
-  7   R   Power-Off (auto cleared on read) (0=Normal, 1=Failure)
+  7   R   Power-Off (auto cleared on read) (0=Normal, 1=Failure, time lost)
 ```
 
 Setting after Battery-Shortcut is 82h. Setting after Force-Reset is 00h.
@@ -5998,6 +6051,17 @@ Used to reset all RTC registers (all used registers become 00h, except
 day/month which become 01h), or to drag the IRQ output LOW for a short moment.
 These registers are strobed by ANY access to them, ie. by both writing to, as
 well as reading from these registers.
+
+
+
+## RTC Games
+
+
+```
+  Boktai series     ;which/how many titles?
+  P-Letter series   ;which/how many titles?
+  Rockman EXE 4.5 Real Operation
+```
 
 
 
@@ -8948,6 +9012,99 @@ on the Gamecube CPU...?
 
 
 
+# <a name="gbabackwardscompatibilitycgbmode"></a>GBA Backwards Compatibility CGB Mode
+
+
+
+
+## Related GBA Registers
+
+
+```
+  4000000h.bit14 (DISPCNT) - enable BG2 aka CGB screen
+  4000000h.bit3  (DISPCNT) - prepare switch to CGB mode
+  4000301h       (HALTCNT) - apply switch to CGB mode (and stop ARM forever?)
+  4000204h.bit15 (WAITCNT) - detect GBA/CGB cart type (and supply voltage)
+  4000800h.bit3  (UNDOC)   - disable CGB bootrom
+  5000000h.bit0-15         - Palette Backdrop (screen border color)
+  BG2X/BG2Y registers      - CGB screen position within GBA screen
+  BLDCNT/BLDY              - can be used to tweak better CGB brightness
+  sound BIAS and vol?      - sound
+```
+
+
+
+## Normal CGB Boot
+
+
+The GBA does always boot in GBA mode, but the GBA BIOS does almost immediately
+switch to CGB mode when detecting gameboy cart via Port 4000204h; that
+detection relies on a mechanical switch in the cartridge slot, which does also
+toggle the system voltage from 3.3V (GBA) to 5V (CGB).
+
+
+
+## GBA, GBA SP, and GBA micro
+
+
+CGB mode is supported on GBA and GBA SP. The GBA micro does lack the cartridge
+switch (and thus cannot detect 8bit carts, and cannot switch the system
+voltage, nethertheless it does contain semi-functional CGB hardware: it can be
+manually switched to CGB mode and execute the CGB intro).
+
+
+
+## CGB Bootrom Disable
+
+
+The CGB Bootrom can be disabled via 4000800h, that allows to skip the CGB intro
+(but requires booting custom GBA code with GBA intro and then hot plugging a
+gameboy cartridge, which must contain a valid entrypoint at address 0000h, and
+which must select CGB or DMG mode and initialize the DMG color scheme).
+
+The Bootrom Disable works same as ROMDIS pin on real CGBs (and also includes
+unlocking port FF60h, FF61h, FF63h, see no$gmb/pandocs for details).
+
+Unknown if it's possible to keep the ARM CPU running after entering CGB mode
+(so one could re-disable ROMDIS some cycles after booting).
+
+
+
+## Palette Issues
+
+
+The GBA vs CGB palettes have different intensities ramps (CGB colors with
+medium brightness will appear black on GBA), that's making CGB games mostly
+unplayable on GBA (and only monochrome DMG games are actually working on GBA).
+As a workaroud, one could tweak BLDCNT/BLDY to increase the brightness.
+
+
+
+## GBA Memory Usage in CGB Mode
+
+
+```
+  2000000h-200FFFFh.bit0-15  unused                    ;\
+  2010000h-2011FFEh.bit0-7   mapped to C000h-CFFFh     ;
+  2012000h-2013FFEh.bit0-7   mapped to 1:D000h-DFFFh   ; GBA Main RAM halfwords
+  2014000h-2015FFEh.bit0-7   mapped to 2:D000h-DFFFh   ; used as 32K CGB WRAM
+  2016000h-2017FFEh.bit0-7   mapped to 3:D000h-DFFFh   ;
+  2018000h-2019FFEh.bit0-7   mapped to 4:D000h-DFFFh   ;
+  201A000h-201BFFEh.bit0-7   mapped to 5:D000h-DFFFh   ;
+  201C000h-201DFFEh.bit0-7   mapped to 6:D000h-DFFFh   ;
+  201E000h-201FFFEh.bit0-7   mapped to 7:D000h-DFFFh   ;
+  2010001h-201FFFFh.bit8-15  unused (halfword.msbs)    ;
+  2020000h-203FFFFh.bit0-15  unused                    ;/
+  3000000h-3003FFFh.bit0-7   mapped to 0:8000h-8FFFh   ;\
+  3000000h-3003FFFh.bit8-15  mapped to 0:9000h-9FFFh   ; GBA Fast WRAM words
+  3000000h-3003FFFh.bit16-23 mapped to 1:8000h-8FFFh   ; used as 16K CGB VRAM
+  3000000h-3003FFFh.bit24-31 mapped to 1:9000h-9FFFh   ;
+  3004000h-3007FFFh.bit0-31  unused                    ;/
+```
+
+
+
+
 # <a name="gbaunpredictablethings"></a>GBA Unpredictable Things
 
 
@@ -9109,6 +9266,1190 @@ is zero-filled (ie. as invisible/transparent tiles).
 Reading retrieves 8bit value from specified address, multiplied by 0101h (LDRH)
 or by 01010101h (LDR). Writing changes the 8bit value at the specified address
 only, being set to LSB of (source\_data ROR (address\*8)).
+
+
+
+
+# <a name="78k0opcodelist"></a>78K/0 Opcode List
+
+
+
+
+## Move Byte
+
+
+```
+  85/87/AB/AA/AE              MOV  A, [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn]
+  F0/F4/8E                    MOV  A, [FExx]/[FFxx]/[nnnn]
+  60/--/62/63/64/65/66/67     MOV  A, X/-/C/B/E/D/L/H
+  70/--/72/73/74/75/76/77     MOV  X/-/C/B/E/D/L/H, A
+  A0/A1/A2/A3/A4/A5/A6/A7     MOV  X/A/C/B/E/D/L/H, nn
+  95/97/BB/BA/BE              MOV  [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn], A
+  F2/F6/9E                    MOV  [FExx]/[FFxx]/[nnnn], A
+  11/13                       MOV  [FExx]/[FFxx], nn
+  30/--/32/33/34/35/36/37     XCH  A, X/-/C/B/E/D/L/H
+  05/07/318B/318A/DE          XCH  A, [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn]
+  83/93/CE                    XCH  A, [FExx]/[FFxx]/[nnnn]
+```
+
+
+
+## Move Word
+
+
+```
+  C2/C4/C6/10                 MOVW AX, BC/DE/HL/nnnn
+  89/A9/02                    MOVW AX, [FExx]/[FFxx]/[nnnn]
+  D2/D4/D6                    MOVW BC/DE/HL, AX
+  12/14/16                    MOVW BC/DE/HL, nnnn
+  99/B9/03                    MOVW [FExx]/[FFxx]/[nnnn], AX
+  EE/FE                       MOVW [FExx]/[FFxx], nnnn
+  E2/E4/E6                    XCHW AX,BC/DE/HL
+  B1/B3/B5/B7/22              PUSH AX/BC/DE/HL/PSW  ;PSW=[FF1Eh] (8bit)
+  B0/B2/B4/B6/23              POP  AX/BC/DE/HL/PSW  ;PSW=[FF1Eh] (8bit)
+```
+
+
+
+## ALU Byte
+
+
+```
+  6100/6101/6102/6103/6104/6105/6106/6107  ADD  X/A/C/B/E/D/L/H, A
+  6120/6121/6122/6123/6124/6125/6126/6127  ADDC X/A/C/B/E/D/L/H, A
+  6110/6111/6112/6113/6114/6115/6116/6117  SUB  X/A/C/B/E/D/L/H, A
+  6130/6131/6132/6133/6134/6135/6136/6137  SUBC X/A/C/B/E/D/L/H, A
+  6140/6141/6142/6143/6144/6145/6146/6147  CMP  X/A/C/B/E/D/L/H, A
+  6150/6151/6152/6153/6154/6155/6156/6157  AND  X/A/C/B/E/D/L/H, A
+  6160/6161/6162/6163/6164/6165/6166/6167  OR   X/A/C/B/E/D/L/H, A
+  6170/6171/6172/6173/6174/6175/6176/6177  XOR  X/A/C/B/E/D/L/H, A
+  6108/----/610A/610B/610C/610D/610E/610F  ADD  A, X/-/C/B/E/D/L/H
+  6128/----/612A/612B/612C/612D/612E/612F  ADDC A, X/-/C/B/E/D/L/H
+  6118/----/611A/611B/611C/611D/611E/611F  SUB  A, X/-/C/B/E/D/L/H
+  6138/----/613A/613B/613C/613D/613E/613F  SUBC A, X/-/C/B/E/D/L/H
+  6148/----/614A/614B/614C/614D/614E/614F  CMP  A, X/-/C/B/E/D/L/H
+  6158/----/615A/615B/615C/615D/615E/615F  AND  A, X/-/C/B/E/D/L/H
+  6168/----/616A/616B/616C/616D/616E/616F  OR   A, X/-/C/B/E/D/L/H
+  6178/----/617A/617B/617C/617D/617E/617F  XOR  A, X/-/C/B/E/D/L/H
+  0D/0F/310B/310A/09/0E/08   ADD  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  2D/2F/312B/312A/29/2E/28   ADDC A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  1D/1F/311B/311A/19/1E/18   SUB  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  3D/3F/313B/313A/39/3E/38   SUBC A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  4D/4F/314B/314A/49/4E/48   CMP  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  5D/5F/315B/315A/59/5E/58   AND  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  6D/6F/316B/316A/69/6E/68   OR   A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  7D/7F/317B/317A/79/7E/78   XOR  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  88                         ADD  [FExx], nn
+  A8                         ADDC [FExx], nn
+  98                         SUB  [FExx], nn
+  B8                         SUBC [FExx], nn
+  C8                         CMP  [FExx], nn
+  D8                         AND  [FExx], nn
+  E8                         OR   [FExx], nn
+  F8                         XOR  [FExx], nn
+  40/41/42/43/44/45/46/47/81 INC  X/A/C/B/E/D/L/H/[FExx]
+  50/51/52/53/54/55/56/57/91 DEC  X/A/C/B/E/D/L/H/[FExx]
+```
+
+
+
+## ALU Word
+
+
+```
+  CA/DA/EA                   ADDW/SUBW/CMPW AX,nnnn
+  80/82/84/86                INCW AX/BC/DE/HL
+  90/92/94/96                DECW AX/BC/DE/HL
+```
+
+
+
+## Rotate/Shift
+
+
+```
+  26                         ROL  A,1
+  24                         ROR  A,1
+  27                         ROLC A,1
+  25                         RORC A,1
+  3180                       ROL4 A,[HL] ;12bit A.lsb:[HL],4 ;native: ROL4 [HL]
+  3190                       ROR4 A,[HL] ;12bit A.lsb:[HL],4 ;native: ROR4 [HL]
+```
+
+
+
+## Jump/Call
+
+
+```
+  3198                       JMP  AX                    ;native: BR AX
+  9B                         JMP  absolute addr         ;native: BR
+  FA                         JMP  relative short addr   ;native: BR
+  9A                         CALL absolute addr         ;native: CALL
+  C1+(nn AND 3Eh)            CALL [40h..7Eh]            ;native: CALLT
+  0C/1C/2C/3C/4C/5C/6C/7C    CALLF 08nn/09nn/0Ann/0Bnn/0Cnn/0Dnn/0Enn/0Fnn
+```
+
+
+
+## Conditional Relative Jumps
+
+
+```
+  8D                         JC  aka JB  rel  ;carry/below        ;native: BC
+  AD                         JZ  aka JE  rel  ;zero/equal         ;native: BZ
+  9D                         JNC aka JAE rel  ;not carry/below    ;native: BNC
+  BD                         JNZ aka JNE rel  ;not zero/equal     ;native: BNZ
+  04/8B/8A                   DJNZ [FExx]/B/C, rel  ;decrement+jnz ;native: DBNZ
+```
+
+
+
+## Test (and Clear) and Conditional Relative Jump
+
+
+```
+  3101/3105/3185/310D+n*10   BTCLR [FExx]/[FFxx]/[HL]/A.n, rel
+  8C/3106/3186/310E+n*10     BT    [FExx]/[FFxx]/[HL]/A.n, rel
+  3103/3107/3187/310F+n*10   BF    [FExx]/[FFxx]/[HL]/A.n, rel
+```
+
+
+
+## Bit Manipulation
+
+
+```
+  7101/7109/7181/6189+n*10   MOV1 [FExx]/[FFxx]/[HL]/A.n, CY
+  7104/710C/7184/618C+n*10   MOV1 CY, [FExx]/[FFxx]/[HL]/A.n
+  7105/710D/7185/618D+n*10   AND1 CY, [FExx]/[FFxx]/[HL]/A.n
+  7106/710E/7186/618E+n*10   OR1  CY, [FExx]/[FFxx]/[HL]/A.n
+  7107/710F/7187/618F+n*10   XOR1 CY, [FExx]/[FFxx]/[HL]/A.n
+  20/0A/710A/7182/618A+n*10  SET1 CY/[FExx]/[FFxx]/[HL]/A.n
+  21/0B/710B/7183/618B+n*10  CLR1 CY/[FExx]/[FFxx]/[HL]/A.n
+  01                         NOT1 CY
+```
+
+
+
+## Misc
+
+
+```
+  00                         NOP
+  BF/7110/7100               BRK/HALT/STOP
+  AF/9F/8F                   RET/RETB/RETI
+  61D0/61D8/61F0/61F8        SEL RB0/1/2/3
+  3188                       MULU AX,A,X   ;unsigned AX=A*X    ;native: MULU X
+  3182                       DIVUW AX,C    ;unsigned AX=AX/C, C=remainder   ;X
+  6180/6190                  ADJBA/ADJBS   ;decimal BCD adjust A after Add/Sub
+  7A1E/7B1E                  EI/DI         ;pseudo SET1/CLR1 PSW.7
+  FA                         JR addr       ;pseudo jmp short relative addr
+```
+
+
+
+## Note
+
+
+Operand [FExx] can he in range FE20h..FF1Fh, of which FE20h..FEFFh is encoded
+as 20..FF, and FF00h..FF1Fh is encoded as 00..1F (the latter overlaps with
+operand [FFxx]) (for the overlapping addresses, [FExx] is preferred because
+BT/SET1/CLR1 have smaller encoding for [FExx] than [FFxx], and DJNZ/ALU support
+only [FExx]) (all opcodes that support [FFxx] do also support [FExx], so [FFxx]
+should be NEVER used for [FF00..FF1F]).
+
+
+
+
+# <a name="78k0opcodemap"></a>78K/0 Opcode Map
+
+
+
+
+## 78K/0 Primary Opcode Map
+
+
+```
+      00                10                20                30
+  00  NOP               MOVW AX,nnnn      SET1 CY           XCH  A,X
+  01  NOT1 CY           MOV  [FExx],nn    CLR1 CY           <prefix>
+  02  MOVW AX,[nnnn]    MOVW BC,nnnn      PUSH PSW ;[FF1Eh] XCH  A,C
+  03  MOVW [nnnn],AX    MOV  [FFxx],nn    POP  PSW ;[FF1Eh] XCH  A,B
+  04  DBNZ [FExx],rel   MOVW DE,nnnn      ROR  A,1          XCH  A,E
+  05  XCH  A,[DE]       <undef>           RORC A,1          XCH  A,D
+  06  <undef>           MOVW HL,nnnn      ROL  A,1          XCH  A,L
+  07  XCH  A,[HL]       <undef>           ROLC A,1          XCH  A,H
+  08  ADD  A,[nnnn]     SUB  A,[nnnn]     ADDC A,[nnnn]     SUBC A,[nnnn]
+  09  ADD  A,[HL+nn]    SUB  A,[HL+nn]    ADDC A,[HL+nn]    SUBC A,[HL+nn]
+  0A  SET1 [FExx].0     SET1 [FExx].1     SET1 [FExx].2     SET1 [FExx].3
+  0B  CLR1 [FExx].0     CLR1 [FExx].1     CLR1 [FExx].2     CLR1 [FExx].3
+  0C  CALLF 08nn        CALLF 09nn        CALLF 0Ann        CALLF 0Bnn
+  0D  ADD  A,nn         SUB  A,nn         ADDC A,nn         SUBC A,nn
+  0E  ADD  A,[FExx]     SUB  A,[FExx]     ADDC A,[FExx]     SUBC A,[FExx]
+  0F  ADD  A,[HL]       SUB  A,[HL]       ADDC A,[HL]       SUBC A,[HL]
+```
+
+
+```
+      40                50                60                70
+  40  INC  X            DEC  X            MOV  A,X          MOV  X,A
+  41  INC  A            DEC  A            <prefix>          <prefix>
+  42  INC  C            DEC  C            MOV  A,C          MOV  C,A
+  43  INC  B            DEC  B            MOV  A,B          MOV  B,A
+  44  INC  E            DEC  E            MOV  A,E          MOV  E,A
+  45  INC  D            DEC  D            MOV  A,D          MOV  D,A
+  46  INC  L            DEC  L            MOV  A,L          MOV  L,A
+  47  INC  H            DEC  H            MOV  A,H          MOV  H,A
+  48  CMP  A,[nnnn]     AND  A,[nnnn]     OR   A,[nnnn]     XOR  A,[nnnn]
+  49  CMP  A,[HL+nn]    AND  A,[HL+nn]    OR   A,[HL+nn]    XOR  A,[HL+nn]
+  4A  SET1 [FExx].4     SET1 [FExx].5     SET1 [FExx].6     SET1 [FExx].7
+  4B  CLR1 [FExx].4     CLR1 [FExx].5     CLR1 [FExx].6     CLR1 [FExx].7
+  4C  CALLF 0Cnn        CALLF 0Dnn        CALLF 0Enn        CALLF 0Fnn
+  4D  CMP  A,nn         AND  A,nn         OR   A,nn         XOR  A,nn
+  4E  CMP  A,[FExx]     AND  A,[FExx]     OR   A,[FExx]     XOR  A,[FExx]
+  4F  CMP  A,[HL]       AND  A,[HL]       OR   A,[HL]       XOR  A,[HL]
+```
+
+
+```
+      80                90                A0                B0
+  80  INCW AX           DECW AX           MOV  X,nn         POP  AX
+  81  INC  [FExx]       DEC  [FExx]       MOV  A,nn         PUSH AX
+  82  INCW BC           DECW BC           MOV  C,nn         POP  BC
+  83  XCH  A,[FExx]     XCH  A,[FFxx]     MOV  B,nn         PUSH BC
+  84  INCW DE           DECW DE           MOV  E,nn         POP  DE
+  85  MOV  A,[DE]       MOV  [DE],A       MOV  D,nn         PUSH DE
+  86  INCW HL           DECW HL           MOV  L,nn         POP  HL
+  87  MOV  A,[HL]       MOV  [HL],A       MOV  H,nn         PUSH HL
+  88  ADD  [FExx],nn    SUB  [FExx],nn    ADDC [FExx],nn    SUBC [FExx],nn
+  89  MOVW AX,[FExx]    MOVW [FExx],AX    MOVW AX,[FFxx]    MOVW [FFxx],AX
+  8A  DBNZ C,rel        CALL nnnn         MOV  A,[HL+C]     MOV  [HL+C],A
+  8B  DBNZ B,rel        BR   nnnn         MOV  A,[HL+B]     MOV  [HL+B],A
+  8C  BT   [FExx].0,rel BT   [FExx].1,rel BT   [FExx].2,rel BT   [FExx].3,rel
+  8D  BC   rel          BNC  rel          BZ   rel          BNZ  rel
+  8E  MOV  A,[nnnn]     MOV  [nnnn],A     MOV  A,[HL+nn]    MOV  [HL+nn],A
+  8F  RETI              RETB              RET               BRK
+```
+
+
+```
+      C0                D0                E0                F0
+  C0  <undef>           <undef>           <undef>           MOV  A,[FExx]
+  C1  CALLT [40]        CALLT [50]        CALLT [60]        CALLT [70]
+  C2  MOVW AX,BC        MOVW BC,AX        XCHW AX,BC        MOV  [FExx],A
+  C3  CALLT [42]        CALLT [52]        CALLT [62]        CALLT [72]
+  C4  MOVW AX,DE        MOVW DE,AX        XCHW AX,DE        MOV  A,[FFxx]
+  C5  CALLT [44]        CALLT [54]        CALLT [64]        CALLT [74]
+  C6  MOVW AX,HL        MOVW HL,AX        XCHW AX,HL        MOV  [FFxx],A
+  C7  CALLT [46]        CALLT [56]        CALLT [66]        CALLT [76]
+  C8  CMP  [FExx],nn    AND  [FExx],nn    OR   [FExx],nn    XOR  [FExx],nn
+  C9  CALLT [48]        CALLT [58]        CALLT [68]        CALLT [78]
+  CA  ADDW AX,nnnn      SUBW AX,nnnn      CMPW AX,nnnn      BR   rel
+  CB  CALLT [4A]        CALLT [5A]        CALLT [6A]        CALLT [7A]
+  CC  BT   [FExx].4,rel BT   [FExx].5,rel BT   [FExx].6,rel BT   [FExx].7,rel
+  CD  CALLT [4C]        CALLT [5C]        CALLT [6C]        CALLT [7C]
+  CE  XCH  A,[nnnn]     XCH  A,[HL+nn]    MOVW [FExx],nnnn  MOVW [FFxx],nnnn
+  CF  CALLT [4E]        CALLT [5E]        CALLT [6E]        CALLT [7E]
+```
+
+
+
+## 78K/0 Opcodes with Prefix 31
+
+
+```
+  3100+xxx*10  -
+  3180+xxx*10  - (unless below ROL/ROR)
+  3101+bbb*10  BTCLR   [FExx].n,rel    ;n=0..7
+  3181+xxx*10  -
+  3102+xxx*10  -
+  3182+xxx*10  - (unless below DIV)
+  3103+bbb*10  BF      [FExx].n,rel    ;n=0..7
+  3183+xxx*10  -
+  3104+xxx*10  -
+  3184+xxx*10  -
+  3105+bbb*10  BTCLR   [FFxx].n,rel    ;n=0..7
+  3185+bbb*10  BTCLR   [HL].n,rel      ;n=0..7
+  3106+bbb*10  BT      [FFxx].n,rel    ;n=0..7
+  3186+bbb*10  BT      [HL].n,rel      ;n=0..7
+  3107+bbb*10  BF      [FFxx].n,rel    ;n=0..7
+  3187+bbb*10  BF      [HL].n,rel      ;n=0..7
+  3108+xxx*10  -
+  3188+xxx*10  - (unless below MUL/BR)
+  3109+xxx*10  -
+  3189+xxx*10  -
+  310A+xxx*10  <see below ADD/SUB/ADDC/SUBC/CMP/AND/OR/XOR)
+  318A+xxx*10  - (unless below XCH)
+  310B+xxx*10  <see below ADD/SUB/ADDC/SUBC/CMP/AND/OR/XOR)
+  318B+xxx*10  - (unless below XCH)
+  310C+xxx*10  -
+  318C+xxx*10  -
+  310D+bbb*10  BTCLR   A.n,rel         ;n=0..7
+  318D+xxx*10  -
+  310E+bbb*10  BT      A.n,rel         ;n=0..7
+  318E+xxx*10  -
+  310F+bbb*10  BF      A.n,rel         ;n=0..7
+  318F+xxx*10  -
+  310A         ADD     A,[HL+C]
+  310B         ADD     A,[HL+B]
+  311A         SUB     A,[HL+C]
+  311B         SUB     A,[HL+B]
+  312A         ADDC    A,[HL+C]
+  312B         ADDC    A,[HL+B]
+  313A         SUBC    A,[HL+C]
+  313B         SUBC    A,[HL+B]
+  314A         CMP     A,[HL+C]
+  314B         CMP     A,[HL+B]
+  315A         AND     A,[HL+C]
+  315B         AND     A,[HL+B]
+  316A         OR      A,[HL+C]
+  316B         OR      A,[HL+B]
+  317A         XOR     A,[HL+C]
+  317B         XOR     A,[HL+B]
+  318A         XCH     A,[HL+C]
+  318B         XCH     A,[HL+B]
+  3180         ROL4    A,[HL]   ;rol 12bit A.lsb:[HL],4      ;native: ROL4 [HL]
+  3190         ROR4    A,[HL]   ;ror 12bit A.lsb:[HL],4      ;native: ROR4 [HL]
+  3182         DIVUW   AX,C     ;unsigned AX=AX/C, C=remainder ;native: DIVWU C
+  3188         MULU    AX,A,X   ;unsigned AX=A*X               ;native: MULU X
+  3198         BR      AX
+```
+
+
+
+## 78K/0 Opcodes with Prefix 61
+
+
+```
+  6100+rrr     ADD     r,A            ;r=X,A,C,B,E,D,L,H
+  6108+rrr     ADD     A,r            ;r=X,-,C,B,E,D,L,H
+  6110+rrr     SUB     r,A            ;r=X,A,C,B,E,D,L,H
+  6118+rrr     SUB     A,r            ;r=X,-,C,B,E,D,L,H
+  6120+rrr     ADDC    r,A            ;r=X,A,C,B,E,D,L,H
+  6128+rrr     ADDC    A,r            ;r=X,-,C,B,E,D,L,H
+  6130+rrr     SUBC    r,A            ;r=X,A,C,B,E,D,L,H
+  6138+rrr     SUBC    A,r            ;r=X,-,C,B,E,D,L,H
+  6140+rrr     CMP     r,A            ;r=X,A,C,B,E,D,L,H
+  6148+rrr     CMP     A,r            ;r=X,-,C,B,E,D,L,H
+  6150+rrr     AND     r,A            ;r=X,A,C,B,E,D,L,H
+  6158+rrr     AND     A,r            ;r=X,-,C,B,E,D,L,H
+  6160+rrr     OR      r,A            ;r=X,A,C,B,E,D,L,H
+  6168+rrr     OR      A,r            ;r=X,-,C,B,E,D,L,H
+  6170+rrr     XOR     r,A            ;r=X,A,C,B,E,D,L,H
+  6178+rrr     XOR     A,r            ;r=X,-,C,B,E,D,L,H
+  6180+xxx*10  - (unless below ADJ/SEL)
+  6181+xxx*10  -
+  6182+xxx*10  -
+  6183+xxx*10  -
+  6184+xxx*10  -
+  6185+xxx*10  -
+  6186+xxx*10  -
+  6187+xxx*10  -
+  6188+xxx*10  - (unless below ADJ/SEL)
+  6189+bbb*10  MOV1    A.n,CY         ;n=0..7
+  618A+bbb*10  SET1    A.n            ;n=0..7
+  618B+bbb*10  CLR1    A.n            ;n=0..7
+  618C+bbb*10  MOV1    CY,A.n         ;n=0..7
+  618D+bbb*10  AND1    CY,A.n         ;n=0..7
+  618E+bbb*10  OR1     CY,A.n         ;n=0..7
+  618F+bbb*10  XOR1    CY,A.n         ;n=0..7
+  6180         ADJBA                ;Decimal BCD adjust A after Addition
+  6190         ADJBS                ;Decimal BCD adjust A after Subtraction
+  61D0         SEL     RB0
+  61D8         SEL     RB1
+  61F0         SEL     RB2
+  61F8         SEL     RB3
+```
+
+
+
+## 78K/0 Opcodes with Prefix 71
+
+
+```
+  7100+xxx*10  - (unless below STOP/HALT)
+  7180+xxx*10  -
+  7101+bbb*10  MOV1    [FExx].n,CY    ;n=0..7
+  7181+bbb*10  MOV1    [HL].n,CY      ;n=0..7
+  7102+xxx*10  -
+  7182+bbb*10  SET1    [HL].n         ;n=0..7
+  7103+xxx*10  -
+  7183+bbb*10  CLR1    [HL].n         ;n=0..7
+  7104+bbb*10  MOV1    CY,[FExx].n    ;n=0..7
+  7184+bbb*10  MOV1    CY,[HL].n      ;n=0..7
+  7105+bbb*10  AND1    CY,[FExx].n    ;n=0..7
+  7185+bbb*10  AND1    CY,[HL].n      ;n=0..7
+  7106+bbb*10  OR1     CY,[FExx].n    ;n=0..7
+  7186+bbb*10  OR1     CY,[HL].n      ;n=0..7
+  7107+bbb*10  XOR1    CY,[FExx].n    ;n=0..7
+  7187+bbb*10  XOR1    CY,[HL].n      ;n=0..7
+  7108+xxx*10  -
+  7188+xxx*10  -
+  7109+bbb*10  MOV1    [FFxx].n,CY    ;n=0..7
+  7189+xxx*10  -
+  710A+bbb*10  SET1    [FFxx].n       ;n=0..7
+  718A+xxx*10  -
+  710B+bbb*10  CLR1    [FFxx].n       ;n=0..7
+  718B+xxx*10  -
+  710C+bbb*10  MOV1    CY,[FFxx].n    ;n=0..7
+  718C+xxx*10  -
+  710D+bbb*10  AND1    CY,[FFxx].n    ;n=0..7
+  718D+xxx*10  -
+  710E+bbb*10  OR1     CY,[FFxx].n    ;n=0..7
+  718E+xxx*10  -
+  710F+bbb*10  XOR1    CY,[FFxx].n    ;n=0..7
+  718F+xxx*10  -
+  7100         STOP
+  7110         HALT
+```
+
+
+
+
+# <a name="78k0memorymapandsfrs"></a>78K/0 Memory Map and SFRs
+
+
+
+
+## 78K0 References
+
+
+```
+  78K0/Kx2 User's Manual: Hardware       ;info on I/O Ports
+  78K0/Kx2 Flash Memory Self Programming ;info on 8100h function
+  78K0/Kx2 Flash Memory Programming      ;info on UART/SPI cable
+  78K/0 Series Instructions              ;info on opcodes
+  78K0/KB2 One-sheet Manual              ;quick reference poster
+```
+
+
+
+## 78K/0 Memory Map
+
+
+```
+  0000h..003Fh  FLASH ROM Exception Vectors (16bit each)
+  0040h..007Fh  FLASH ROM CALLT Vectors (16bit each)
+  0080h..0084h  FLASH ROM Option Byte Area (5 bytes)
+  0085h..008Eh  FLASH ROM Debug Security Area (10 bytes, if any)
+  008Fh..07FFh  FLASH ROM
+  0800h..0FFFh  FLASH ROM (accessible via CALLF opcodes)
+  1000h..1FFFh  FLASH ROM (can be swapped with 0000h..0FFFh)
+  2000h..xFFFh  FLASH ROM (if any, in larger chips)
+  8000h..BFFFh  FLASH ROM (if any, in larger chips) (bank-switched via BANK)
+  8000h..9FFFh  System ROM area (when mapped, with function handler at 8100h)
+  A000h..BFFFh  System ROM mirror (same as 8000h..9FFFh)
+  C000h..       System ROM empty           (mostly FFh-filled, some FEh-bytes)
+  E000h..F7FFh  Extra RAM (max 6K, if any) (mostly FFh-filled, some F0h-bytes)
+  F800h..F8FFh  Undoc SFR's
+  F900h..FAFFh  Zerofilled
+  FB00h..FBFFh  Unknown (filled with random values) (more RAM?) (unused in DSi)
+                (FB00h is ONLY mapped when ROM enabled, otherwise FFh-filled)
+  FC00h..FF1Fh  RAM (officially/used area)
+  FE20h..FEDFh  RAM (accessible via short "saddr" opcodes)
+  FEE0h..FEE7h  Register Bank 3 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEE8h..FEEFh  Register Bank 2 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEF0h..FEF7h  Register Bank 1 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEF8h..FEFFh  Register Bank 0 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FF00h..FFFFh  Special Function Registers (SFR's)
+```
+
+FLASH banks are 1Kbyte tall (aka erase block size?).
+
+
+
+## 78K/0 Vectors
+
+
+```
+  0000h RESET input, POC, LVI, WDT
+  0002h -
+  0004h INTLVI
+  0006h INTP0
+  0008h INTP1
+  000Ah INTP2
+  000Ch INTP3
+  000Eh INTP4
+  0010h INTP5
+  0012h INTSRE6
+  0014h INTSR6
+  0016h INTST6
+  0018h INTCSI10/INTST0
+  001Ah INTTMH1
+  001Ch INTTMH0
+  001Eh INTTM50
+  0020h INTTM000
+  0022h INTTM010
+  0024h INTAD
+  0026h INTSR0
+  0028h INTWTI
+  002Ah INTTM51
+  002Ch INTKR
+  002Eh INTWT
+  0030h INTP6
+  0032h INTP7
+  0034h INTIIC0/NTDMU
+  0036h INTCSI11
+  0038h INTTM001
+  003Ah INTTM011
+  003Ch INTACSI
+  003Eh BRK
+```
+
+
+
+## 78K/0 Option Bytes / Debug Security
+
+
+```
+  0080h db   07Eh   ;Option Byte: Watchdog Mode
+  0081h db   000h   ;Option Byte: POC Mode (0=1.59V, 1=2.7V)
+  0082h db   000h   ;Option Byte: Reserved (00h)
+  0083h db   000h   ;Option Byte: Reserved (00h)
+  0084h db   000h   ;Option Byte: On-chip Debug Control (0=Off)
+       ;---
+  0085h db   0CCh   ;On-chip debug security ID (0Ah bytes) ...
+  0086h db   023h
+  0087h db   0BAh
+  0088h db   0C3h
+  0089h db   07Dh
+  008Ah db   094h
+  008Bh db   0FEh
+  008Ch db   073h
+  008Dh db   0A5h
+  008Eh db   0E6h
+```
+
+
+
+## 78K/0 Program Status Word (PSW) aka [FF1Eh]
+
+
+```
+  7  IE     ;Interrupt Enable
+  6  Z      ;Zero Flag
+  5  RBS1   ;Register Bank Select bit1
+  4  AC     ;Aux Carry Flag
+  3  RBS0   ;Register Bank Select bit0
+  2  0
+  1  ISP    ;In-Service Priority Flag
+  0  CY     ;Carry Flag
+```
+
+
+
+## 78K/0 Special Function Registers (SFR's)
+
+
+```
+  Addr  Symbol R/W 1BW Reset BCDEF Special Function Register (SFR)
+  FF00h P0     R/W 1B- 00h   BCDEF Port 0
+  FF01h P1     R/W 1B- 00h   BCDEF Port 1
+  FF02h P2     R/W 1B- 00h   BCDEF Port 2
+  FF03h P3     R/W 1B- 00h   BCDEF Port 3
+  FF04h P4     R/W 1B- 00h   -CDEF Port 4
+  FF05h P5     R/W 1B- 00h   ---EF Port 5
+  FF06h P6     R/W 1B- 00h   BCDEF Port 6
+  FF07h P7     R/W 1B- 00h   -CDEF Port 7
+  FF08h ADCR   R   --W 0000h BCDEF 10-bit A/D conversion result
+  FF09h ADCRH  R   -B- 00h   BCDEF 8-bit A/D conversion result
+  FF0Ah RXB6   R   -B- FFh   BCDEF Receive buffer 6
+  FF0Bh TXB6   R/W -B- FFh   BCDEF Transmit buffer 6
+  FF0Ch P12    R/W 1B- 00h   BCDEF Port 12
+  FF0Dh P13    R/W 1B- 00h   -cDEF Port 13 (KC2: 48pin only)
+  FF0Eh P14    R/W 1B- 00h   -cDEF Port 14 (KC2: 48pin only)
+  FF0Fh SIO10  R   -B- 00h   BCDEF Serial I/O shift 10
+  FF10h TM00   R   --W 0000h BCDEF 16-bit timer counter 00
+  FF12h CR000  R/W --W 0000h BCDEF 16-bit timer capture/compare 000
+  FF14h CR010  R/W --W 0000h BCDEF 16-bit timer capture/compare 010
+  FF16h TM50   R   -B- 00h   BCDEF 8-bit timer counter 50
+  FF17h CR50   R/W -B- 00h   BCDEF 8-bit timer compare 50
+  FF18h CMP00  R/W -B- 00h   BCDEF 8-bit timer H compare 00
+  FF19h CMP10  R/W -B- 00h   BCDEF 8-bit timer H compare 10
+  FF1Ah CMP01  R/W -B- 00h   BCDEF 8-bit timer H compare 01
+  FF1Bh CMP11  R/W -B- 00h   BCDEF 8-bit timer H compare 11
+  FF1Ch SP     R/W --W xxxxh BCDEF CPU Stack Pointer      ;\undocumented, used
+  FF1Eh PSW    R/W 1B- xxh   BCDEF CPU Program Status Word;/in pseudo opcodes
+  FF1Fh TM51   R   -B- 00h   BCDEF 8-bit timer counter 51
+  FF20h PM0    R/W 1B- FFh   BCDEF Port mode 0
+  FF21h PM1    R/W 1B- FFh   BCDEF Port mode 1
+  FF22h PM2    R/W 1B- FFh   BCDEF Port mode 2
+  FF23h PM3    R/W 1B- FFh   BCDEF Port mode 3
+  FF24h PM4    R/W 1B- FFh   -CDEF Port mode 4
+  FF25h PM5    R/W 1B- FFh   ---EF Port mode 5
+  FF26h PM6    R/W 1B- FFh   BCDEF Port mode 6
+  FF27h PM7    R/W 1B- FFh   -CDEF Port mode 7
+  FF28h ADM    R/W 1B- 00h   BCDEF A/D converter mode
+  FF29h ADS    R/W 1B- 00h   BCDEF Analog input channel specification
+  FF2Ch PM12   R/W 1B- FFh   BCDEF Port mode 12
+  FF2Eh PM14   R/W 1B- FFh   -cDEF Port mode 14 (KC2: 48pin only)
+  FF2Fh ADPC   R/W 1B- 00h   BCDEF A/D port configuration
+  FF30h PU0    R/W 1B- 00h   BCDEF Pull-up resistor option 0
+  FF31h PU1    R/W 1B- 00h   BCDEF Pull-up resistor option 1
+  FF33h PU3    R/W 1B- 00h   BCDEF Pull-up resistor option 3
+  FF34h PU4    R/W 1B- 00h   -CDEF Pull-up resistor option 4
+  FF35h PU5    R/W 1B- 00h   ---EF Pull-up resistor option 5
+  FF36h PU6    R/W 1B- 00h   ----F Pull-up resistor option 6
+  FF37h PU7    R/W 1B- 00h   -CDEF Pull-up resistor option 7
+  FF3Ch PU12   R/W 1B- 00h   BCDEF Pull-up resistor option 12
+  FF3Eh PU14   R/W 1B- 00h   -cDEF Pull-up resistor option 14 (KC2: 48pin only)
+  FF40h CKS    R/W 1B- 00h   -cDEF Clock output selection     (KC2: 48pin only)
+  FF41h CR51   R/W -B- 00h   BCDEF 8-bit timer compare 51
+  FF43h TMC51  R/W 1B- 00h   BCDEF 8-bit timer mode control 51
+  FF48h EGP    R/W 1B- 00h   BCDEF External interrupt rising edge enable
+  FF49h EGN    R/W 1B- 00h   BCDEF External interrupt falling edge enable
+  FF4Ah SIO11  R   -B- 00h   ---eF Serial I/O shift 11 (KE2: 48KB only)
+  FF4Ch SOTB11 R/W -B- 00h   ---eF Transmit buffer 11  (KE2: 48KB only)
+  FF4Fh ISC    R/W 1B- 00h   BCDEF Input switch control
+  FF50h ASIM6  R/W 1B- 01h   BCDEF Async serial interface operation mode 6
+  FF53h ASIS6  R   -B- 00h   BCDEF Async serial interface reception err/stat 6
+  FF55h ASIF6  R   -B- 00h   BCDEF Async serial interface transmission status 6
+  FF56h CKSR6  R/W -B- 00h   BCDEF Clock selection 6
+  FF57h BRGC6  R/W -B- FFh   BCDEF Baud rate generator control 6
+  FF58h ASICL6 R/W 1B- 16h   BCDEF Async serial interface control 6
+  FF60h SDR0   R   -BW 0000h -cdeF Remainder data 0 bit0..         ;\
+  FF61h SDR0H  R   -B- 00h   -cdeF Remainder data 0 bit8..         ;
+  FF62h MDA0L  R/W -BW 0000h -cdeF Multiply/divide data A0 bit0..  ; KC2-KE2:
+  FF63h MDA0LH R/W -B- 00h   -cdeF Multiply/divide data A0 bit8..  ; 48KB only
+  FF64h MDA0H  R/W -BW 0000h -cdeF Multiply/divide data A0 bit16.. ;
+  FF65h MDA0HH R/W -B- 00h   -cdeF Multiply/divide data A0 bit24.. ;
+  FF66h MDB0   R/W -BW 0000h -cdeF Multiply/divide data B0 bit0..  ;
+  FF67h MDB0H  R/W -B- 00h   -cdeF Multiply/divide data B0 bit8..  ;
+  FF68h DMUC0  R/W 1B- 00h   -cdeF Multiply/divide control 0       ;/
+  FF69h TMHMD0 R/W 1B- 00h   BCDEF 8-bit timer H mode 0
+  FF6Ah TCL50  R/W 1B- 00h   BCDEF Timer clock selection 50
+  FF6Bh TMC50  R/W 1B- 00h   BCDEF 8-bit timer mode control 50
+  FF6Ch TMHMD1 R/W 1B- 00h   BCDEF 8-bit timer H mode 1
+  FF6Dh TMCYC1 R/W 1B- 00h   BCDEF 8-bit timer H carrier control 1
+  FF6Eh KRM    R/W 1B- 00h   -CDEF Key return mode
+  FF6Fh WTM    R/W 1B- 00h   -CDEF Watch timer operation mode
+  FF70h ASIM0  R/W 1B- 01h   BCDEF Async serial interface operation mode 0
+  FF71h BRGC0  R/W -B- 1Fh   BCDEF Baud rate generator control 0
+  FF72h RXB0   R   -B- FFh   BCDEF Receive buffer 0
+  FF73h ASIS0  R   -B- 00h   BCDEF Async serial interface reception err/stat 0
+  FF74h TXS0   W   -B- FFh   BCDEF Transmit shift 0
+  FF80h CSIM10 R/W 1B- 00h   BCDEF Serial operation mode 10
+  FF81h CSIC10 R/W 1B- 00h   BCDEF Serial clock selection 10
+  FF84h SOTB10 R/W -B- 00h   BCDEF Transmit buffer 10
+  FF88h CSIM11 R/W 1B- 00h   ---eF Serial operation mode 11  (KE2: 48KB only)
+  FF89h CSIC11 R/W 1B- 00h   ---eF Serial clock selection 11 (KE2: 48KB only)
+  FF8Ch TCL51  R/W 1B- 00h   BCDEF Timer clock selection 51
+  FF90h CSIMA0 R/W 1B- 00h   ----F Serial operation mode specification 0
+  FF91h CSIS0  R/W 1B- 00h   ----F Serial status 0
+  FF92h CSIT0  R/W 1B- 00h   ----F Serial trigger 0
+  FF93h BRGCA0 R/W -B- 03h   ----F Division value selection 0
+  FF94h ADTP0  R/W -B- 00h   ----F Automatic data transfer address point spec 0
+  FF95h ADTI0  R/W -B- 00h   ----F Automatic data transfer interval spec 0
+  FF96h SIOA0  R/W -B- 00h   ----F Serial I/O shift 0
+  FF97h ADTC0  R   -B- 00h   ----F Automatic data transfer address count 0
+  FF99h WDTE   R/W -B- xAh   BCDEF Watchdog timer enable (initial=1Ah/9Ah)
+  FF9Fh OSCCTL R/W 1B- 00h   BCDEF Clock operation mode select
+  FFA0h RCM    R/W 1B- x0h   BCDEF Internal oscillation mode
+  FFA1h MCM    R/W 1B- 00h   BCDEF Main clock mode
+  FFA2h MOC    R/W 1B- 80h   BCDEF Main OSC control
+  FFA3h OSTC   R   1B- 00h   BCDEF Oscillation stabilization time counter stat
+  FFA4h OSTS   R/W -B- 05h   BCDEF Oscillation stabilization time select
+  FFA5h IIC0   R/W -B- 00h   BCDEF IIC shift 0
+  FFA6h IICC0  R/W 1B- 00h   BCDEF IIC control 0
+  FFA7h SVA0   R/W -B- 00h   BCDEF Slave address 0
+  FFA8h IICCL0 R/W 1B- 00h   BCDEF IIC clock selection 0
+  FFA9h IICX0  R/W 1B- 00h   BCDEF IIC function expansion 0
+  FFAAh IICS0  R   1B- 00h   BCDEF IIC status 0
+  FFABh IICF0  R/W 1B- 00h   BCDEF IIC flag 0
+  FFACh RESF   R   -B- xxh   BCDEF Reset control flag
+  FFB0h TM01   R   --W 0000h ---eF 16-bit timer counter 01           ;\
+  FFB2h CR001  R/W --W 0000h ---eF 16-bit timer capture/compare 001  ;
+  FFB4h CR011  R/W --W 0000h ---eF 16-bit timer capture/compare 011  ; KE2:
+  FFB6h TMC01  R/W 1B- 00h   ---eF 16-bit timer mode control 01      ; 48KB
+  FFB7h PRM01  R/W 1B- 00h   ---eF Prescaler mode 01                 ; only)
+  FFB8h CRC01  R/W 1B- 00h   ---eF Capture/compare control 01        ;
+  FFB9h TOC01  R/W 1B- 00h   ---eF 16-bit timer output control 01    ;/
+  FFBAh TMC00  R/W 1B- 00h   BCDEF 16-bit timer mode control 00
+  FFBBh PRM00  R/W 1B- 00h   BCDEF Prescaler mode 00
+  FFBCh CRC00  R/W 1B- 00h   BCDEF Capture/compare control 00
+  FFBDh TOC00  R/W 1B- 00h   BCDEF 16-bit timer output control 00
+  FFBEh LVIM   R/W 1B- xxh   BCDEF Low-voltage detection
+  FFBFh LVIS   R/W 1B- xxh   BCDEF Low-voltage detection level selection
+  FFC0h PFCMD  W?  ?B? ?     ?  Undoc: Flash Protect Command (write A5h)
+  FFC1h -      R/W 1B- ?     ?  Undoc: Flash ... FFC1h ... bits/pulses   FSSQ ?
+  FFC2h PFS    R       ?     ?  Undoc: Flash Protect Status
+  FFC4h FLPMC  R/W 1B? ?     ?  Undoc: Flash Programming Mode Ctl ;triple write
+  FFC5h -      W   1?- ?     ?  Undoc: Flash ... 0FFC5h ... bits/mode   ?
+  FFC6h FLAPH  W   1B- ?     ?  Undoc: Flash addr ptr upper 8bit (bit1=flag)
+  FFC7h -      R/W 1?- ?     ?  Undoc: Flash ... 0FFC7h ... flag bits
+  FFC8h FLAPL  W   1BW ?     ?  Undoc: Flash addr ptr lower 16bit (bit0,1=flag)
+  FFCAh -      R/W ?B? ?     ?  Undoc: Flash ... 0FFCAh ...       ;triple write
+  FFCBh FLWE   W   ?B- ?     ?  Undoc: Flash write data ECC error correction?
+  FFCCh FLWH   W   -BW ?     ?  Undoc: Flash write data upper 16bit  ;\4-byte
+  FFCEh FLWL   W   -BW ?     ?  Undoc: Flash write data lower 16bit  ;/
+  FFE0h IF0L   R/W 1BW 00h   BCDEF Interrupt request flag 0L      ;\IF0
+  FFE1h IF0H   R/W 1BW 00h   BCDEF Interrupt request flag 0H      ;/
+  FFE2h IF1L   R/W 1BW 00h   BCDEF Interrupt request flag 1L      ;\IF1
+  FFE3h IF1H   R/W 1BW 00h   BCDEF Interrupt request flag 1H      ;/
+  FFE4h MK0L   R/W 1BW FFh   BCDEF Interrupt mask flag 0L         ;\MK0
+  FFE5h MK0H   R/W 1BW FFh   BCDEF Interrupt mask flag 0H         ;/
+  FFE6h MK1L   R/W 1BW FFh   BCDEF Interrupt mask flag 1L         ;\MK1
+  FFE7h MK1H   R/W 1BW FFh   BCDEF Interrupt mask flag 1H         ;/
+  FFE8h PR0L   R/W 1BW FFh   BCDEF Priority specification flag 0L ;\PR0
+  FFE9h PR0H   R/W 1BW FFh   BCDEF Priority specification flag 0H ;/
+  FFEAh PR1L   R/W 1BW FFh   BCDEF Priority specification flag 1L ;\PR1
+  FFEBh PR1H   R/W 1BW FFh   BCDEF Priority specification flag 1H ;/
+  FFF0h IMS    R/W -B- CFh   BCDEF Internal memory size switching
+  FFF3h BANK   R/W -B- 00h   --def Memory bank select  (KD2-KF2: min 96KB only)
+  FFF4h IXS    R/W -B- 0Ch   bcdeF Internal expansion RAM size switching
+  FFF5h -      R   ?B- ?     ?  Undoc: chip_id (package type and memory size)
+  FFFBh PCC    R/W 1B- 01h   BCDEF Processor clock control
+```
+
+And, more undoc/secret registers:
+
+```
+  F800h..F0h   -   --- ?     ?  Undoc: unknown values, unused by software
+  F8F1h FLrE   R   -B- ?     ?  Undoc: Flash read data ECC error correction?
+  F8F2h FLrH   R   -BW ?     ?  Undoc: Flash read data upper 16bit  ;\4-byte
+  F8F4h FLrL   R   -BW ?     ?  Undoc: Flash read data lower 16bit  ;/total
+  F8F6h ???    R/W --W ?     ?  Undoc: Flash ...0F8F6h_word     ;-16bit
+  F8F8h -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8F9h ???    R/W -B- ?     ?  Undoc: Flash ...0F8F9h          ;-
+  F8FAh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FBh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FCh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FDh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FEh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FFh -      -   --- ?     ?  Undoc:   ;(unused by software)
+```
+
+
+Whereas,
+
+```
+  1BT   = supports Bit/Byte/Word access (1bit/8bit/16bit)
+  BCDEF = supported on KB2/KC2/KD2/KE2/KF2 chip versions
+```
+
+For IMS/IXS: Regardless of the internal memory capacity, the initial values of
+the internal memory size switching register (IMS) and internal expansion RAM
+size switching register (IXS) of all products in the 78K0/Kx2 microcontrollers
+are fixed (IMS = CFH, IXS = 0CH). Therefore, set the value corresponding to
+each product as indicated in Tables 3-1 and 3-2.
+
+For IMS/IXS: The ROM and RAM capacities of the products with the on-chip debug
+function can be debugged by setting IMS and IXS, according to the debug target
+products. Set IMS and IXS according to the debug target products.
+
+For IXS on KB2-KE2: Set IXS only in products with internal expansion RAM.
+
+The reset values of RES, LVIM and LVIS vary depending on the reset source.
+
+The reset value of WDTE is determined by setting of option byte.
+
+The reset value of RCM is 00h immediately after a reset release but
+automatically changes to 80h after oscillation accuracy stabilization of
+high-speed internal oscillator has been waited.
+
+
+
+
+# <a name="pngbitmaps"></a>PNG Bitmaps
+
+
+
+Used by DSi Browser (rom:\\*.png)
+
+
+
+## File Header
+
+
+```
+  000h 8    ID (89h,'PNG',0Dh,0Ah,1Ah,0Ah)
+  008h ..   Chunks
+```
+
+
+
+## Chunk Format
+
+
+```
+  000h 4    Chunk Size (LEN)                  ;big-endian
+  004h 4    Chunk ID (4-letter ASCII) ("A..Z" and "a..z")
+  008h LEN  Chunk Data
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+The Chunk ID is 4-letter ASCII, with upper/lowercase having special meanings:
+
+```
+  1st char  Uppercase=Critical (Basic)   Lowercase=Ancillary (Optional extras)
+  2nd char  Uppercase=Public (Official)  Lowercase=Private (Custom extensions)
+  3rd char  Uppercase=Normal             Lowercase=Reserved
+  4th char  Uppercase=Unsafe to copy     Lowercase=Safe to copy
+```
+
+PNG Chunks
+
+```
+  IHDR v1.0  Image header (first chunk)                ;\
+  PLTE v1.0  Palette (if any)                          ; Critical chunks
+  IDAT v1.0  Image data (can be multiple IDAT chunks!) ; (aka the bitmap data)
+  IEND v1.0  Image trailer (last chunk)                ;/
+  tRNS v1.0  Transparency                              ;-Transparency
+  cHRM v1.0  Primary chromaticities and white point    ;\
+  gAMA v1.0  Image gamma                               ;
+  iCCP v1.1  Embedded ICC profile                      ; Colour space info
+  sBIT v1.0  Significant bits                          ;
+  sRGB v1.1  Standard RGB colour space                 ;
+  cICP v3rd  Coding-independent code points            ;/
+  bKGD v1.0  Background colour                         ;\
+  hIST v1.0  Image histogram                           ;
+  pHYs v1.0  Physical pixel dimensions                 ; Miscellaneous info
+  sPLT v1.1  Suggested palette                         ;
+  eXIf v3rd  EXIF chunk (starts with "MM"=byteorder)   ;/
+  tEXt v1.0  Textual data                              ;\Textual information
+  zTXt v1.0  Compressed textual data                   ; (aka comments)
+  iTXt v1.2  International textual data                ;/
+  tIME v1.0  Image last-modification time              ;-Time stamp
+  acTL v3rd  Animation Control Chunk                   ;\
+  fcTL v3rd  Frame Control Chunk                       ; Animation (APNG)
+  fdAT v3rd  Frame Data Chunk                          ;/
+```
+
+Note: There are some rules for the chunk ordering, see PNG specs for details.
+
+
+
+## IHDR Chunk (first chunk)
+
+
+```
+  000h 4    Chunk Size (always 0Dh)       ;big-endian
+  004h 4    Chunk ID   ("IHDR")
+  008h 4    Width in pixels  (0=invalid)  ;big-endian
+  00Ch 4    Height in pixels (0=invalid)  ;big-endian
+  010h 1    Bits per sample  (1,2,4,8,16) (allowed values depend on Color Type)
+  011h 1    Color Type       (0,2,3,4,6)
+  012h 1    Compression method  (always 0=Zlib-Deflate)
+  013h 1    Filter method       (always 0=Adaptive; with subtype per line)
+  014h 1    Interlace method    (0=None, 1=Adam7)
+  015h 4    Chunk CRC32 on [004h..]       ;big-endian
+```
+
+The valid Color types and bits per sample are:
+
+```
+  Color type             (Samples)  Bits/sample     Bits/pixel
+  0=Grayscale            (I)        1,2,4,8,16  --> 1,2,4,8,16
+  2=Truecolor            (RGB)      8,16        --> 24,48
+  3=Palette indices      (I)        1,2,4,8     --> 1,2,4,8
+  4=Grayscale with alpha (IA)       8,16        --> 16,32
+  6=Truecolor with alpha (RGBA)     8,16        --> 32,64
+```
+
+
+
+## PLTE Chunk (required for Color type 3)
+
+
+```
+  000h 4    Chunk Size (LEN=NumColors*3) (3..300h)            ;big-endian
+  004h 4    Chunk ID ("PLTE")
+  008h LEN  Palette Data (three bytes per color, ordered R,G,B)
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+Additional Alpha values for each palette entry can be defined in tRNS chunk.
+
+
+
+## IDAT Chunk(s)
+
+
+```
+  000h 4    Chunk Size (LEN)                      ;big-endian
+  004h 4    Chunk ID ("IDAT")
+  008h LEN  Zlib-Deflate compressed image data
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+There may be multiple IDAT chunks; if so, they shall appear consecutively with
+no other "intervening" chunks. The compressed datastream is then the
+"concatenation" of the contents of the data fields of all the IDAT chunks.
+
+
+
+## IEND Chunk (last chunk)
+
+
+```
+  000h 4    Chunk Size (0)                    ;big-endian
+  004h 4    Chunk ID ("IEND")
+  008h 4    Chunk CRC32 on [004h..007h] (always AE426082h) ;big-endian
+```
+
+
+```
+ _________________ Decompression, Unfiltering, Deinterlacing __________________
+```
+
+
+
+## Overall image decoding flowchart
+
+
+- merge SDAT chunk(s) into a continous bitstream (remove Chunk Headers/CRCs)
+
+- decompress via Zlib-Inflate
+
+- unfilter
+
+- convert to desired color depth and RGBA bit-order
+
+- deinterlace
+
+
+
+## Decompression
+
+
+The merged IDAT chunks contain:
+
+```
+  000h 1   zlib compression method/flags code (usually 78h)
+  001h 1   Additional flags/check bits        (usually 9Ch) (or DAh)
+  002h ..  Compressed data blocks (deflate)
+  ...  4   Adler32 checksum on decompressed data   ;big-endian
+```
+
+- [ZIP Decompression](#zipdecompression)
+"tinf\_zlib\_uncompress"
+
+All scanlines are padded to 1-byte boundary, and all scanlines include a
+leading filter bytes. That is, the decompressed size is:
+
+```
+  decompressed_size = ((width*bpp+7)/8+1)*height
+```
+
+For interlaced images, compute the width & height for each pass, then
+compute the sum of the decompressed\_size's.
+
+
+
+## Unfiltering
+
+
+Pixels can have 1..64 bpp, but unfiltering is always done in BYTE units.
+
+```
+  for pass=1 to num_passes   ;for 7-pass interlacing
+    calc width/height for current pass
+    for x=1 to (bpp+7)/8 + (width*bpp+7)/8
+      byte[dst]=00h, dst=dst+1            ;-pad topmost for unfiltering
+    for y=1 to height
+      filter = byte[src], src=src+1
+      for x=1 to (bpp+7)/8
+        byte[dst]=00h, dst=dst+1          ;-pad leftmost for unfiltering
+      for x=1 to (width*bpp+7)/8
+        left      = byte[dst-(bpp+7)/8]
+        upper     = byte[dst-bytes_per_scanline]
+        upperleft = byte[dst-bytes_per_scanline-(bpp+7)/8]
+        if filter=0 then byte[dst]=byte[src]
+        if filter=1 then byte[dst]=byte[src]+left
+        if filter=2 then byte[dst]=byte[src]+upper
+        if filter=3 then byte[dst]=byte[src]+(left+upper)/2
+        if filter=4 then
+          pa=abs(upper-upperleft)
+          pb=abs(left-upperleft)
+          pc=abs(left+upper-(upperleft*2))
+          if pa<=pb AND pa<=pc then byte[dst]=byte[src]+left
+          elseif pb<=pc then        byte[dst]=byte[src]+upper
+          else                      byte[dst]=byte[src]+upperleft
+        if filter>4 then error
+        src=src+1, dst=dst+1
+      next x
+    next y
+  next pass
+```
+
+Note: The dst buffer may be as small as two scanlines (when directly forwarding
+the unfiltered data to the color conversion & deinterlacing steps).
+
+
+
+## Color Depth conversion and RGBA bit-order
+
+
+The MSB of first pixel is in bit7 of first byte (ie. 16bit samples are
+big-endian, and 2bpp would have 1st pixel in bit7-6). Pixels with multiple
+samples are ordered R,G,B or R,G,B,A or Luminance,A.
+
+The data should be converted to a format supported by the OS/hardware. Also,
+deinterlacing will be easier when converting to at least 8bpp (or simply
+convert everything to 32bpp).
+
+
+
+## Deinterlacing (if enabled in IHDR chunk)
+
+
+Interlace allows to display a low-resolution preview during slow network
+downloads. The image is divided into 8x8 pixel blocks.
+
+```
+  Pass Numbers per 8x8:      Width/Height per pass:
+  1 6 4 6 2 6 4 6            Pass 1   (width+7)/8, (height+7)/8  ;\
+  7 7 7 7 7 7 7 7            Pass 2   (width+3)/8, (height+7)/8  ;
+  5 6 5 6 5 6 5 6            Pass 3   (width+3)/4, (height+3)/8  ; seven-pass   7 7 7 7 7 7 7 7            Pass 4   (width+1)/4, (height+3)/4  ; (Adam7
+  3 6 4 6 3 6 4 6            Pass 5   (width+1)/2, (height+1)/4  ; interlace)
+  7 7 7 7 7 7 7 7            Pass 6   (width+0)/2, (height+1)/2  ;
+  5 6 5 6 5 6 5 6            Pass 7   (width+0)/1, (height+0)/2  ;/
+  7 7 7 7 7 7 7 7            Single   (width+0)/1, (height+0)/1  ;-single-pass
+```
+
+For example, a 12x2 pixel image would be interlaced as so:
+
+```
+  1 6 4 6 2 6 4 6 1 6 4 6      ;\Pass1=2x1, Pass2=1x1, Pass3=Empty, Pass4=4x1,
+  7 7 7 7 7 7 7 7 7 7 7 7      ;/Pass5=Empty, Pass6=6x1, Pass7=12x1.
+```
+
+All seven passes are stored in a single Zlib-bitstream (for low-res preview,
+one must pause the Zlib decompression every once and then to display the yet
+downloaded pixels).
+
+
+```
+ ____________________________________ Misc ____________________________________
+```
+
+
+
+## tRNS Chuunk
+
+
+Colour type 0    Grayscale
+
+```
+  Grey sample value              2 bytes   (big-endian) (0..SampleSize-1)
+```
+
+Colour type 2    RGB
+
+```
+  Red sample value               2 bytes   (big-endian) (0..SampleSize-1)
+  Blue sample value              2 bytes   (big-endian)
+  Green sample value             2 bytes   (big-endian)
+```
+
+Colour type 3    Color-indexed
+
+```
+  Alpha for palette index 0      1 byte (alpha value, 00h..FFh; FFh=Solid)
+  Alpha for palette index 1      1 byte
+  ...etc...                      1 byte
+```
+
+
+
+## References
+
+
+Official PNG specs are filled with overhelming details (without actually
+getting to the point).
+
+- [http://www.libpng.org/pub/png/spec/1.0/](http://www.libpng.org/pub/png/spec/1.0/)
+- (gzip)      PNG v1.0
+- [http://www.libpng.org/pub/png/spec/1.1/](http://www.libpng.org/pub/png/spec/1.1/)
+- (html/txt)  PNG v1.1
+- [http://www.libpng.org/pub/png/spec/1.2/](http://www.libpng.org/pub/png/spec/1.2/)
+- (html/txt)  PNG v1.2
+- [http://www.w3.org/TR/2003/REC-PNG-20031110/#minitoc](http://www.w3.org/TR/2003/REC-PNG-20031110/#minitoc)
+- PNG "second edition"
+- [http://w3c.github.io/PNG-spec/](http://w3c.github.io/PNG-spec/)
+- (corrupted html)     PNG "third edition"
+
+To figure out "how to decode the damn bitmap", there is this valuable resource:
+
+- [http://pyokagan.name/blog/2019-10-14-png/](http://pyokagan.name/blog/2019-10-14-png/)
+- Writing a (simple) PNG decoder
+
+For testing different color depths and interlacing:
+
+- [http://www.schaik.com/pngsuite/](http://www.schaik.com/pngsuite/)
+- PNG test images (color types, interlace, etc)
+
+
+
+
+# <a name="parentalcontrolsreset"></a>Parental Controls Reset
+
+
+
+
+## Parental Controls Reset
+
+
+Click "I Forgot" when getting prompted to enter the PIN and Secret Question,
+the console will then display an 8-digit Enquiry Number (or 10-digit with
+region/version RV/RVV in upper digits), the customer service hotline uses that
+number (and the current month/day, MMDD) to compute a 5-digit Master Key for
+resetting Parental Controls.
+
+
+## DSi/Wii version
+
+
+```
+  This uses a standard CRC32 with polynomial EDB88320h.
+  Enquiry = "XXXXNNNN" (8-digit, based on MAC but only last 4-digits are used)
+  MasterKey = ((StandardCRC32("MMDDNNNN") XOR 0000AAAAh)+14C1h mod 100000
+  The XOR 0000AAAAh is replacing the standard crc32's final XOR FFFFFFFFh?
+```
+
+
+## 3DS firmware version 1.0.0-X through 6.3.0-X
+
+
+```
+  Same as DSi/Wii, but using a nonstandard CRC32 (with polynomial EDBA6320h
+  instead of EDB88320h, and adding 1657h instead of 14C1h to the final result.
+  Enquiry = "XXXXNNNN" (8-digit, based on MAC but only last 4-digits are used)
+  MasterKey = ((NonStandardCRC32("MMDDNNNN") XOR 0000AAAAh)+1657h mod 100000
+  "This had a minor refactor in 6.0.0-X but is functionally identical."
+```
+
+
+## 3DS firmware version7.0.0-X through 7.1.0-X (with version V=0)
+
+
+```
+  Similar as above, using a 10-digit Enquiry, and SHA256-HMAC instead CRC32.
+  Enquiry = "RVNNNNNNNN" (10-digit, based on MAC?, upper digits=region/ver?)
+  HmacKey = from mset .rodata, differs between regions.
+  MasterKey = (FirstWordOf(SHA256HMAC("MMDDR0NNNNNNNN",HmacKey)) mod 100000
+```
+
+
+## 3DS firmware versio n7.2.0-X and up (with version VV=10 and up)
+
+
+```
+  As above, but with HmacKey stored in a separate encrypted file.
+  AesIv,RVV = from masterkey.bin (found in System Data Archives 2, CVer)
+  AesKey = from mset .rodata, using RVV as decrypt key number
+  Enquiry = "RVVNNNNNNN" (10-digit, based on MAC?, upper digits=region/ver)
+  HmacKey = from masterkey.bin (decrypt via AES-CTR with AesIv and AesKey)
+  MasterKey = (FirstWordOf(SHA256HMAC("MMDDR0NNNNNNNN",HmacKey)) mod 100000
+```
+
+Newer(?) firmwares are using R=9 for japan (instead of R=0, maybe because
+people did tend to omit leading zeroes when specifying the Enquiry Number).
+
+Alternately, an easier way to reset parental controls is to dump the PIN from
+"config" (3DS) or TWLCFG (DSi).
+
 
 
 
@@ -9654,7 +10995,8 @@ All FMxxxx opcodes are renamed to FMOV{LSW|MSW}.
 
 
 The weird {X} mode is same as {D}, but with offset.bit0=1 (ie. with offs=3..33
-instead of 2..32; and thereby actually transferring an unused dummy word).
+instead of 2..32; and thereby actually transferring an unused dummy word; that
+extra word might be intended to contain datatype flags).
 
 The weird {X} mode is/was intended for registers with unknown content (eg. when
 pushing/popping registers without knowing if they contain integer/single/double
@@ -9867,6 +11209,7 @@ Exchange (BX) instruction.
 ## Further Information
 
 
+- [ARM Classic vs UAL Syntax (Unified Assembler Language)](#armclassicvsualsyntaxunifiedassemblerlanguage)
 - [ARM Pseudo Instructions and Directives](#armpseudoinstructionsanddirectives)
 - [ARM CP15 System Control Coprocessor](#armcp15systemcontrolcoprocessor)
 - [ARM Vector Floating-point Unit (VFP)](#armvectorfloatingpointunitvfp)
@@ -10159,7 +11502,11 @@ respective opcode.
   29    C - Carry Flag      (0=Borrow/No Carry, 1=Carry/No Borrow) ; Code Flags
   28    V - Overflow Flag   (0=No Overflow, 1=Overflow)            ;/
   27    Q - Sticky Overflow (1=Sticky Overflow, ARMv5TE and up only)
-  26-8  Reserved            (For future use) - Do not change manually!
+  26-25 Reserved            (For future use) - Do not change manually!
+  24    J - Jazelle Mode    (1=Jazelle Bytecode instructions) (if supported)
+  23-10 Reserved            (For future use) - Do not change manually!
+  9     E - Endian          (... Big endian)                  (ARM11 ?)
+  8     A - Abort disable   (1=Disable Imprecise Data Aborts) (ARM11 only)
   7     I - IRQ disable     (0=Enable, 1=Disable)                     ;\
   6     F - FIQ disable     (0=Enable, 1=Disable)                     ; Control
   5     T - State Bit       (0=ARM, 1=THUMB) - Do not change manually!; Bits
@@ -12024,8 +13371,7 @@ When reading a byte from memory, upper 24 bits of Rd are zero-extended.
 
 LDR PC,\<op> on ARMv4 leaves CPSR.T unchanged.
 
-LDR PC,\<op> on ARMv5 sets CPSR.T to
-\<op> Bit0, (1=Switch to Thumb).
+LDR PC,\<op> on ARMv5 sets CPSR.T to \<op> Bit0, (1=Switch to Thumb).
 
 
 When reading a word from a halfword-aligned address (which is located in the
@@ -12491,26 +13837,29 @@ explicitly mentioned).
 
 
 ```
-  Instruction        Cycles Flags Format Expl.
-  MOV Rd,Imm8bit      1S     NZ--  3   Rd=nn
-  MOV Rd,Rs           1S     NZ00  2   Rd=Rs+0
-  MOV R0..14,R8..15   1S     ----  5   Rd=Rs
-  MOV R8..14,R0..15   1S     ----  5   Rd=Rs
-  MOV R15,R0..15      2S+1N  ----  5   PC=Rs
-  MVN Rd,Rs           1S     NZ--  4   Rd=NOT Rs
-  AND Rd,Rs           1S     NZ--  4   Rd=Rd AND Rs
-  TST Rd,Rs           1S     NZ--  4 Void=Rd AND Rs
-  BIC Rd,Rs           1S     NZ--  4   Rd=Rd AND NOT Rs
-  ORR Rd,Rs           1S     NZ--  4   Rd=Rd OR Rs
-  EOR Rd,Rs           1S     NZ--  4   Rd=Rd XOR Rs
-  LSL Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHL nn
-  LSL Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHL (Rs AND 0FFh)
-  LSR Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHR nn
-  LSR Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHR (Rs AND 0FFh)
-  ASR Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SAR nn
-  ASR Rd,Rs           1S+1I  NZc-  4   Rd=Rd SAR (Rs AND 0FFh)
-  ROR Rd,Rs           1S+1I  NZc-  4   Rd=Rd ROR (Rs AND 0FFh)
-  NOP                 1S     ----  5   R8=R8
+  Instruction           Cycles Flags Format Expl.
+  MOV{S} Rd,Imm8bit      1S     NZ--  3   Rd=nn
+  MOV{S} Rd,Rs           1S     NZ00  2   Rd=Rs+0       (Pre-UAL)
+  CPY    Rd,Rs           1S     ----  5   Rd=Rs         (Pre-UAL, ARMv6)
+  MOV    Rd,Rs           1S     ----  5   Rd=Rs         (UAL)
+  MOV{S} Rd,Rs           1S     NZ--  2   Rd=Rs SHL 0   (UAL)
+  MOV    R0..14,R8..15   1S     ----  5   Rd=Rs
+  MOV    R8..14,R0..15   1S     ----  5   Rd=Rs
+  MOV    R15,R0..15      2S+1N  ----  5   PC=Rs
+  MVN{S} Rd,Rs           1S     NZ--  4   Rd=NOT Rs
+  AND{S} Rd,Rs           1S     NZ--  4   Rd=Rd AND Rs
+  TST    Rd,Rs           1S     NZ--  4 Void=Rd AND Rs
+  BIC{S} Rd,Rs           1S     NZ--  4   Rd=Rd AND NOT Rs
+  ORR{S} Rd,Rs           1S     NZ--  4   Rd=Rd OR Rs
+  EOR{S} Rd,Rs           1S     NZ--  4   Rd=Rd XOR Rs
+  LSL{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHL nn
+  LSL{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHL (Rs AND 0FFh)
+  LSR{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHR nn
+  LSR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHR (Rs AND 0FFh)
+  ASR{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SAR nn
+  ASR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SAR (Rs AND 0FFh)
+  ROR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd ROR (Rs AND 0FFh)
+  NOP                    1S     ----  5   R8=R8
 ```
 
 Carry flag affected only if shift amount is non-zero.
@@ -12521,29 +13870,32 @@ Carry flag affected only if shift amount is non-zero.
 
 
 ```
-  Instruction        Cycles Flags Format Expl.
-  ADD Rd,Rs,Imm3bit   1S     NZCV  2   Rd=Rs+nn
-  ADD Rd,Imm8bit      1S     NZCV  3   Rd=Rd+nn
-  ADD Rd,Rs,Rn        1S     NZCV  2   Rd=Rs+Rn
-  ADD R0..14,R8..15   1S     ----  5   Rd=Rd+Rs
-  ADD R8..14,R0..15   1S     ----  5   Rd=Rd+Rs
-  ADD R15,R0..15      2S+1N  ----  5   PC=Rd+Rs
-  ADD Rd,PC,Imm8bit*4 1S     ---- 12   Rd=(($+4) AND NOT 2)+nn
-  ADD Rd,SP,Imm8bit*4 1S     ---- 12   Rd=SP+nn
-  ADD SP,Imm7bit*4    1S     ---- 13   SP=SP+nn
-  ADD SP,-Imm7bit*4   1S     ---- 13   SP=SP-nn
-  ADC Rd,Rs           1S     NZCV  4   Rd=Rd+Rs+Cy
-  SUB Rd,Rs,Imm3Bit   1S     NZCV  2   Rd=Rs-nn
-  SUB Rd,Imm8bit      1S     NZCV  3   Rd=Rd-nn
-  SUB Rd,Rs,Rn        1S     NZCV  2   Rd=Rs-Rn
-  SBC Rd,Rs           1S     NZCV  4   Rd=Rd-Rs-NOT Cy
-  NEG Rd,Rs           1S     NZCV  4   Rd=0-Rs
-  CMP Rd,Imm8bit      1S     NZCV  3 Void=Rd-nn
-  CMP Rd,Rs           1S     NZCV  4 Void=Rd-Rs
-  CMP R0-15,R8-15     1S     NZCV  5 Void=Rd-Rs
-  CMP R8-15,R0-15     1S     NZCV  5 Void=Rd-Rs
-  CMN Rd,Rs           1S     NZCV  4 Void=Rd+Rs
-  MUL Rd,Rs           1S+mI  NZx-  4   Rd=Rd*Rs
+  Instruction           Cycles Flags Format Expl.
+  ADD{S} Rd,Rs,Imm3bit   1S     NZCV  2   Rd=Rs+nn
+  ADD{S} Rd,Imm8bit      1S     NZCV  3   Rd=Rd+nn
+  ADD{S} Rd,Rs,Rn        1S     NZCV  2   Rd=Rs+Rn
+  ADD    Rd,Rs           1S     ----  5   Rd=Rd+Rs (UAL only)
+  ADD    R0..14,R8..15   1S     ----  5   Rd=Rd+Rs
+  ADD    R8..14,R0..15   1S     ----  5   Rd=Rd+Rs
+  ADD    R15,R0..15      2S+1N  ----  5   PC=Rd+Rs
+  ADD    Rd,PC,Imm8bit*4 1S     ---- 12   Rd=(($+4) AND NOT 2)+nn
+  ADD    Rd,SP,Imm8bit*4 1S     ---- 12   Rd=SP+nn
+  ADD    SP,Imm7bit*4    1S     ---- 13   SP=SP+nn
+  ADD    SP,-Imm7bit*4   1S     ---- 13   SP=SP-nn
+  ADC{S} Rd,Rs           1S     NZCV  4   Rd=Rd+Rs+Cy
+  SUB{S} Rd,Rs,Imm3Bit   1S     NZCV  2   Rd=Rs-nn
+  SUB{S} Rd,Imm8bit      1S     NZCV  3   Rd=Rd-nn
+  SUB{S} Rd,Rs,Rn        1S     NZCV  2   Rd=Rs-Rn
+  SUB    SP,Imm7bit*4    1S     ---- 13   SP=SP-nn  ;\alias for ADD
+  SUB    SP,-Imm7bit*4   1S     ---- 13   SP=SP+nn  ;/with flipped sign
+  SBC{S} Rd,Rs           1S     NZCV  4   Rd=Rd-Rs-NOT Cy
+  NEG{S} Rd,Rs           1S     NZCV  4   Rd=0-Rs
+  CMP    Rd,Imm8bit      1S     NZCV  3 Void=Rd-nn
+  CMP    Rd,Rs           1S     NZCV  4 Void=Rd-Rs
+  CMP    R0-15,R8-15     1S     NZCV  5 Void=Rd-Rs
+  CMP    R8-15,R0-15     1S     NZCV  5 Void=Rd-Rs
+  CMN    Rd,Rs           1S     NZCV  4 Void=Rd+Rs
+  MUL{S} Rd,Rs           1S+mI  NZx-  4   Rd=Rd*Rs
 ```
 
 
@@ -12706,7 +14058,7 @@ Flags: Z=zeroflag, N=sign, C=carry (except LSL#0: C=unchanged), V=unchanged.
            2: ADD{S} Rd,Rs,#nn  ;add immediate       Rd=Rs+nn
            3: SUB{S} Rd,Rs,#nn  ;subtract immediate  Rd=Rs-nn
          Pseudo/alias opcode with Imm=0:
-           2: MOV{ADDS} Rd,Rs      ;move (affects cpsr) Rd=Rs+0
+           2: MOV{ADDS} Rd,Rs   ;move (affects cpsr) Rd=Rs+0
   8-6    For Register Operand:
            Rn - Register Operand (R0..R7)
          For Immediate Operand:
@@ -12728,7 +14080,7 @@ Execution Time: 1S
   15-13  Must be 001b for this type of instructions
   12-11  Opcode
            00b: MOV{S} Rd,#nn      ;move     Rd   = #nn
-           01b: CMP{S} Rd,#nn      ;compare  Void = Rd - #nn
+           01b: CMP    Rd,#nn      ;compare  Void = Rd - #nn
            10b: ADD{S} Rd,#nn      ;add      Rd   = Rd + #nn
            11b: SUB{S} Rd,#nn      ;subtract Rd   = Rd - #nn
   10-8   Rd - Destination Register  (R0..R7)
@@ -13008,6 +14360,8 @@ Execution Time: 1S
   7      Opcode/Sign
           0: ADD  SP,#nn       ;SP = SP + nn
           1: ADD  SP,#-nn      ;SP = SP - nn
+          1: SUB  SP,#nn       ;SP = SP - nn  ;\alias for ADD
+          0: SUB  SP,#-nn      ;SP = SP + nn  ;/with flipped sign
   6-0    nn - Unsigned Offset    (0-508, step 4)
 ```
 
@@ -13262,8 +14616,7 @@ Execution SWI/BKPT:
 
 
 These unneccessary opcodes are apparently meant to reduce typical compiler
-overload (eg. for ensuring that "for i=0 to 7" won't end up with
-i>255).
+overload (eg. for ensuring that "for i=0 to 7" won't end up with i>255).
 
 ```
   15-8   Must be 1011.0010b for this type of instructions
@@ -13352,6 +14705,116 @@ should work on ARMv4T and up, but wasn't officially documented until ARMv6).
 
 
 
+# <a name="armclassicvsualsyntaxunifiedassemblerlanguage"></a>ARM Classic vs UAL Syntax (Unified Assembler Language)
+
+
+
+ARM has changed the ARM/THUMB syntax (apparently at some point between ARMv6
+and ARMv6K). The new UAL syntax contains some cosmetic changes, and fixes some
+serious flaws in the old THUMB syntax.
+
+GBA/NDS software did traditionally use old syntax. DSi software probably, too.
+3DS software uses ARMv6K, so it's more likely to use the new UAL syntax.
+
+
+
+## THUMB code with {S} suffix
+
+
+Most ALU opcodes do always affect flags in THUMB mode, although they were
+written without {S} suffix in Pre-UAL syntax, which is problematic because the
+same source code can behave differently for ARM and THUMB.
+
+MOV/ADD/SUB don't affect flags when using SP, PC, or R8..R15 as source/dest
+operands.
+
+MOV/ADD have variants that don't affect flags for operands R0..R7 (these
+variants were originally undocumented/reserved; the flag-less CPY variant was
+officially allowed in ARMv6, the flag-less ADD seems to be allowed (?) in UAL).
+
+MOV is a total mess because it relies on poorly defined pseudo opcodes (in the
+Pre-UAL syntax it was common to encode it as ADD{S} opcode, which destroyed the
+C,V flags).
+
+```
+  Pre-UAL               UAL
+  MOV Rd,Imm            MOVS Rd,Imm                ;\
+  LSL with R0..R7,0     MOVS with R0..R7           ;
+  MOV with R0..R7       ADDS Rd,Rs,0               ; move
+  MOV with R8..R15      MOV  with R8..R15          ;
+  CPY with R0..R7       MOV  with R0..R7           ;
+  SHIFT Rd,..,s         MOVS Rd,..,SHIFT s         ;/
+  ADD with R0..R7       ADDS with R0..R7           ;\
+  ADD with R8..R15      ADD  with R8..R15          ; add
+  N/A (reserved)        ADD  with R0..R7           ;/
+  SUB with R0..R7       SUBS with R0..R7           ;\subtract
+  SUB SP,Imm            SUB SP,Imm  (aka ADD -Imm) ;/
+  ADC/SBC/NEG/RSB/MUL   ADCS/SBCS/NEGS/RSBS/MULS   ;\
+  AND/ORR/EOR/BIC/MVN   ANDS/ORRS/EORS/BICS/MVNS   ; always affects flags
+  LSL/LSR/ASR/ROR       LSLS/LSRS/ASRS/RORS        ;/
+```
+
+These changes are solving compatibility issues between ARM and THUMB code.
+However, in case of MOV and ADD they do bring up compatibility issues between
+old and new THUMB code.
+
+
+
+## Renamed Opcodes
+
+
+```
+  Pre-UAL               UAL
+  LDR{cond}{xx}         LDR{xx}{cond}              ;\
+  ADD{cond}{S}          ADD{S}{cond}               ; cond suffix moved to end
+  xxx{cond}{xx}         xxx{xx}{cond}              ;/
+  LDMIA                 LDM                        ;\amod IA can be ommited
+  STMIA                 STM                        ;/
+  LDRD Rd,[addr]        LDRD Rd,Rd+1,[addr]        ;\double word load/store
+  STRD Rd,[addr]        STRD Rd,Rd+1,[addr]        ;/
+  SWI (software irq)    SVC (supervisior)          ;-renamed SWI to SVC
+```
+
+
+
+## Alternate Opcode Names
+
+
+Some opcodes had different names in classic ARM/THUMB syntax, UAL syntax allows
+to use either one in both ARM and THUMB mode.
+
+```
+  THUMB-style           ARM-style
+  PUSH rlist            STMFD r13!,rlist           ;\PUSH/POP
+  POP rlist             LDMFD r13!,rlist           ;/
+  NEG{S} Rd,Rs          RSB{S} Rd,Rs,0             ;-NEG/RSB
+  LSL{S} Rd,Rn,shift    MOV{S} Rd,Rn,LSL shift     ;\
+  LSR{S} Rd,Rn,shift    MOV{S} Rd,Rn,LSR shift     ;
+  ASR{S} Rd,Rn,shift    MOV{S} Rd,Rn,ASR shift     ; MOV/SHIFT
+  ROR{S} Rd,Rn,shift    MOV{S} Rd,Rn,ROR shift     ;
+  RRX{S} Rd,Rn          MOV{S} Rd,Rn,RRX           ;/
+  CMD{S} Rd,Op2         CMD{S} Rd,Rd,Op2           ;-long/short forms
+```
+
+
+
+## Further UAL changes
+
+
+```
+  NOP: uses new dedicated NOP opcodes (instead of MOV Rd,Rd pseudo opcodes)
+  LDMIA: should omit "!" if Rn in rlist
+  LDR Rd,[pc,#offset]: should be somehow written as LDR Rd,label
+  Newer opcodes (for ARMv6K and up) seem to exist only in UAL syntax
+```
+
+Moreover, unrelated to UAL syntax, the 4-letter LDSB/LDSH/STSB/STSH THUMB
+opcodes seem have been renamed to LDRSB/LDRSH/STRSB/STRSH at some point. And,
+SUB SP,imm seems to have been added as an official THUMB alias for ADD SP,-imm.
+
+
+
+
 # <a name="armpseudoinstructionsanddirectives"></a>ARM Pseudo Instructions and Directives
 
 
@@ -13399,6 +14862,8 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .dsi         indicate DSi program
   .firm3ds     indicate 3DS program (.firm format)
   .fix         fix GBA/NDS/DSi header checksum
+  .ual         select newer ARM syntax (UAL)
+  .pre_ual     select older ARM syntax (classic)
   .ereader_create_bmp      create GBA e-Reader dotcode .BMP file(s) (bitmaps)
   .ereader_create_raw      create GBA e-Reader dotcode .RAW file (useless)
   .ereader_create_bin      create GBA e-Reader dotcode .BIN file (smallest)
@@ -13407,8 +14872,11 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .title 'Txt' defines a title (used for e-Reader dotcodes)
   .teak        select TeakLiteII instruction set (for DSi DSP)
   .xtensa      select Xtensa instruction set (for DSi Atheros Wifi)
-  .rl78        select RL78 instruction set (for 3DS MCU)
+  .78k0        select 78K/0 instruction set  (for DSi MCU)
+  .78k0r       select 78K0R/ instruction set (for 3DS MCU)
+  .rl78        alias for .78k0r
   .norewrite   do not delete existing output file (keep following data in file)
+  .no_auto_run do not autostart binary after assembling
   .data?       following defines RAM data structure (assembled to nowhere)
   .code        following is normal ROM code/data (assembled to ROM image)
   .include     includes specified source code file (no nesting/error handling)
@@ -13423,7 +14891,7 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .align nn    aligns to an address divisible-by-nn, inserts 00's
   .msg         defines a no$gba debugmessage string, such like .msg 'Init Okay'
   .brk         defines a no$gba source code break opcode
-  l equ n      l=n
+  l equ n      l=n   (symbol)
   l:   [cmd]   l=$   (global label)
   @@l: [cmd]   @@l=$ (local label, all locals are reset at next global label)
   end          end of source code
@@ -13433,6 +14901,37 @@ All above opcodes may be made conditional by specifying a {cond} field.
   defs nn      define nn bytes space (zero-filled)
   ;...         defines a comment (ignored by the assembler)
   //           alias for CRLF, eg. allows <db 'Text',0 // dw addr> in one line
+  .rept nn     repeat nn times, terminate by .endm
+  .macro name  define a macro, terminate by .endm (see notes)
+  .endm        end of .rept or .macro
+  .undef sym   forget label or symbol name
+```
+
+
+
+## A22i macros
+
+
+The macro feature is a bit quirky and unusual: It doesn't support macros with
+parameters, but one can define parameters as "param equ 1" before calling the
+macro.
+
+The downside is that the assembler will complain about "param" being already
+defined when doing multiple macro calls that way. The workaround is to use
+".undef param" (either inside of the macro or after the macro call).
+
+```
+  Examples:
+  .macro add_something
+    add r1,@@x*4+2
+    .undef @@x
+  .endm
+  @@x=1 // add_something
+  @@x=2 // add_something
+  @@x=3 // add_something
+  .rept 10h
+    nop
+  .endm
 ```
 
 
@@ -13531,6 +15030,8 @@ use friendly code:
   ldr   r0,[score]      ;allows to use clean brackets for relative addresses
   push  rlist           ;alias for stmfd [r13]!,rlist (and same for pop/ldmfd)
   label:                ;label definitions recommended to use ":" colons
+  xor   rd,..           ;alias for eor
+  not   rd,..           ;alias for mvn
 ```
 
 
@@ -17559,7 +19060,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   2000014h 2ECh  AutoParam Unknown... some buffer... string maybe?
   2000300h 4     AutoLoad ID ("TLNC") (also requires BPTWL[70h]=01h)
   2000304h 1     AutoLoad Unknown/unused (usually 01h)
-  2000305h 1     AutoLoad Leng of data at 2000308h (01h..18h,for CRC,18h=norm)
+  2000305h 1     AutoLoad Len of data at 2000308h (01h..18h, for CRC, 18h=norm)
   2000306h 2     AutoLoad CRC16 of data at 2000308h (with initial value FFFFh)
   2000308h 8     AutoLoad Old Title ID (former title) (can be 0=anonymous)
   2000310h 8     AutoLoad New Title ID (new title to be started, 0=none)
@@ -17567,7 +19068,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   200031Ch 4     AutoLoad Unused (but within checksummed area when CRC len=18h)
   2000320h E0h   AutoLoad Unused (but zerofilled upon erasing autoload area)
   2000400h 128h  System Settings from TWLCFGn.dat file (bytes 088h..1AFh)
-  20005E0h 1     WlFirm Type (1=DWM-W015, 2=DWM-W024) (as wifi_flash[1FDh])
+  20005E0h 1     WlFirm Type (1=DWM-W015, 2=W024, 3=W028)    ;wifi_flash[1FDh]
   20005E1h 1     WlFirm Unknown (zero)
   20005E2h 2     WlFirm CRC16 with initial value FFFFh on [20005E4h..20005EFh]
   20005E4h 4     WlFirm RAM vars (500400h)  ;\
@@ -17726,6 +19227,28 @@ requires only a few memory blocks in ITCM, ARM7 WRAM, and AES keyslots:
   40044E0h 1Ch   AES Key3.X/Y (CPU/Console ID and constants) for eMMC
   2000000h ...   Warmboot Param (optional, passed on to New Title)
   2000300h 20h   Warmboot Info  (optional, passed on to Launcher)
+```
+
+
+
+## 3DS Initial RAM content (from bootrom's FIRM loader)
+
+
+```
+  01FFB800h 90h    ARM9 ITCM+3800h Decrypted OTP
+  01FFB900h 200h   ARM9 ITCM+3900h NCSD header
+  01FFBB00h 200h   ARM9 ITCM+3B00h FIRM header
+  01FFBD00h 4*100h ARM9 ITCM+3D00h rsa keys ? private key 0..3 (modulo)
+  01FFC100h 4*200h ARM9 ITCM+4100h rsa keys ? private key 4..7 (modulo+exp)
+  01FFC900h 400h   ARM9 ITCM+4900h ??? ... copied from 1FFFD000h or 1FFFD400h
+  01FFCD00h 40h    ARM9 ITCM+4D00h keys?
+  01FFCD40h 40h    ARM9 ITCM+4D40h keys?
+  01FFCD80h 64h    ARM9 ITCM+4D80h sdmmc info?
+  01FFD000h 2470h  ARM9 ITCM+5000h Bootrom DSi Keys (RSA/AES/Blowfish)
+  08000000h 30h    ARM9 Exception Vectors (ldr pc,[$+4] opcodes)
+  1FFFFFA0h 30h    ARM11 Exception Vectors (ldr pc,[$+4] opcodes)
+  1FFFFFDCh 4      ARM11 Core 1 Entrypoint (32bit word)
+  20000000h 1000h  FCRAM FIRM Launch Params (on warmboot only)
 ```
 
 
@@ -17968,6 +19491,7 @@ vector should work even while BIOS ROMs are fully readable.
 - [AUX Opening the GBA](#auxopeningthegba)
 - [AUX Mainboard](#auxmainboard)
 - [AUX DSi Component Lists](#auxdsicomponentlists)
+- [AUX DSi Signals/Testpoints](#auxdsisignalstestpoints)
 - [AUX DSi Internal Connectors](#auxdsiinternalconnectors)
 - [AUX DSi Chipset Pinouts](#auxdsichipsetpinouts)
 
@@ -18721,7 +20245,7 @@ joypad, or read-only 12bit parallel port.
 ```
   U1 352pin   CPU TWL       (under shielding plate)                    ;\under
   U2   ?pin   RAM 8Mx16, Fujitsu MB82DBS08164D-70L, NEC uPD46128512AF1 ;/shield
-  U3  56pin   "TexasIns 72071B0" or "Mitsumi 3317A" (powerman?) (right of NAND)
+  U3  56pin   "TexasIns 72071B0" or "Mitsumi 3317A" (Powerman) (right of NAND)
   U4  48pin   "AIC3000D, TI 89K, EXDK G4" (PAIC3 codec? above headphone socket)
   U5   ?pin   Samsung KMAPF0000M-S998 (eMMC, 256Mbyte NAND FLASH)
   U6  36pin   "BPTWL, K007K, 0902KM00D" (small/square, left of cartridge slot)
@@ -18733,16 +20257,17 @@ joypad, or read-only 12bit parallel port.
   U12  5pin   "L8NX" or "C7JHN" (upper-right of PCB back-side) ;text layer (B)
   U13  5pin   Backlight 1, "U01" or "KER"  ;\lower-right board edge
   U14  5pin   Backlight 2, "U01" or "KER"  ;/see text-layer (B)
-  U15  4pin   ",\\ T34" (near external power input)
+  U15  4pin   VIN to EXB+ control via Q1, ",\\ T34" (near external power input)
   U16     -   N/A
-  U17  6pin   "VY" or "Z198" (in lower-right, on PCB backside)
-  U18  6pin   "YJ" (above headphone socket)
+  U17  6pin   Headphone Mute, "VY" or "Z198" (in lower-right, on PCB backside)
+  U18  6pin   Mic Bias, "YJ" (above headphone socket, not always installed)
   U19  5pin   "E30H6" or "L2SX" (at lower right of cartridge slot)
-  Q1   6pin   external power supply related
+  U20  3pin   Whatever, DSi XL only (maybe magnet Sensor instead of U10?)
+  Q1   6pin   external power supply related (VIN to EXTB+) (controlled by U15)
   Q2    pin   N/A ?
   Q3   6pin   ... above battery plug
-  Q4   3pin   maybe MUTE for SR  ;\old TWL-CPU-01 mainboard only
-  Q5   3pin   maybe MUTE for SL  ;/(replaced by Q17?/Q18? on newer boards)
+  Q4   3pin   Headphone MUTE for SR  ;\old TWL-CPU-01 mainboard only
+  Q5   3pin   Headphone MUTE for SL  ;/(replaced by Q17/Q18 on newer boards)
   Q6   6pin   MC1_VDD power ON (supply)
   Q7   3pin   MC1_VDD power OFF (pulldown)
   Q8    pin   N/A ?
@@ -18753,9 +20278,9 @@ joypad, or read-only 12bit parallel port.
   Q13  3pin   CAM_LED      ;/
   Q14  3pin   not installed (above powerman chip)
   Q15  3pin   not installed (above powerman chip)
-  Q16  3pin   VDD-5 related, near DPAD socket
-  Q17? 6pin   maybe MUTE  ;\  ;\new TWL-CPU-10 mainboard only
-  Q18? 6pin   maybe MUTE  ;/  ;/(formerly Q4/Q5 on older boards)
+  Q16  3pin   VDD-5 related, near DPAD socket (P15)
+  Q17  6pin   Headphone MUTE for ..?  ;\new TWL-CPU-10 mainboard only
+  Q18  6pin   Headphone MUTE for ..?  ;/(formerly Q4/Q5 on older boards)
   X1   4pin   16.756  (rectangular oscillator)        ;\under shielding plate
   X2   4pin   CB837 or CB822 (long slim osc) for RTC? ;/text layer: see (A)
   F1   2pin   Fuse for external power input
@@ -18788,6 +20313,7 @@ joypad, or read-only 12bit parallel port.
   P21  1pin   Shielding-Plate for CPU (right clip)
   P22     -   N/A
   P23  2pin   To Internal Microphone (via orange shielded wire)
+  P24 14pin   DSi XL only (L/VOL+/-, which were formerly on P16 in old DSi)
 ```
 
 DSi Front/bottom-Side Text Layer sections (in upper left of mainboard)
@@ -18893,7 +20419,7 @@ points).
 
 
 
-## 3DS Wifi Daughterboard (DWM-W028)
+## 3DS Wifi Daughterboard (DWM-W028, or J27H023, or J27H023.01)
 
 
 Component list is unknown. The thing is said to use a "Atheros AR6014" chip.
@@ -18907,7 +20433,7 @@ Later 3DS models have the Wifi unit (with AR6014G chip) on the mainboard
 
 
 ```
-  TH1  2pin  Battery Thermal Sensor maybe? (about 10kOhm at room temperature)
+  TH1  2pin  Battery Thermistor Thermal Sensor (ca. 10kOhm at room temperature)
   F1   2pin  Battery Fuse
   SW1  2pin  DPAD Up Button
   SW2  2pin  DPAD Down Button
@@ -19030,6 +20556,306 @@ Top Cover Disassembly:
   Remove 4 screws (all hidden under square rubber pieces)
   slide rear bezel upwards by two millimeters?
   push metal hinge inwards by three millimeters (under LED unit)
+```
+
+
+
+
+# <a name="auxdsisignalstestpoints"></a>AUX DSi Signals/Testpoints
+
+
+
+The DSi has testpoints with friendly names. The DSi XL has "nameless"
+testpoints (numbered TP1 thru TP194, as described on 
+- [https://www.dsibrew.org/wiki/DSi\_XL\_testpoints](https://www.dsibrew.org/wiki/DSi_XL_testpoints) which may include some bugs for the Supply and BGA pins though).
+
+
+```
+  ADPO       TP... U3,U6        Charger connected? (Low=Connected, High=No)
+  AOUT       TP... U3,U6        Analog battery level? (max=2.35V?)
+  PM_SLP     TP... U1,U3,U6     Sleep or so? (Low=Normal, High=Sleep?)
+  PMOFF      TP... U1,U3,U6,U17 Powerman/Headphone off? (Low=Normal)
+  PWSWO      TP... U3,U6        Power? (Low=Off, or Reset-tapping, High=On)
+  VCNT5      TP... U1,U3,U4,U19 Control for VSHD for Both Screens ?
+  mFE        TP... U6          BPTWL Flash Enable (aka FLMD0)    (Low=Normal)
+  /mRST      TP... U6          BPTWL Flash Invoke transfer?      (High=Normal)
+  /IRQ_O     TP... U1,U6       BPTWL Interrupt (eg. Power Button)
+  GPIO330    TP... U1          General Purpose GPIO bit (?)
+  RESET      TP... P5,U1,U3..  Reset WifiFlash,MainCpu,PowerMan,TSC from BPTWL
+  P00        TP... U1,SW1      Button A
+  P01        TP... U1,SW2      Button B
+  P02        TP... U1,SW5,U6   Button SELECT (also SELECT+VOLP/VOLN=Backlight)
+  P03        TP... U1,SW6      Button START
+  P04        TP... U1,P15      Button DPAD right
+  P05        TP... U1,P15      Button DPAD left
+  P06        TP... U1,P15      Button DPAD up
+  P07        TP... U1,P15      Button DPAD down
+  P08        TP... U1,P16      Button Shoulder R
+  P09        TP... U1,P16      Button Shoulder L
+  R00        TP... U1,SW3      Button X
+  R01        TP... U1,SW4      Button Y
+   -?-       TP... -           Button Debug aka R03 (if any exists)
+  VOLP       TP... P16,U6      Button Volume Plus  (Backlight when SELECT+VOLP)
+  VOLN       TP... P16,U6      Button Volume Minus (Backlight when SELECT+VOLN)
+  PWSW       TP... P15,U3      Button Power (High=Released)
+  PENIRQ     TP... U1,U4       Touchscreen Pen Down
+  R7         TP... U1,U10      Shell Open Magnet Sensor (HINGE)
+  RTC_INT    TP... U9,U1       RTC Real-Time Clock Interrupt
+  -          TP... U9,U1       RTC Real-Time Clock CS
+  -          TP... U9,U1       RTC Real-Time Clock /SCK
+  -          TP... U9,U1       RTC Real-Time Clock SIO
+  SCL        TP... P9,U1,..    Primary I2C Bus Clock (Both Cameras,etc.)
+  SDA        TP... P9,U1,..    Primary I2C Bus Data  (Both Cameras,etc.)
+  -          TP... U8,U6       Primary I2C Bus Clock (for BPTWL xlated to 3.3V)
+  -          TP... U8,U6       Primary I2C Bus Data  (for BPTWL xlated to 3.3V)
+  SCL1       TP... U3,U6,U7    Secondary IC2 bus Clock (BPTWL/Wiper/Powerman)
+  SDA1       TP... U3,U6,U7    Secondary IC2 bus Data  (BPTWL/Wiper/Powerman)
+  SD10_CLK   TP... U1,P16      SD/MMC SD Slot Clock (typ 16MHz)
+  SD10_CMD   TP... U1,P16      SD/MMC SD Slot Cmd
+  SD10_DATA0 TP... U1,P16      SD/MMC SD Slot Data0
+  SD10_DATA1 TP... U1,P16      SD/MMC SD Slot Data1
+  SD10_DATA2 TP... U1,P16      SD/MMC SD Slot Data2
+  SD10_DATA3 TP... U1,P16      SD/MMC SD Slot Data3
+  SD10_WP    TP... U1,P16      SD/MMC SD Slot Write Protect Switch
+  SD10_CD    TP... U1,P16      SD/MMC SD Slot Card Detect Switch
+  SD10_VDD   TP... P16         SD/MMC SD Slot Supply (aka VDD33)
+  SD11_CLK   TP... U1,U5       SD/MMC eMMC Clock (typ 16MHz)
+  -          TP... U1,U5       SD/MMC eMMC Cmd/Data0..3/CD/WP/VDDI
+  SPI_CS1    TP... U1,U3,U4    SPI Chip Select Powerman
+  SPI_CS2    TP... U1,P5       SPI Chip Select Wifi FLASH chip select
+  SPI_CS3    TP... U1,U4       SPI Chip Select Touchscreen/Sound TSC
+  -          TP... P5,R122     SPI Wifi FLASH_WP (R122)
+  SPI_SCK    TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Clock
+  SPI_MISO   TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Master In Slave Out (Reply)
+  SPI_MOSI   TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Master Out Slave In (Command)
+  MC1_CLK    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_CS     TP... U1,P1       NDS/DSi cartridge slot
+  MC1_RES    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_CS2    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_IREQ   TP... U1,P1       NDS/DSi cartridge slot
+  MC1_VDD    TP... P1,Q6/Q7    NDS/DSi cartridge slot Power Supply (when on)
+  -          TP... U1,R28,Q7   NDS/DSi cartridge slot Power Enable
+  MC1_IO0    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO1    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO2    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO3    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO4    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO5    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO6    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO7    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_DET    TP... U1,P1       NDS/DSi cartridge slot Cart Insert Switch
+  -          TP... U1          NDS/DSi 2nd cart slot (NC in retail console)
+  -          TP... U1,U2       Main RAM Address A0..A22
+  -          TP... U1,U2       Main RAM Data DQ0..DQ15
+  -          TP... U1,U2       Main RAM /OE
+  -          TP... U1,U2       Main RAM /WE
+  -          TP... U1,U2       Main RAM CE1
+  -          TP... U1,U2       Main RAM CE2
+  -          TP... U1,U2       Main RAM CLK
+  -          TP... U1,U2       Main RAM /ADV
+  -          TP... U1,U2       Main RAM /LB
+  -          TP... U1,U2       Main RAM /UB
+  -          TP... U1          Main RAM A23 or Chipsel for debug ver 32Mbyte
+  -          TP... P5,U1       Wifi Atheros SDIO Clock (typ 16MHz?)
+  -          TP... P5,U1       Wifi Atheros SDIO Command
+  -          TP... P5,U1       Wifi Atheros SDIO Data 1
+  -          TP... P5,U1       Wifi Atheros SDIO Data 2
+  -          TP... P5,U1       Wifi Atheros SDIO Data 3
+  -          TP... P5,U1       Wifi Atheros SDIO Data 3
+  -          TP... P5,U9       Wifi Atheros 32kHz (from RTC_FOUT to Wifi)
+  /WIFI_RST  TP... P5,U6       Wifi Atheros Reset?
+  ATH_TX_H   TP... P5,U6       Wifi Atheros TX (for Wifi LED?)
+  -          TP... P5,U1       Wifi SEL_ATH_L (near PENIRQ pin)
+  WL_RXPE    TP... P5,U1,U6    Wifi RX something (for CPU and Wifi LED)
+  WL_TXPE    TP... P5,U1,U6    Wifi TX something (for CPU and Wifi LED)
+  -          TP... P5,U1       Wifi Mitsumi BBP_SLEEP
+  -          TP... P5,U1       Wifi Mitsumi RF_SLEEP
+  -          TP... P5,U1       Wifi Mitsumi BBP_SCS
+  -          TP... P5,U1       Wifi Mitsumi RF_SCS
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SDO
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SDI
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SCLK
+  -          TP... P5,U1       Wifi Mitsumi CCA
+  -          TP... P5,U1       Wifi Mitsumi MCLK
+  -          TP... P5,U1       Wifi Mitsumi TRDATA
+  -          TP... P5,U1       Wifi Mitsumi TRCLK
+  -          TP... P5,U1       Wifi Mitsumi TRRDY
+  -          TP... P5          Wifi JTAG_TDO    (NC in console)
+  -          TP... P5          Wifi JTAG_TDI    (NC in console)
+  -          TP... P5          Wifi JTAG_TMS    (NC in console)
+  -          TP... P5          Wifi JTAG_TCK    (NC in console)
+  -          TP... P5          Wifi JTAG_TRST_L (NC in console)
+  -          TP... P5          Wifi to MM3218.pin47 (0ohm)     (NC in console)
+  .          TP... P5          Wifi to MM3218.pin28 (0ohm+cap) (NC in console)
+  SND_SDI    TP... U1,U4       Audio I2S Data In   (Microphone)
+  SND_SDO    TP... U1,U4       Audio I2S Data Out  (Speaker/Headphone)
+  SND_WS     TP... U1,U4       Audio I2S LR Clock  (typ 32kHz)
+  SND_SCLK   TP... U1,U4       Audio I2S Bit Clock (typ 1MHz, aka SND_WS*2*16)
+  SND_MCLK   TP... U1,U4       Audio TSC Master Clock (typ 8MHz)
+  -          TP... U4,U7       Audio Volume Wiper (from I2C potentiometer)
+  SPLN       TP... P7,U4       Audio Speaker Left Minus
+  SPLP       TP... P7,U4       Audio Speaker Left Plus
+  SPRN       TP... P7,U4       Audio Speaker Right Minus
+  SPRP       TP... P7,U4       Audio Speaker Right Plus
+  HP#SP      TP... P4,U1,U4    Audio Headphone/Speaker switch
+  SL         TP... P4,Q5,U4    Audio Headphone Left
+  SR         TP... P4,Q4,U4    Audio Headphone Right
+  -          TP... U1,U17      Audio Headphone Mute (from Main CPU GPIO)
+  -          TP... U4,U17,Q..  Audio Headphone Mute (via Q4/Q5 to SR/SL)
+  MIC        TP... P4,P23      Audio Microphone (via .. to LIN)
+  LIN        TP... U4,U18      Audio Microphone Input
+  -          TP... U4,U18      Audio Microphone Bias (to U18)
+  BLA2       TP... P7,U3,U14   LCD Upper Screen Backlight Anode (ca. 15V)
+  BLC2       TP... P7,U3       LCD Upper Screen Backlight Cathode
+  LDB20      TP... P7,U1       LCD Upper Screen Blue Bit0
+  LDB21      TP... P7,U1       LCD Upper Screen Blue Bit1
+  LDB22      TP... P7,U1       LCD Upper Screen Blue Bit2
+  LDB23      TP... P7,U1       LCD Upper Screen Blue Bit3
+  LDB24      TP... P7,U1       LCD Upper Screen Blue Bit4
+  LDB25      TP... P7,U1       LCD Upper Screen Blue Bit5
+  LDR20      TP... P7,U1       LCD Upper Screen Red Bit0
+  LDR21      TP... P7,U1       LCD Upper Screen Red Bit1
+  LDR22      TP... P7,U1       LCD Upper Screen Red Bit2
+  LDR23      TP... P7,U1       LCD Upper Screen Red Bit3
+  LDR24      TP... P7,U1       LCD Upper Screen Red Bit4
+  LDR25      TP... P7,U1       LCD Upper Screen Red Bit5
+  LDG20      TP... P7,U1       LCD Upper Screen Green Bit0
+  LDG21      TP... P7,U1       LCD Upper Screen Green Bit1
+  LDG22      TP... P7,U1       LCD Upper Screen Green Bit2
+  LDG23      TP... P7,U1       LCD Upper Screen Green Bit3
+  LDG24      TP... P7,U1       LCD Upper Screen Green Bit4
+  LDG25      TP... P7,U1       LCD Upper Screen Green Bit5
+  COM2       TP... P7,P16      LCD Upper Screen VCOM Calibration
+  DCLK       TP... P7,P8,U1    LCD Both Screens Dot Clock  ;2.8MHz
+  LS         TP... P7,P8,U1    LCD Both Screens Latch Pulse;15.6kHz, 0.3us high
+  SPL        TP... P7,P8,U1    LCD Both Screens Start Pulse;15.6kHz, 0.3us high
+  GCK        TP... P7,P8,U1    LCD Both Screens Gate Clock ;15.6kHz, 9us low
+  REV        TP... P7,P8,U1    LCD Both Screens VcomFlicker;7kHz, toggle@15kHz
+  GSP        TP... P7,P8,U1    LCD Both Screens Gate Start ;60Hz, short low
+  INI        TP... P7,P8,U1    LCD Both Screens Init? MOD? ;usually high?
+  VSHD       TP... P7,P8,U19   LCD Both Screens Supply 3.3V
+  VDD5       TP... P7,P8,P16   LCD Both Screens Supply 5.0V
+  VDD-5      TP... P7,P8       LCD Both Screens Supply -5.0V
+  VDD10      TP... P7,P8       LCD Both Screens Supply 10.0V
+  BLA1       TP... P18,U3,U13  LCD Lower Screen Backlight Anode (ca. 14V)
+  BLC1       TP... P18,U3      LCD Lower Screen Backlight Cathode (ca. 0V)
+  LDB10      TP... P8,U1       LCD Lower Screen Blue Bit0
+  LDB11      TP... P8,U1       LCD Lower Screen Blue Bit1
+  LDB12      TP... P8,U1       LCD Lower Screen Blue Bit2
+  LDB13      TP... P8,U1       LCD Lower Screen Blue Bit3
+  LDB14      TP... P8,U1       LCD Lower Screen Blue Bit4
+  LDB15      TP... P8,U1       LCD Lower Screen Blue Bit5
+  LDR10      TP... P8,U1       LCD Lower Screen Red Bit0
+  LDR11      TP... P8,U1       LCD Lower Screen Red Bit1
+  LDR12      TP... P8,U1       LCD Lower Screen Red Bit2
+  LDR13      TP... P8,U1       LCD Lower Screen Red Bit3
+  LDR14      TP... P8,U1       LCD Lower Screen Red Bit4
+  LDR15      TP... P8,U1       LCD Lower Screen Red Bit5
+  LDG10      TP... P8,U1       LCD Lower Screen Green Bit0
+  LDG11      TP... P8,U1       LCD Lower Screen Green Bit1
+  LDG12      TP... P8,U1       LCD Lower Screen Green Bit2
+  LDG13      TP... P8,U1       LCD Lower Screen Green Bit3
+  LDG14      TP... P8,U1       LCD Lower Screen Green Bit4
+  LDG15      TP... P8,U1       LCD Lower Screen Green Bit5
+  COM1       TP... P8,P16      LCD Lower Screen VCOM Calibration
+  X-         TP... P10,U4      LCD Lower Screen Touchpad X-
+  Y-         TP... P10,U4      LCD Lower Screen Touchpad Y-
+  X+         TP... P10,U4      LCD Lower Screen Touchpad X+
+  Y+         TP... P10,U4      LCD Lower Screen Touchpad Y+
+  VIN        TP2   P11         Supply 4.6V External Power Supply Input (DC IN)
+  VGND       TP5   P11         Supply 0.0V External Power Supply Ground
+  VDET-      TP... U3,Q3       Supply 4.xV Shortcut with BT+ (via 0 ohm R71)
+  BT+        TP... P17,U3,U11  Supply 4.xV Battery Plus (red wire) 3.6V 800mAh
+  BT-        TP... P17         Supply 0.0V Battery GND  (black wire)
+  DET        TP... P15,U3      Supply Battery Middle Pin  (Low=Normal)
+  TH         TP... P15,U11     Supply Battery Thermal Sensor (on DPAD board)
+  PVDD       TP... U3,U9       Supply 4.xV Permanent Power for RTC
+  VDD12      TP... U3,U1       Supply 1.2V (Main CPU)
+  VDD18      TP... P9,U3,U1,.. Supply 1.8V (Main CPU and many things)
+  VDD28      TP... P9,U12,U6   Supply 2.8V (for Cameras and BPTWL)
+  VDD33      TP... U3,U1,..    Supply 3.3V (Main CPU and many things)
+  VDD42      TP... P15,P9,U3.. Supply 4.2V (for LEDs) (and U19)
+  B+         TP... U3,U4,U19.. Supply 4.xV (for Speakers, or everything?) U11
+  SG         TP... U3          Supply 0.0V Ground or Audio GND or so
+  GND1       TP... ..          Supply 0.0V Ground (near COM1/COM2 testpoints)
+  GND2       TP... ..          Supply 0.0V Ground (near wifi connector)
+  EXTB+      TP... U3,U11,Q1   Charger 4.xV or 0V (EXTB+ comes from VIN via Q1)
+  Rosc       TP... U3,U11      Charger 1.0V ?
+  RICHG      TP... U3,U11      Charger 0.4V ?
+  ORANGE     TP... P15,U11     LED Battery Charge
+  BLUE       TP... P15,U6,Q11  LED Power On/Good
+  YELLOW     TP... P15,U6,Q12  LED Wifi
+  RED        TP... P15,U6      LED Power On/Low
+  CAM_LED    TP... P9,U6,Q13   LED Camera
+  CAM_D0     TP... P9,U1       Both Cameras Data Bit0
+  CAM_D1     TP... P9,U1       Both Cameras Data Bit1
+  CAM_D2     TP... P9,U1       Both Cameras Data Bit2
+  CAM_D3     TP... P9,U1       Both Cameras Data Bit3
+  CAM_D4     TP... P9,U1       Both Cameras Data Bit4
+  CAM_D5     TP... P9,U1       Both Cameras Data Bit5
+  CAM_D6     TP... P9,U1       Both Cameras Data Bit6
+  CAM_D7     TP... P9,U1       Both Cameras Data Bit7
+  CAM_RST    TP... P9,U1       Both Cameras Reset?
+  HSYNC      TP... P9,U1       Both Cameras Hsync
+  VSYNC      TP... P9,U1       Both Cameras Vsync
+  RCLK       TP... P9,U1       Both Cameras Data Clock (8MHz, unless blanking)
+  CKI        TP... P9,U1       Both Cameras Master Clock (8MHz) (or off)
+```
+
+
+
+## Cut-Links
+
+
+```
+  CL1   VDD12    to/near Powerman
+  CL2
+  CL3   VDD18    to/near Powerman
+  CL4    ?       near Powerman (above L3)
+  CL5   VDD33    PCB top side (near Powerman)
+  CL6   VDD5     near lower screen connector (F)
+  CL7   BLC1     near lower screen connector
+  CL8
+  CL9   GNDed     to/near Powerman (near ADPO pin)
+  CL10  GNDed     to/near Powerman (near VDD5 pin)
+  CL11
+  CL12
+  CL13
+  CL14  SDIO CLK   to/near wifi connector
+  CL15  BB RF CLK  to/near wifi connector
+  CL16  Wifi MCLK  to/near wifi connector
+  CL17
+  CL18
+  CL19
+  CL20
+  CL21  VDD42    to/near Powerman
+  CL22  VDD10    to DA1 and C5, near DPAD board connector
+  CL23  VDD-5    near lower screen connector
+  CL24
+  CL25  ?        PCB top side (near Button B)
+  CL26
+  CL27  ?        PCB top side (near Button B) (D)
+  CL28  ?        PCB top side (near Button B) (D)
+  CL29
+  CL30
+  CL31
+  CL32
+  CL33
+  CL34  SND_SDI   near TSC chip
+  CL35  SND_SDO   near TSC chip
+  CL36  SND_WS    near TSC chip
+  CL37  SND_SCLK  near TSC chip
+  CL38  SND_MCLK  near TSC chip
+  CL39
+```
+
+
+
+## Short-Links
+
+
+```
+  R122  FLASH_WP to VDD33 (not installed)
 ```
 
 
@@ -19246,6 +21072,8 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 ## P16 - 26pin - To bottom cover (SD Slot and L/R/VOL+/- buttons)
 
 
+On original DSi:
+
 ```
                       GND  2  1  SD10_CLK                   ;\
                SD10_DATA0  4  3  SD10_VDD (aka VDD33)       ;
@@ -19257,9 +21085,27 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
                   SD10_CD 16  15 SD10_DATA2                 ;
                       GND 18  17 GND                        ;/
                       GND 20  19 GND                        ;\pin 19..20
-  maybe display ;\   VDD5 22  21 VOLP (aka volume plus?)    ; to LEFT side:
-  calibration?  ;    COM1 24  23 VOLN (aka volume minus?)   ; L-button, VOL +/-
+  maybe display ;\   VDD5 22  21 VOLP  volume plus          ; to LEFT side:
+  calibration?  ;    COM1 24  23 VOLN  volume minus         ; L-button, VOL +/-
   (at battery)  ;/   COM2 26  25 P09   shoulder button L    ;/and calibration
+```
+
+On DSi XL (changed pins, COM1/COM2 removed, and L/VOL+- moved to P24):
+
+```
+       GND  1  2  GND
+       GND  3  4  GND
+       GND  5  6  GND
+  SD10_CLK  7  8  GND
+     VDD33  9  10 SD10_D0
+     VDD33 11  12 SD10_D1
+       GND 13  14 SD10_WP
+  SD10_CMD 15  16 VDD33
+       GND 17  18 P08 (should button R)
+   SD10_D3 19  20 VDD33
+   SD10_D2 21  22 SD10_CD
+       GND 23  24 GND
+       GND 25  26 GND
 ```
 
 
@@ -19313,6 +21159,18 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
+## P24 - 14pin - DSi XL only (L/VOL+/- were formerly on P16 in old DSi)
+
+
+```
+               GND 1  2  GND
+               N/C 3  4  VOLP
+  P09 (shoulder-L) 5  6  VOLN
+            GND 7-13  8-14 GND
+```
+
+
+
 ## DPAD-BOARD - P2 - 6pin - To LEDs
 
 
@@ -19345,23 +21203,23 @@ be found at:
 ```
       Wifi    MC2 maybe      MC1           SD/MMC  eMMC  SPI     RTC   IRQs
   .---.---.---------------.---------------.-------.---.-------.-------.---.---.
-  |NC |wif|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
+  |NC |CSB|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
   +---'   |               |               |       |   |       |   .---'   '---+
-  |wif wif|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
+  |SDI CSR|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
   |       |               |               |       |   |       +---+---.   .---+
-  |wif wif|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
+  |SCK SDO|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
   |       '---.       .---+           .---'   .---'   '---.---+       '---'   |
-  |wif wif wif|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
+  |TCK TDA RDY|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
   |           '---+---'   '-----------'-------'-----------'---+               |
-  |wif wif RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
+  |MCK CCA RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
   | . .           |                                           +-----------.   |
-  |DT3|wif wif ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
+  |DT3|SLR SLB ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
   |   '. . . . . .|                                           |           '---+
   |CLK DT2 DT1 DT0|V33 GND V12 V33 GND V12 G?  V12 GND GND V33|PMO VC5 PMS X  |
   +-----------.   |                                           '-----------.   |
   |V33 NC  GND|CMD|V12 GND V33 GND V12 V33 GND V33 V12 V12 V33 GND GND GND|X  |
   |           '---'               .-----------.               .-----------'   |
-  |V33 NC  V33 V33 GND V33 GND V33|-   -   -  |GND GND GND GND|HP# IRQ ?   GND|
+  |V33 NC  V33 V33 GND V33 GND V33|-   -   -  |GND GND GND GND|HP# IRQ mut GND|
   +---.   .---.                   |           |               |               |
   |B15|V33|NC |V33 V12 GND V12 V12|-   -   -  |V12 V18 GND V12|NC  NC  NC  GP |
   |   '---'---'---.               |           |               +---------------+
@@ -19490,7 +21348,7 @@ extra address line (or an extra chip select for a 2nd RAM chip).
   30  BT+     ;/    ;\these are almost shortcut
   31  VDET-         ;/with each other (via 0 ohm R71)
   32  PVDD
-  33  PWSW (when off: very few ohms to PVDD)
+  33  PWSW (when off: very few ohms to PVDD ???)
   34        ... via R104 (100K) to Q3 (B+ enable or so?)
   35  B+
   36        ... via to C18 to GND (seems to have no other connection)
@@ -19537,17 +21395,17 @@ AIC3000D pinout is same as in TSC2117 datasheet (aside from GPIx/GPIOx pins).
   9   DVDD    VDD18
   10  SDOUT   SND_SDI              ;\
   11  SDIN    SND_SDO              ;
-  12  WLCK    SND_WS               ; serial sound input from main cpu
+  12  WCLK    SND_WS               ; serial sound input from main cpu
   ---                              ; (and serial output? microphone maybe?)
   13  BCLK    SND_SCLK             ;
   14  MCLK    SND_MCLK             ;/
   15  SDA       ... via R107 to VDD18  ;\unused I2C bus (?)
   16  SCL       ... via R106 to VDD18  ;/
   17  VOL/M   wiper (sound volume, from I2C potentiometer) "VOL/MICDET?"
-  18  MICBIAS   LIN-related-1 ... to 6pin U18
-  19  MIC     LIN (aka MIC via C31)
-  20  AUX1      LIN-related-2   ;\via 0ohm R108 to ... something on U18
-  21  AUX2      LIN-related-2   ;/                     that is almost GND
+  18  MICBIAS micbias (to U18)                  ;\
+  19  MIC     LIN (to U18) (and to MIC via C31) ; microphone related
+  20  AUX1    aux  ;\via 0ohm R108 to U18       ;
+  21  AUX2    aux  ;/(that is almost GND)       ;/
   22  AVSS    GND
   23  AVDD    VDD33
   24  VBAT    GND
@@ -19612,12 +21470,25 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
 
 
 ```
-       GND         WL_TXPE     P02(button) SDA'33      ADPO        GND       o
-       ATH_TX_H    BLUE(LED)   RED(LED)    SCL'33      V33         GND
-       YELLOW(LED) VOLP button VOLN button PM_SLP      V33'        /WIFI_RST
-       SDA1        RESET       SCL1        to C46      GND         to U17
-       VDD28       GND         CAM_LED     PWSWO       mFE         /mRST
-       GND         AOUT        mFE'(R79)   WL_RXPE     /IRQ_O      GND
+       1           2           3            4           5           6
+  o A  GND         WL_TXPE     P02 button   SDA'33      ADPO        GND
+    B  ATH_TX_H    BLUE(LED)   RED(LED)     SCL'33      V33         GND
+    C  YELLOW(LED) VOLP button VOLN button  PM_SLP      V33'        /WIFI_RST
+    D  SDA1        RESET       SCL1         to C46      GND         PMOFF
+    E  VDD28       GND         CAM_LED      PWSWO       mFE         /mRST
+    F  GND         AOUT        mFE'(R79)    WL_RXPE     /IRQ_O      GND
+```
+
+Aka from 78K0/KB2 datasheet...
+
+```
+       1           2           3            4           5           6
+  o A  NC          P32/INT3    P30/INT1     P61/SDA     P33/INT4/T  NC
+    B  P31/INT2    P16/INT5/T  P15/TOH0     P60/SCL0    EVDD        EVSS
+    C  P17/T'50    P14/RxD6    P13/TxD6     P00/TI000   VDD         P121/X1
+    D  P11/SI10/Rx P12/SO10    P10/SCK10/Tx REGC        VSS      P122/X2/EXCLK
+    E  AVREF       AVSS        P22/ANI2     P21/ANI1    FLMD0       RESET
+    F  NC          P23/ANI3    P20/ANI0  P01/TI010/TO00 P120/INT0/EXLVI  NC
 ```
 
 
@@ -19646,7 +21517,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
   2  VREF1 (DSi: VDD18)
   3  SCL1  (DSi: SCL)     ;\to U1 (CPU)
   4  SDA1  (DSi: SDA)     ;/
-  5  SDA2  (DSi: SDA'33)  ;\to U6 (LED/stuff)
+  5  SDA2  (DSi: SDA'33)  ;\to U6 (BPTWL)
   6  SCL2  (DSi: SCL'33)  ;/
   7  VREF2 (DSi: VDD33)
   8  EN    (DSi: VDD33)
@@ -19678,7 +21549,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
 
 
 
-## DSi U11 - charge
+## DSi U11 - Charge
 
 
 ```
@@ -19688,7 +21559,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
   4  GND
   5  TH' (via R76 to TH)          ;\thermal sensor
   6  TH  (via R102 to DPAD board) ;/for battery?
-  7  B+  (?)
+  7  B+
   8  RICHG
   9  BT+
   10 BT+
@@ -19701,35 +21572,108 @@ Note: Seems to resemble Mitsumi MM3358 datasheet.
 ## DSi U12 - 5pin, VDD33 to VDD28 converter? (near upper screen socket)
 
 
+```
+  1  VDD28
+  2  GND
+  3  VDD33
+  4  VDD33
+  5  (no pin)
+  6  ... to DA6/DA7
+```
 
-## DSi U13 - 5pin, Backlight 1, near power managment chip
+
+
+## DSi U13 - 5pin, Backlight 1 (Lower Screen), near power managment chip
 
 
 
-## DSi U14 - 5pin, Backlight 2, near power managment chip
+## DSi U14 - 5pin, Backlight 2 (Upper Screen), near power managment chip
+
+
+```
+  1  from U3 (wanted backlight pulse/level or so?)
+  2  GND
+  3  B+
+  4  BLA1/BLA2 backlight anode output
+  5  (no pin)
+  6  B+
+```
 
 
 
-## DSi U15 - 4pin, something near external power input
+## DSi U15 - 4pin, near external power input
+
+
+```
+  1  via R4 to C100,Q1 (controls Q1 for forwarding VIN to EXTB+)
+  2  VIN'' (from VIN via EM1 and F1)
+  3  ?
+  4  via C132,R14 to GND, and via D1 to VIN''
+```
+
+VIN power-input related.
 
 
 
 ## DSi U16 - N/A
 
 
-
-## DSi U17 - 6pin, something near headphone socket, connects to U6, and MUTE
-
+None such.
 
 
-## DSi U18 - 6pin, something near headphone socket, MIC/LIN related
+
+## DSi U17 - Headphone Mute logic, near headphone socket
+
+
+```
+  1  mute (from main CPU GPIO)
+  2  GND
+  3  PMOFF
+  4  MUTE (to Q4/Q5/TSC)
+  5  VDD33
+  6  ?
+```
+
+
+
+## DSi U18 - Microphone Bias, near headphone socket (not always installed)
+
+
+```
+  1  NC
+  2  GND
+  3  LIN (via C31/EM5 to MIC)
+  4  aux (via 0 ohm to TSC AUX1/AUX2)
+  5  VDD33
+  6  micbias (from TSC micbias)
+```
 
 
 
 ## DSi U19 - 5pin, something near dpad socket
 
 
-Smaller misc chips.
+```
+  1  via D5/D6 from B+/VDD42
+  2  GND
+  3  VCNT5
+  4  ?
+  5  (no pin)
+  6  VSHD
+```
+
+Note: Pin-numbering is unclear, here is no Pin 1 marker.
+
+
+
+## DSi U20 - Whatever, DSi XL only (maybe magnet Sensor instead of U10?)
+
+
+```
+  1  ?
+  2  ?
+  3  ?
+```
 
 
 
@@ -19737,16 +21681,16 @@ Smaller misc chips.
 
 
 ```
-  CAM_LED (via R68 and Q13)  ;\
-  BLUE    (via R21 and Q11)  ; from U6
-  YELLOW  (via R22 and Q12)  ;/
-  RED     (via R20)          ;-from U6 (or to U6 ?)
-  ORANGE  (via R2)           ;-from U11
+  CAM_LED (via R68 and Q13) ;Camera LED    ;\
+  BLUE    (via R21 and Q11) ;Power On/Good ; from U6
+  YELLOW  (via R22 and Q12) ;Wifi LED      ;/
+  RED     (via R20)         ;Power On/Low  ;-from U6 (or to U6 ?)
+  ORANGE  (via R2)          ;Charge LED    ;-from U11
 ```
 
 
 
-## DSi Wifi Daughterboard - MM3218 chip (same chip as in DS Lite)
+## MM3218 chip (same chip as in DS Lite) (on DSi Wifi Daughterboard)
 
 
 ```
@@ -19813,7 +21757,7 @@ Smaller misc chips.
 
 
 
-## DSi DWM-W015 Wifi Daughterboard - ROCm Atheros AR6002G-AC1B chip
+## ROCm Atheros AR6002G-AC1B chip (on DSi DWM-W015 Wifi Daughterboard)
 
 
 ```
@@ -19848,7 +21792,7 @@ Smaller misc chips.
 
 
 
-## DSi DWM-W024 Wifi Daughterboard - Atheros AR6013 chip
+## Atheros AR6013 chip (on DSi DWM-W024 Wifi Daughterboard)
 
 
 ```
@@ -19862,7 +21806,7 @@ Smaller misc chips.
   8  VDD18
   9  1.2V
   10 NC
-  11 NC (except, wired to tespoint)
+  11 NC (except, wired to testpoint)
   12 VDD33
   13 via 0 ohm to ATH_TX_H  ;<--with 0 ohm connection
   14 via (N/A) to ATH_TX_H  ;<--connection not installed
@@ -19870,7 +21814,7 @@ Smaller misc chips.
   16 to a dead-end-via
   17 1.2V
   18 P5.pin24       JTAG_TRST_L     (plus testpoint)
-  19 NC (except, wired to tespoint)
+  19 NC (except, wired to testpoint)
   ---
   20 VDD18
   21 1.2V
@@ -19918,10 +21862,10 @@ Smaller misc chips.
   61 1.2V
   62 1.2V
   63 VDD18
-  64 NC (except, wired to tespoint)
-  65 NC (except, wired to tespoint)
-  66 NC (except, wired to tespoint)
-  67 NC (except, wired to tespoint)
+  64 NC (except, wired to testpoint)
+  65 NC (except, wired to testpoint)
+  66 NC (except, wired to testpoint)
+  67 NC (except, wired to testpoint)
   68 NC
   69 via 6.1K to GND
   70 1.2V
@@ -19940,7 +21884,7 @@ AR6013G (that's unlike as real MM3218).
 
 
 
-## 3DS DWM-W028 Wifi Daughterboard - Atheros AR6014 chip
+## Atheros AR6014 chip (on 3DS DWM-W028 Wifi Daughterboard) (and J27H023?)
 
 
 Pinouts unknown.
@@ -20038,13 +21982,11 @@ Pin 152 seems to be not connected on the mainboard, maybe an undoc output.
 
 
 
-## GBA-Micro, NDS, NDS-Lite, and DSi CPU Pinouts
+## GBA-Micro, NDS, NDS-Lite Pinouts
 
 
-Unknown. The CPU Pins are hidden underneath of the CPU. And, in NDS and
-NDS-Lite, the CPU itself hides underneath of the DS Cartridge Slot. In the DSi
-it's hidden underneath of a shielding plate (which is itself underneath of the
-removeable wifi daughterboard).
+Unknown. The CPU BGA Pins are hidden underneath of the CPU. And, in NDS and
+NDS-Lite, the CPU itself hides underneath of the DS Cartridge Slot.
 
 
 

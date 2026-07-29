@@ -1,5 +1,5 @@
 <a name="contents"></a><a name="gbatek"></a>
-Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$gba version 3.04
+Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$gba version 3.06
 
 [About this Document](#aboutthisdocument)
 
@@ -54,6 +54,1190 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 - [THUMB Memory Addressing (ADD PC/SP)](#thumbopcodesmemoryaddressingaddpcsp)
 - [THUMB Memory Multiple Load/Store (PUSH/POP and LDM/STM)](#thumbopcodesmemorymultipleloadstorepushpopandldmstm)
 - [THUMB Jumps and Calls](#thumbopcodesjumpsandcalls)
+
+
+# <a name="78k0opcodelist"></a>78K/0 Opcode List
+
+
+
+
+## Move Byte
+
+
+```
+  85/87/AB/AA/AE              MOV  A, [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn]
+  F0/F4/8E                    MOV  A, [FExx]/[FFxx]/[nnnn]
+  60/--/62/63/64/65/66/67     MOV  A, X/-/C/B/E/D/L/H
+  70/--/72/73/74/75/76/77     MOV  X/-/C/B/E/D/L/H, A
+  A0/A1/A2/A3/A4/A5/A6/A7     MOV  X/A/C/B/E/D/L/H, nn
+  95/97/BB/BA/BE              MOV  [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn], A
+  F2/F6/9E                    MOV  [FExx]/[FFxx]/[nnnn], A
+  11/13                       MOV  [FExx]/[FFxx], nn
+  30/--/32/33/34/35/36/37     XCH  A, X/-/C/B/E/D/L/H
+  05/07/318B/318A/DE          XCH  A, [DE]/[HL]/[HL+B]/[HL+C]/[HL+nn]
+  83/93/CE                    XCH  A, [FExx]/[FFxx]/[nnnn]
+```
+
+
+
+## Move Word
+
+
+```
+  C2/C4/C6/10                 MOVW AX, BC/DE/HL/nnnn
+  89/A9/02                    MOVW AX, [FExx]/[FFxx]/[nnnn]
+  D2/D4/D6                    MOVW BC/DE/HL, AX
+  12/14/16                    MOVW BC/DE/HL, nnnn
+  99/B9/03                    MOVW [FExx]/[FFxx]/[nnnn], AX
+  EE/FE                       MOVW [FExx]/[FFxx], nnnn
+  E2/E4/E6                    XCHW AX,BC/DE/HL
+  B1/B3/B5/B7/22              PUSH AX/BC/DE/HL/PSW  ;PSW=[FF1Eh] (8bit)
+  B0/B2/B4/B6/23              POP  AX/BC/DE/HL/PSW  ;PSW=[FF1Eh] (8bit)
+```
+
+
+
+## ALU Byte
+
+
+```
+  6100/6101/6102/6103/6104/6105/6106/6107  ADD  X/A/C/B/E/D/L/H, A
+  6120/6121/6122/6123/6124/6125/6126/6127  ADDC X/A/C/B/E/D/L/H, A
+  6110/6111/6112/6113/6114/6115/6116/6117  SUB  X/A/C/B/E/D/L/H, A
+  6130/6131/6132/6133/6134/6135/6136/6137  SUBC X/A/C/B/E/D/L/H, A
+  6140/6141/6142/6143/6144/6145/6146/6147  CMP  X/A/C/B/E/D/L/H, A
+  6150/6151/6152/6153/6154/6155/6156/6157  AND  X/A/C/B/E/D/L/H, A
+  6160/6161/6162/6163/6164/6165/6166/6167  OR   X/A/C/B/E/D/L/H, A
+  6170/6171/6172/6173/6174/6175/6176/6177  XOR  X/A/C/B/E/D/L/H, A
+  6108/----/610A/610B/610C/610D/610E/610F  ADD  A, X/-/C/B/E/D/L/H
+  6128/----/612A/612B/612C/612D/612E/612F  ADDC A, X/-/C/B/E/D/L/H
+  6118/----/611A/611B/611C/611D/611E/611F  SUB  A, X/-/C/B/E/D/L/H
+  6138/----/613A/613B/613C/613D/613E/613F  SUBC A, X/-/C/B/E/D/L/H
+  6148/----/614A/614B/614C/614D/614E/614F  CMP  A, X/-/C/B/E/D/L/H
+  6158/----/615A/615B/615C/615D/615E/615F  AND  A, X/-/C/B/E/D/L/H
+  6168/----/616A/616B/616C/616D/616E/616F  OR   A, X/-/C/B/E/D/L/H
+  6178/----/617A/617B/617C/617D/617E/617F  XOR  A, X/-/C/B/E/D/L/H
+  0D/0F/310B/310A/09/0E/08   ADD  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  2D/2F/312B/312A/29/2E/28   ADDC A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  1D/1F/311B/311A/19/1E/18   SUB  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  3D/3F/313B/313A/39/3E/38   SUBC A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  4D/4F/314B/314A/49/4E/48   CMP  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  5D/5F/315B/315A/59/5E/58   AND  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  6D/6F/316B/316A/69/6E/68   OR   A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  7D/7F/317B/317A/79/7E/78   XOR  A,nn/[HL]/[HL+B]/[HL+C]/[HL+nn]/[FExx]/[nnnn]
+  88                         ADD  [FExx], nn
+  A8                         ADDC [FExx], nn
+  98                         SUB  [FExx], nn
+  B8                         SUBC [FExx], nn
+  C8                         CMP  [FExx], nn
+  D8                         AND  [FExx], nn
+  E8                         OR   [FExx], nn
+  F8                         XOR  [FExx], nn
+  40/41/42/43/44/45/46/47/81 INC  X/A/C/B/E/D/L/H/[FExx]
+  50/51/52/53/54/55/56/57/91 DEC  X/A/C/B/E/D/L/H/[FExx]
+```
+
+
+
+## ALU Word
+
+
+```
+  CA/DA/EA                   ADDW/SUBW/CMPW AX,nnnn
+  80/82/84/86                INCW AX/BC/DE/HL
+  90/92/94/96                DECW AX/BC/DE/HL
+```
+
+
+
+## Rotate/Shift
+
+
+```
+  26                         ROL  A,1
+  24                         ROR  A,1
+  27                         ROLC A,1
+  25                         RORC A,1
+  3180                       ROL4 A,[HL] ;12bit A.lsb:[HL],4 ;native: ROL4 [HL]
+  3190                       ROR4 A,[HL] ;12bit A.lsb:[HL],4 ;native: ROR4 [HL]
+```
+
+
+
+## Jump/Call
+
+
+```
+  3198                       JMP  AX                    ;native: BR AX
+  9B                         JMP  absolute addr         ;native: BR
+  FA                         JMP  relative short addr   ;native: BR
+  9A                         CALL absolute addr         ;native: CALL
+  C1+(nn AND 3Eh)            CALL [40h..7Eh]            ;native: CALLT
+  0C/1C/2C/3C/4C/5C/6C/7C    CALLF 08nn/09nn/0Ann/0Bnn/0Cnn/0Dnn/0Enn/0Fnn
+```
+
+
+
+## Conditional Relative Jumps
+
+
+```
+  8D                         JC  aka JB  rel  ;carry/below        ;native: BC
+  AD                         JZ  aka JE  rel  ;zero/equal         ;native: BZ
+  9D                         JNC aka JAE rel  ;not carry/below    ;native: BNC
+  BD                         JNZ aka JNE rel  ;not zero/equal     ;native: BNZ
+  04/8B/8A                   DJNZ [FExx]/B/C, rel  ;decrement+jnz ;native: DBNZ
+```
+
+
+
+## Test (and Clear) and Conditional Relative Jump
+
+
+```
+  3101/3105/3185/310D+n*10   BTCLR [FExx]/[FFxx]/[HL]/A.n, rel
+  8C/3106/3186/310E+n*10     BT    [FExx]/[FFxx]/[HL]/A.n, rel
+  3103/3107/3187/310F+n*10   BF    [FExx]/[FFxx]/[HL]/A.n, rel
+```
+
+
+
+## Bit Manipulation
+
+
+```
+  7101/7109/7181/6189+n*10   MOV1 [FExx]/[FFxx]/[HL]/A.n, CY
+  7104/710C/7184/618C+n*10   MOV1 CY, [FExx]/[FFxx]/[HL]/A.n
+  7105/710D/7185/618D+n*10   AND1 CY, [FExx]/[FFxx]/[HL]/A.n
+  7106/710E/7186/618E+n*10   OR1  CY, [FExx]/[FFxx]/[HL]/A.n
+  7107/710F/7187/618F+n*10   XOR1 CY, [FExx]/[FFxx]/[HL]/A.n
+  20/0A/710A/7182/618A+n*10  SET1 CY/[FExx]/[FFxx]/[HL]/A.n
+  21/0B/710B/7183/618B+n*10  CLR1 CY/[FExx]/[FFxx]/[HL]/A.n
+  01                         NOT1 CY
+```
+
+
+
+## Misc
+
+
+```
+  00                         NOP
+  BF/7110/7100               BRK/HALT/STOP
+  AF/9F/8F                   RET/RETB/RETI
+  61D0/61D8/61F0/61F8        SEL RB0/1/2/3
+  3188                       MULU AX,A,X   ;unsigned AX=A*X    ;native: MULU X
+  3182                       DIVUW AX,C    ;unsigned AX=AX/C, C=remainder   ;X
+  6180/6190                  ADJBA/ADJBS   ;decimal BCD adjust A after Add/Sub
+  7A1E/7B1E                  EI/DI         ;pseudo SET1/CLR1 PSW.7
+  FA                         JR addr       ;pseudo jmp short relative addr
+```
+
+
+
+## Note
+
+
+Operand [FExx] can he in range FE20h..FF1Fh, of which FE20h..FEFFh is encoded
+as 20..FF, and FF00h..FF1Fh is encoded as 00..1F (the latter overlaps with
+operand [FFxx]) (for the overlapping addresses, [FExx] is preferred because
+BT/SET1/CLR1 have smaller encoding for [FExx] than [FFxx], and DJNZ/ALU support
+only [FExx]) (all opcodes that support [FFxx] do also support [FExx], so [FFxx]
+should be NEVER used for [FF00..FF1F]).
+
+
+
+
+# <a name="78k0opcodemap"></a>78K/0 Opcode Map
+
+
+
+
+## 78K/0 Primary Opcode Map
+
+
+```
+      00                10                20                30
+  00  NOP               MOVW AX,nnnn      SET1 CY           XCH  A,X
+  01  NOT1 CY           MOV  [FExx],nn    CLR1 CY           <prefix>
+  02  MOVW AX,[nnnn]    MOVW BC,nnnn      PUSH PSW ;[FF1Eh] XCH  A,C
+  03  MOVW [nnnn],AX    MOV  [FFxx],nn    POP  PSW ;[FF1Eh] XCH  A,B
+  04  DBNZ [FExx],rel   MOVW DE,nnnn      ROR  A,1          XCH  A,E
+  05  XCH  A,[DE]       <undef>           RORC A,1          XCH  A,D
+  06  <undef>           MOVW HL,nnnn      ROL  A,1          XCH  A,L
+  07  XCH  A,[HL]       <undef>           ROLC A,1          XCH  A,H
+  08  ADD  A,[nnnn]     SUB  A,[nnnn]     ADDC A,[nnnn]     SUBC A,[nnnn]
+  09  ADD  A,[HL+nn]    SUB  A,[HL+nn]    ADDC A,[HL+nn]    SUBC A,[HL+nn]
+  0A  SET1 [FExx].0     SET1 [FExx].1     SET1 [FExx].2     SET1 [FExx].3
+  0B  CLR1 [FExx].0     CLR1 [FExx].1     CLR1 [FExx].2     CLR1 [FExx].3
+  0C  CALLF 08nn        CALLF 09nn        CALLF 0Ann        CALLF 0Bnn
+  0D  ADD  A,nn         SUB  A,nn         ADDC A,nn         SUBC A,nn
+  0E  ADD  A,[FExx]     SUB  A,[FExx]     ADDC A,[FExx]     SUBC A,[FExx]
+  0F  ADD  A,[HL]       SUB  A,[HL]       ADDC A,[HL]       SUBC A,[HL]
+```
+
+
+```
+      40                50                60                70
+  40  INC  X            DEC  X            MOV  A,X          MOV  X,A
+  41  INC  A            DEC  A            <prefix>          <prefix>
+  42  INC  C            DEC  C            MOV  A,C          MOV  C,A
+  43  INC  B            DEC  B            MOV  A,B          MOV  B,A
+  44  INC  E            DEC  E            MOV  A,E          MOV  E,A
+  45  INC  D            DEC  D            MOV  A,D          MOV  D,A
+  46  INC  L            DEC  L            MOV  A,L          MOV  L,A
+  47  INC  H            DEC  H            MOV  A,H          MOV  H,A
+  48  CMP  A,[nnnn]     AND  A,[nnnn]     OR   A,[nnnn]     XOR  A,[nnnn]
+  49  CMP  A,[HL+nn]    AND  A,[HL+nn]    OR   A,[HL+nn]    XOR  A,[HL+nn]
+  4A  SET1 [FExx].4     SET1 [FExx].5     SET1 [FExx].6     SET1 [FExx].7
+  4B  CLR1 [FExx].4     CLR1 [FExx].5     CLR1 [FExx].6     CLR1 [FExx].7
+  4C  CALLF 0Cnn        CALLF 0Dnn        CALLF 0Enn        CALLF 0Fnn
+  4D  CMP  A,nn         AND  A,nn         OR   A,nn         XOR  A,nn
+  4E  CMP  A,[FExx]     AND  A,[FExx]     OR   A,[FExx]     XOR  A,[FExx]
+  4F  CMP  A,[HL]       AND  A,[HL]       OR   A,[HL]       XOR  A,[HL]
+```
+
+
+```
+      80                90                A0                B0
+  80  INCW AX           DECW AX           MOV  X,nn         POP  AX
+  81  INC  [FExx]       DEC  [FExx]       MOV  A,nn         PUSH AX
+  82  INCW BC           DECW BC           MOV  C,nn         POP  BC
+  83  XCH  A,[FExx]     XCH  A,[FFxx]     MOV  B,nn         PUSH BC
+  84  INCW DE           DECW DE           MOV  E,nn         POP  DE
+  85  MOV  A,[DE]       MOV  [DE],A       MOV  D,nn         PUSH DE
+  86  INCW HL           DECW HL           MOV  L,nn         POP  HL
+  87  MOV  A,[HL]       MOV  [HL],A       MOV  H,nn         PUSH HL
+  88  ADD  [FExx],nn    SUB  [FExx],nn    ADDC [FExx],nn    SUBC [FExx],nn
+  89  MOVW AX,[FExx]    MOVW [FExx],AX    MOVW AX,[FFxx]    MOVW [FFxx],AX
+  8A  DBNZ C,rel        CALL nnnn         MOV  A,[HL+C]     MOV  [HL+C],A
+  8B  DBNZ B,rel        BR   nnnn         MOV  A,[HL+B]     MOV  [HL+B],A
+  8C  BT   [FExx].0,rel BT   [FExx].1,rel BT   [FExx].2,rel BT   [FExx].3,rel
+  8D  BC   rel          BNC  rel          BZ   rel          BNZ  rel
+  8E  MOV  A,[nnnn]     MOV  [nnnn],A     MOV  A,[HL+nn]    MOV  [HL+nn],A
+  8F  RETI              RETB              RET               BRK
+```
+
+
+```
+      C0                D0                E0                F0
+  C0  <undef>           <undef>           <undef>           MOV  A,[FExx]
+  C1  CALLT [40]        CALLT [50]        CALLT [60]        CALLT [70]
+  C2  MOVW AX,BC        MOVW BC,AX        XCHW AX,BC        MOV  [FExx],A
+  C3  CALLT [42]        CALLT [52]        CALLT [62]        CALLT [72]
+  C4  MOVW AX,DE        MOVW DE,AX        XCHW AX,DE        MOV  A,[FFxx]
+  C5  CALLT [44]        CALLT [54]        CALLT [64]        CALLT [74]
+  C6  MOVW AX,HL        MOVW HL,AX        XCHW AX,HL        MOV  [FFxx],A
+  C7  CALLT [46]        CALLT [56]        CALLT [66]        CALLT [76]
+  C8  CMP  [FExx],nn    AND  [FExx],nn    OR   [FExx],nn    XOR  [FExx],nn
+  C9  CALLT [48]        CALLT [58]        CALLT [68]        CALLT [78]
+  CA  ADDW AX,nnnn      SUBW AX,nnnn      CMPW AX,nnnn      BR   rel
+  CB  CALLT [4A]        CALLT [5A]        CALLT [6A]        CALLT [7A]
+  CC  BT   [FExx].4,rel BT   [FExx].5,rel BT   [FExx].6,rel BT   [FExx].7,rel
+  CD  CALLT [4C]        CALLT [5C]        CALLT [6C]        CALLT [7C]
+  CE  XCH  A,[nnnn]     XCH  A,[HL+nn]    MOVW [FExx],nnnn  MOVW [FFxx],nnnn
+  CF  CALLT [4E]        CALLT [5E]        CALLT [6E]        CALLT [7E]
+```
+
+
+
+## 78K/0 Opcodes with Prefix 31
+
+
+```
+  3100+xxx*10  -
+  3180+xxx*10  - (unless below ROL/ROR)
+  3101+bbb*10  BTCLR   [FExx].n,rel    ;n=0..7
+  3181+xxx*10  -
+  3102+xxx*10  -
+  3182+xxx*10  - (unless below DIV)
+  3103+bbb*10  BF      [FExx].n,rel    ;n=0..7
+  3183+xxx*10  -
+  3104+xxx*10  -
+  3184+xxx*10  -
+  3105+bbb*10  BTCLR   [FFxx].n,rel    ;n=0..7
+  3185+bbb*10  BTCLR   [HL].n,rel      ;n=0..7
+  3106+bbb*10  BT      [FFxx].n,rel    ;n=0..7
+  3186+bbb*10  BT      [HL].n,rel      ;n=0..7
+  3107+bbb*10  BF      [FFxx].n,rel    ;n=0..7
+  3187+bbb*10  BF      [HL].n,rel      ;n=0..7
+  3108+xxx*10  -
+  3188+xxx*10  - (unless below MUL/BR)
+  3109+xxx*10  -
+  3189+xxx*10  -
+  310A+xxx*10  <see below ADD/SUB/ADDC/SUBC/CMP/AND/OR/XOR)
+  318A+xxx*10  - (unless below XCH)
+  310B+xxx*10  <see below ADD/SUB/ADDC/SUBC/CMP/AND/OR/XOR)
+  318B+xxx*10  - (unless below XCH)
+  310C+xxx*10  -
+  318C+xxx*10  -
+  310D+bbb*10  BTCLR   A.n,rel         ;n=0..7
+  318D+xxx*10  -
+  310E+bbb*10  BT      A.n,rel         ;n=0..7
+  318E+xxx*10  -
+  310F+bbb*10  BF      A.n,rel         ;n=0..7
+  318F+xxx*10  -
+  310A         ADD     A,[HL+C]
+  310B         ADD     A,[HL+B]
+  311A         SUB     A,[HL+C]
+  311B         SUB     A,[HL+B]
+  312A         ADDC    A,[HL+C]
+  312B         ADDC    A,[HL+B]
+  313A         SUBC    A,[HL+C]
+  313B         SUBC    A,[HL+B]
+  314A         CMP     A,[HL+C]
+  314B         CMP     A,[HL+B]
+  315A         AND     A,[HL+C]
+  315B         AND     A,[HL+B]
+  316A         OR      A,[HL+C]
+  316B         OR      A,[HL+B]
+  317A         XOR     A,[HL+C]
+  317B         XOR     A,[HL+B]
+  318A         XCH     A,[HL+C]
+  318B         XCH     A,[HL+B]
+  3180         ROL4    A,[HL]   ;rol 12bit A.lsb:[HL],4      ;native: ROL4 [HL]
+  3190         ROR4    A,[HL]   ;ror 12bit A.lsb:[HL],4      ;native: ROR4 [HL]
+  3182         DIVUW   AX,C     ;unsigned AX=AX/C, C=remainder ;native: DIVWU C
+  3188         MULU    AX,A,X   ;unsigned AX=A*X               ;native: MULU X
+  3198         BR      AX
+```
+
+
+
+## 78K/0 Opcodes with Prefix 61
+
+
+```
+  6100+rrr     ADD     r,A            ;r=X,A,C,B,E,D,L,H
+  6108+rrr     ADD     A,r            ;r=X,-,C,B,E,D,L,H
+  6110+rrr     SUB     r,A            ;r=X,A,C,B,E,D,L,H
+  6118+rrr     SUB     A,r            ;r=X,-,C,B,E,D,L,H
+  6120+rrr     ADDC    r,A            ;r=X,A,C,B,E,D,L,H
+  6128+rrr     ADDC    A,r            ;r=X,-,C,B,E,D,L,H
+  6130+rrr     SUBC    r,A            ;r=X,A,C,B,E,D,L,H
+  6138+rrr     SUBC    A,r            ;r=X,-,C,B,E,D,L,H
+  6140+rrr     CMP     r,A            ;r=X,A,C,B,E,D,L,H
+  6148+rrr     CMP     A,r            ;r=X,-,C,B,E,D,L,H
+  6150+rrr     AND     r,A            ;r=X,A,C,B,E,D,L,H
+  6158+rrr     AND     A,r            ;r=X,-,C,B,E,D,L,H
+  6160+rrr     OR      r,A            ;r=X,A,C,B,E,D,L,H
+  6168+rrr     OR      A,r            ;r=X,-,C,B,E,D,L,H
+  6170+rrr     XOR     r,A            ;r=X,A,C,B,E,D,L,H
+  6178+rrr     XOR     A,r            ;r=X,-,C,B,E,D,L,H
+  6180+xxx*10  - (unless below ADJ/SEL)
+  6181+xxx*10  -
+  6182+xxx*10  -
+  6183+xxx*10  -
+  6184+xxx*10  -
+  6185+xxx*10  -
+  6186+xxx*10  -
+  6187+xxx*10  -
+  6188+xxx*10  - (unless below ADJ/SEL)
+  6189+bbb*10  MOV1    A.n,CY         ;n=0..7
+  618A+bbb*10  SET1    A.n            ;n=0..7
+  618B+bbb*10  CLR1    A.n            ;n=0..7
+  618C+bbb*10  MOV1    CY,A.n         ;n=0..7
+  618D+bbb*10  AND1    CY,A.n         ;n=0..7
+  618E+bbb*10  OR1     CY,A.n         ;n=0..7
+  618F+bbb*10  XOR1    CY,A.n         ;n=0..7
+  6180         ADJBA                ;Decimal BCD adjust A after Addition
+  6190         ADJBS                ;Decimal BCD adjust A after Subtraction
+  61D0         SEL     RB0
+  61D8         SEL     RB1
+  61F0         SEL     RB2
+  61F8         SEL     RB3
+```
+
+
+
+## 78K/0 Opcodes with Prefix 71
+
+
+```
+  7100+xxx*10  - (unless below STOP/HALT)
+  7180+xxx*10  -
+  7101+bbb*10  MOV1    [FExx].n,CY    ;n=0..7
+  7181+bbb*10  MOV1    [HL].n,CY      ;n=0..7
+  7102+xxx*10  -
+  7182+bbb*10  SET1    [HL].n         ;n=0..7
+  7103+xxx*10  -
+  7183+bbb*10  CLR1    [HL].n         ;n=0..7
+  7104+bbb*10  MOV1    CY,[FExx].n    ;n=0..7
+  7184+bbb*10  MOV1    CY,[HL].n      ;n=0..7
+  7105+bbb*10  AND1    CY,[FExx].n    ;n=0..7
+  7185+bbb*10  AND1    CY,[HL].n      ;n=0..7
+  7106+bbb*10  OR1     CY,[FExx].n    ;n=0..7
+  7186+bbb*10  OR1     CY,[HL].n      ;n=0..7
+  7107+bbb*10  XOR1    CY,[FExx].n    ;n=0..7
+  7187+bbb*10  XOR1    CY,[HL].n      ;n=0..7
+  7108+xxx*10  -
+  7188+xxx*10  -
+  7109+bbb*10  MOV1    [FFxx].n,CY    ;n=0..7
+  7189+xxx*10  -
+  710A+bbb*10  SET1    [FFxx].n       ;n=0..7
+  718A+xxx*10  -
+  710B+bbb*10  CLR1    [FFxx].n       ;n=0..7
+  718B+xxx*10  -
+  710C+bbb*10  MOV1    CY,[FFxx].n    ;n=0..7
+  718C+xxx*10  -
+  710D+bbb*10  AND1    CY,[FFxx].n    ;n=0..7
+  718D+xxx*10  -
+  710E+bbb*10  OR1     CY,[FFxx].n    ;n=0..7
+  718E+xxx*10  -
+  710F+bbb*10  XOR1    CY,[FFxx].n    ;n=0..7
+  718F+xxx*10  -
+  7100         STOP
+  7110         HALT
+```
+
+
+
+
+# <a name="78k0memorymapandsfrs"></a>78K/0 Memory Map and SFRs
+
+
+
+
+## 78K0 References
+
+
+```
+  78K0/Kx2 User's Manual: Hardware       ;info on I/O Ports
+  78K0/Kx2 Flash Memory Self Programming ;info on 8100h function
+  78K0/Kx2 Flash Memory Programming      ;info on UART/SPI cable
+  78K/0 Series Instructions              ;info on opcodes
+  78K0/KB2 One-sheet Manual              ;quick reference poster
+```
+
+
+
+## 78K/0 Memory Map
+
+
+```
+  0000h..003Fh  FLASH ROM Exception Vectors (16bit each)
+  0040h..007Fh  FLASH ROM CALLT Vectors (16bit each)
+  0080h..0084h  FLASH ROM Option Byte Area (5 bytes)
+  0085h..008Eh  FLASH ROM Debug Security Area (10 bytes, if any)
+  008Fh..07FFh  FLASH ROM
+  0800h..0FFFh  FLASH ROM (accessible via CALLF opcodes)
+  1000h..1FFFh  FLASH ROM (can be swapped with 0000h..0FFFh)
+  2000h..xFFFh  FLASH ROM (if any, in larger chips)
+  8000h..BFFFh  FLASH ROM (if any, in larger chips) (bank-switched via BANK)
+  8000h..9FFFh  System ROM area (when mapped, with function handler at 8100h)
+  A000h..BFFFh  System ROM mirror (same as 8000h..9FFFh)
+  C000h..       System ROM empty           (mostly FFh-filled, some FEh-bytes)
+  E000h..F7FFh  Extra RAM (max 6K, if any) (mostly FFh-filled, some F0h-bytes)
+  F800h..F8FFh  Undoc SFR's
+  F900h..FAFFh  Zerofilled
+  FB00h..FBFFh  Unknown (filled with random values) (more RAM?) (unused in DSi)
+                (FB00h is ONLY mapped when ROM enabled, otherwise FFh-filled)
+  FC00h..FF1Fh  RAM (officially/used area)
+  FE20h..FEDFh  RAM (accessible via short "saddr" opcodes)
+  FEE0h..FEE7h  Register Bank 3 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEE8h..FEEFh  Register Bank 2 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEF0h..FEF7h  Register Bank 1 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FEF8h..FEFFh  Register Bank 0 (X,A,C,B,E,D,L,H aka AX,BC,DE,HL)
+  FF00h..FFFFh  Special Function Registers (SFR's)
+```
+
+FLASH banks are 1Kbyte tall (aka erase block size?).
+
+
+
+## 78K/0 Vectors
+
+
+```
+  0000h RESET input, POC, LVI, WDT
+  0002h -
+  0004h INTLVI
+  0006h INTP0
+  0008h INTP1
+  000Ah INTP2
+  000Ch INTP3
+  000Eh INTP4
+  0010h INTP5
+  0012h INTSRE6
+  0014h INTSR6
+  0016h INTST6
+  0018h INTCSI10/INTST0
+  001Ah INTTMH1
+  001Ch INTTMH0
+  001Eh INTTM50
+  0020h INTTM000
+  0022h INTTM010
+  0024h INTAD
+  0026h INTSR0
+  0028h INTWTI
+  002Ah INTTM51
+  002Ch INTKR
+  002Eh INTWT
+  0030h INTP6
+  0032h INTP7
+  0034h INTIIC0/NTDMU
+  0036h INTCSI11
+  0038h INTTM001
+  003Ah INTTM011
+  003Ch INTACSI
+  003Eh BRK
+```
+
+
+
+## 78K/0 Option Bytes / Debug Security
+
+
+```
+  0080h db   07Eh   ;Option Byte: Watchdog Mode
+  0081h db   000h   ;Option Byte: POC Mode (0=1.59V, 1=2.7V)
+  0082h db   000h   ;Option Byte: Reserved (00h)
+  0083h db   000h   ;Option Byte: Reserved (00h)
+  0084h db   000h   ;Option Byte: On-chip Debug Control (0=Off)
+       ;---
+  0085h db   0CCh   ;On-chip debug security ID (0Ah bytes) ...
+  0086h db   023h
+  0087h db   0BAh
+  0088h db   0C3h
+  0089h db   07Dh
+  008Ah db   094h
+  008Bh db   0FEh
+  008Ch db   073h
+  008Dh db   0A5h
+  008Eh db   0E6h
+```
+
+
+
+## 78K/0 Program Status Word (PSW) aka [FF1Eh]
+
+
+```
+  7  IE     ;Interrupt Enable
+  6  Z      ;Zero Flag
+  5  RBS1   ;Register Bank Select bit1
+  4  AC     ;Aux Carry Flag
+  3  RBS0   ;Register Bank Select bit0
+  2  0
+  1  ISP    ;In-Service Priority Flag
+  0  CY     ;Carry Flag
+```
+
+
+
+## 78K/0 Special Function Registers (SFR's)
+
+
+```
+  Addr  Symbol R/W 1BW Reset BCDEF Special Function Register (SFR)
+  FF00h P0     R/W 1B- 00h   BCDEF Port 0
+  FF01h P1     R/W 1B- 00h   BCDEF Port 1
+  FF02h P2     R/W 1B- 00h   BCDEF Port 2
+  FF03h P3     R/W 1B- 00h   BCDEF Port 3
+  FF04h P4     R/W 1B- 00h   -CDEF Port 4
+  FF05h P5     R/W 1B- 00h   ---EF Port 5
+  FF06h P6     R/W 1B- 00h   BCDEF Port 6
+  FF07h P7     R/W 1B- 00h   -CDEF Port 7
+  FF08h ADCR   R   --W 0000h BCDEF 10-bit A/D conversion result
+  FF09h ADCRH  R   -B- 00h   BCDEF 8-bit A/D conversion result
+  FF0Ah RXB6   R   -B- FFh   BCDEF Receive buffer 6
+  FF0Bh TXB6   R/W -B- FFh   BCDEF Transmit buffer 6
+  FF0Ch P12    R/W 1B- 00h   BCDEF Port 12
+  FF0Dh P13    R/W 1B- 00h   -cDEF Port 13 (KC2: 48pin only)
+  FF0Eh P14    R/W 1B- 00h   -cDEF Port 14 (KC2: 48pin only)
+  FF0Fh SIO10  R   -B- 00h   BCDEF Serial I/O shift 10
+  FF10h TM00   R   --W 0000h BCDEF 16-bit timer counter 00
+  FF12h CR000  R/W --W 0000h BCDEF 16-bit timer capture/compare 000
+  FF14h CR010  R/W --W 0000h BCDEF 16-bit timer capture/compare 010
+  FF16h TM50   R   -B- 00h   BCDEF 8-bit timer counter 50
+  FF17h CR50   R/W -B- 00h   BCDEF 8-bit timer compare 50
+  FF18h CMP00  R/W -B- 00h   BCDEF 8-bit timer H compare 00
+  FF19h CMP10  R/W -B- 00h   BCDEF 8-bit timer H compare 10
+  FF1Ah CMP01  R/W -B- 00h   BCDEF 8-bit timer H compare 01
+  FF1Bh CMP11  R/W -B- 00h   BCDEF 8-bit timer H compare 11
+  FF1Ch SP     R/W --W xxxxh BCDEF CPU Stack Pointer      ;\undocumented, used
+  FF1Eh PSW    R/W 1B- xxh   BCDEF CPU Program Status Word;/in pseudo opcodes
+  FF1Fh TM51   R   -B- 00h   BCDEF 8-bit timer counter 51
+  FF20h PM0    R/W 1B- FFh   BCDEF Port mode 0
+  FF21h PM1    R/W 1B- FFh   BCDEF Port mode 1
+  FF22h PM2    R/W 1B- FFh   BCDEF Port mode 2
+  FF23h PM3    R/W 1B- FFh   BCDEF Port mode 3
+  FF24h PM4    R/W 1B- FFh   -CDEF Port mode 4
+  FF25h PM5    R/W 1B- FFh   ---EF Port mode 5
+  FF26h PM6    R/W 1B- FFh   BCDEF Port mode 6
+  FF27h PM7    R/W 1B- FFh   -CDEF Port mode 7
+  FF28h ADM    R/W 1B- 00h   BCDEF A/D converter mode
+  FF29h ADS    R/W 1B- 00h   BCDEF Analog input channel specification
+  FF2Ch PM12   R/W 1B- FFh   BCDEF Port mode 12
+  FF2Eh PM14   R/W 1B- FFh   -cDEF Port mode 14 (KC2: 48pin only)
+  FF2Fh ADPC   R/W 1B- 00h   BCDEF A/D port configuration
+  FF30h PU0    R/W 1B- 00h   BCDEF Pull-up resistor option 0
+  FF31h PU1    R/W 1B- 00h   BCDEF Pull-up resistor option 1
+  FF33h PU3    R/W 1B- 00h   BCDEF Pull-up resistor option 3
+  FF34h PU4    R/W 1B- 00h   -CDEF Pull-up resistor option 4
+  FF35h PU5    R/W 1B- 00h   ---EF Pull-up resistor option 5
+  FF36h PU6    R/W 1B- 00h   ----F Pull-up resistor option 6
+  FF37h PU7    R/W 1B- 00h   -CDEF Pull-up resistor option 7
+  FF3Ch PU12   R/W 1B- 00h   BCDEF Pull-up resistor option 12
+  FF3Eh PU14   R/W 1B- 00h   -cDEF Pull-up resistor option 14 (KC2: 48pin only)
+  FF40h CKS    R/W 1B- 00h   -cDEF Clock output selection     (KC2: 48pin only)
+  FF41h CR51   R/W -B- 00h   BCDEF 8-bit timer compare 51
+  FF43h TMC51  R/W 1B- 00h   BCDEF 8-bit timer mode control 51
+  FF48h EGP    R/W 1B- 00h   BCDEF External interrupt rising edge enable
+  FF49h EGN    R/W 1B- 00h   BCDEF External interrupt falling edge enable
+  FF4Ah SIO11  R   -B- 00h   ---eF Serial I/O shift 11 (KE2: 48KB only)
+  FF4Ch SOTB11 R/W -B- 00h   ---eF Transmit buffer 11  (KE2: 48KB only)
+  FF4Fh ISC    R/W 1B- 00h   BCDEF Input switch control
+  FF50h ASIM6  R/W 1B- 01h   BCDEF Async serial interface operation mode 6
+  FF53h ASIS6  R   -B- 00h   BCDEF Async serial interface reception err/stat 6
+  FF55h ASIF6  R   -B- 00h   BCDEF Async serial interface transmission status 6
+  FF56h CKSR6  R/W -B- 00h   BCDEF Clock selection 6
+  FF57h BRGC6  R/W -B- FFh   BCDEF Baud rate generator control 6
+  FF58h ASICL6 R/W 1B- 16h   BCDEF Async serial interface control 6
+  FF60h SDR0   R   -BW 0000h -cdeF Remainder data 0 bit0..         ;\
+  FF61h SDR0H  R   -B- 00h   -cdeF Remainder data 0 bit8..         ;
+  FF62h MDA0L  R/W -BW 0000h -cdeF Multiply/divide data A0 bit0..  ; KC2-KE2:
+  FF63h MDA0LH R/W -B- 00h   -cdeF Multiply/divide data A0 bit8..  ; 48KB only
+  FF64h MDA0H  R/W -BW 0000h -cdeF Multiply/divide data A0 bit16.. ;
+  FF65h MDA0HH R/W -B- 00h   -cdeF Multiply/divide data A0 bit24.. ;
+  FF66h MDB0   R/W -BW 0000h -cdeF Multiply/divide data B0 bit0..  ;
+  FF67h MDB0H  R/W -B- 00h   -cdeF Multiply/divide data B0 bit8..  ;
+  FF68h DMUC0  R/W 1B- 00h   -cdeF Multiply/divide control 0       ;/
+  FF69h TMHMD0 R/W 1B- 00h   BCDEF 8-bit timer H mode 0
+  FF6Ah TCL50  R/W 1B- 00h   BCDEF Timer clock selection 50
+  FF6Bh TMC50  R/W 1B- 00h   BCDEF 8-bit timer mode control 50
+  FF6Ch TMHMD1 R/W 1B- 00h   BCDEF 8-bit timer H mode 1
+  FF6Dh TMCYC1 R/W 1B- 00h   BCDEF 8-bit timer H carrier control 1
+  FF6Eh KRM    R/W 1B- 00h   -CDEF Key return mode
+  FF6Fh WTM    R/W 1B- 00h   -CDEF Watch timer operation mode
+  FF70h ASIM0  R/W 1B- 01h   BCDEF Async serial interface operation mode 0
+  FF71h BRGC0  R/W -B- 1Fh   BCDEF Baud rate generator control 0
+  FF72h RXB0   R   -B- FFh   BCDEF Receive buffer 0
+  FF73h ASIS0  R   -B- 00h   BCDEF Async serial interface reception err/stat 0
+  FF74h TXS0   W   -B- FFh   BCDEF Transmit shift 0
+  FF80h CSIM10 R/W 1B- 00h   BCDEF Serial operation mode 10
+  FF81h CSIC10 R/W 1B- 00h   BCDEF Serial clock selection 10
+  FF84h SOTB10 R/W -B- 00h   BCDEF Transmit buffer 10
+  FF88h CSIM11 R/W 1B- 00h   ---eF Serial operation mode 11  (KE2: 48KB only)
+  FF89h CSIC11 R/W 1B- 00h   ---eF Serial clock selection 11 (KE2: 48KB only)
+  FF8Ch TCL51  R/W 1B- 00h   BCDEF Timer clock selection 51
+  FF90h CSIMA0 R/W 1B- 00h   ----F Serial operation mode specification 0
+  FF91h CSIS0  R/W 1B- 00h   ----F Serial status 0
+  FF92h CSIT0  R/W 1B- 00h   ----F Serial trigger 0
+  FF93h BRGCA0 R/W -B- 03h   ----F Division value selection 0
+  FF94h ADTP0  R/W -B- 00h   ----F Automatic data transfer address point spec 0
+  FF95h ADTI0  R/W -B- 00h   ----F Automatic data transfer interval spec 0
+  FF96h SIOA0  R/W -B- 00h   ----F Serial I/O shift 0
+  FF97h ADTC0  R   -B- 00h   ----F Automatic data transfer address count 0
+  FF99h WDTE   R/W -B- xAh   BCDEF Watchdog timer enable (initial=1Ah/9Ah)
+  FF9Fh OSCCTL R/W 1B- 00h   BCDEF Clock operation mode select
+  FFA0h RCM    R/W 1B- x0h   BCDEF Internal oscillation mode
+  FFA1h MCM    R/W 1B- 00h   BCDEF Main clock mode
+  FFA2h MOC    R/W 1B- 80h   BCDEF Main OSC control
+  FFA3h OSTC   R   1B- 00h   BCDEF Oscillation stabilization time counter stat
+  FFA4h OSTS   R/W -B- 05h   BCDEF Oscillation stabilization time select
+  FFA5h IIC0   R/W -B- 00h   BCDEF IIC shift 0
+  FFA6h IICC0  R/W 1B- 00h   BCDEF IIC control 0
+  FFA7h SVA0   R/W -B- 00h   BCDEF Slave address 0
+  FFA8h IICCL0 R/W 1B- 00h   BCDEF IIC clock selection 0
+  FFA9h IICX0  R/W 1B- 00h   BCDEF IIC function expansion 0
+  FFAAh IICS0  R   1B- 00h   BCDEF IIC status 0
+  FFABh IICF0  R/W 1B- 00h   BCDEF IIC flag 0
+  FFACh RESF   R   -B- xxh   BCDEF Reset control flag
+  FFB0h TM01   R   --W 0000h ---eF 16-bit timer counter 01           ;\
+  FFB2h CR001  R/W --W 0000h ---eF 16-bit timer capture/compare 001  ;
+  FFB4h CR011  R/W --W 0000h ---eF 16-bit timer capture/compare 011  ; KE2:
+  FFB6h TMC01  R/W 1B- 00h   ---eF 16-bit timer mode control 01      ; 48KB
+  FFB7h PRM01  R/W 1B- 00h   ---eF Prescaler mode 01                 ; only)
+  FFB8h CRC01  R/W 1B- 00h   ---eF Capture/compare control 01        ;
+  FFB9h TOC01  R/W 1B- 00h   ---eF 16-bit timer output control 01    ;/
+  FFBAh TMC00  R/W 1B- 00h   BCDEF 16-bit timer mode control 00
+  FFBBh PRM00  R/W 1B- 00h   BCDEF Prescaler mode 00
+  FFBCh CRC00  R/W 1B- 00h   BCDEF Capture/compare control 00
+  FFBDh TOC00  R/W 1B- 00h   BCDEF 16-bit timer output control 00
+  FFBEh LVIM   R/W 1B- xxh   BCDEF Low-voltage detection
+  FFBFh LVIS   R/W 1B- xxh   BCDEF Low-voltage detection level selection
+  FFC0h PFCMD  W?  ?B? ?     ?  Undoc: Flash Protect Command (write A5h)
+  FFC1h -      R/W 1B- ?     ?  Undoc: Flash ... FFC1h ... bits/pulses   FSSQ ?
+  FFC2h PFS    R       ?     ?  Undoc: Flash Protect Status
+  FFC4h FLPMC  R/W 1B? ?     ?  Undoc: Flash Programming Mode Ctl ;triple write
+  FFC5h -      W   1?- ?     ?  Undoc: Flash ... 0FFC5h ... bits/mode   ?
+  FFC6h FLAPH  W   1B- ?     ?  Undoc: Flash addr ptr upper 8bit (bit1=flag)
+  FFC7h -      R/W 1?- ?     ?  Undoc: Flash ... 0FFC7h ... flag bits
+  FFC8h FLAPL  W   1BW ?     ?  Undoc: Flash addr ptr lower 16bit (bit0,1=flag)
+  FFCAh -      R/W ?B? ?     ?  Undoc: Flash ... 0FFCAh ...       ;triple write
+  FFCBh FLWE   W   ?B- ?     ?  Undoc: Flash write data ECC error correction?
+  FFCCh FLWH   W   -BW ?     ?  Undoc: Flash write data upper 16bit  ;\4-byte
+  FFCEh FLWL   W   -BW ?     ?  Undoc: Flash write data lower 16bit  ;/
+  FFE0h IF0L   R/W 1BW 00h   BCDEF Interrupt request flag 0L      ;\IF0
+  FFE1h IF0H   R/W 1BW 00h   BCDEF Interrupt request flag 0H      ;/
+  FFE2h IF1L   R/W 1BW 00h   BCDEF Interrupt request flag 1L      ;\IF1
+  FFE3h IF1H   R/W 1BW 00h   BCDEF Interrupt request flag 1H      ;/
+  FFE4h MK0L   R/W 1BW FFh   BCDEF Interrupt mask flag 0L         ;\MK0
+  FFE5h MK0H   R/W 1BW FFh   BCDEF Interrupt mask flag 0H         ;/
+  FFE6h MK1L   R/W 1BW FFh   BCDEF Interrupt mask flag 1L         ;\MK1
+  FFE7h MK1H   R/W 1BW FFh   BCDEF Interrupt mask flag 1H         ;/
+  FFE8h PR0L   R/W 1BW FFh   BCDEF Priority specification flag 0L ;\PR0
+  FFE9h PR0H   R/W 1BW FFh   BCDEF Priority specification flag 0H ;/
+  FFEAh PR1L   R/W 1BW FFh   BCDEF Priority specification flag 1L ;\PR1
+  FFEBh PR1H   R/W 1BW FFh   BCDEF Priority specification flag 1H ;/
+  FFF0h IMS    R/W -B- CFh   BCDEF Internal memory size switching
+  FFF3h BANK   R/W -B- 00h   --def Memory bank select  (KD2-KF2: min 96KB only)
+  FFF4h IXS    R/W -B- 0Ch   bcdeF Internal expansion RAM size switching
+  FFF5h -      R   ?B- ?     ?  Undoc: chip_id (package type and memory size)
+  FFFBh PCC    R/W 1B- 01h   BCDEF Processor clock control
+```
+
+And, more undoc/secret registers:
+
+```
+  F800h..F0h   -   --- ?     ?  Undoc: unknown values, unused by software
+  F8F1h FLrE   R   -B- ?     ?  Undoc: Flash read data ECC error correction?
+  F8F2h FLrH   R   -BW ?     ?  Undoc: Flash read data upper 16bit  ;\4-byte
+  F8F4h FLrL   R   -BW ?     ?  Undoc: Flash read data lower 16bit  ;/total
+  F8F6h ???    R/W --W ?     ?  Undoc: Flash ...0F8F6h_word     ;-16bit
+  F8F8h -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8F9h ???    R/W -B- ?     ?  Undoc: Flash ...0F8F9h          ;-
+  F8FAh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FBh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FCh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FDh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FEh -      -   --- ?     ?  Undoc:   ;(unused by software)
+  F8FFh -      -   --- ?     ?  Undoc:   ;(unused by software)
+```
+
+
+Whereas,
+
+```
+  1BT   = supports Bit/Byte/Word access (1bit/8bit/16bit)
+  BCDEF = supported on KB2/KC2/KD2/KE2/KF2 chip versions
+```
+
+For IMS/IXS: Regardless of the internal memory capacity, the initial values of
+the internal memory size switching register (IMS) and internal expansion RAM
+size switching register (IXS) of all products in the 78K0/Kx2 microcontrollers
+are fixed (IMS = CFH, IXS = 0CH). Therefore, set the value corresponding to
+each product as indicated in Tables 3-1 and 3-2.
+
+For IMS/IXS: The ROM and RAM capacities of the products with the on-chip debug
+function can be debugged by setting IMS and IXS, according to the debug target
+products. Set IMS and IXS according to the debug target products.
+
+For IXS on KB2-KE2: Set IXS only in products with internal expansion RAM.
+
+The reset values of RES, LVIM and LVIS vary depending on the reset source.
+
+The reset value of WDTE is determined by setting of option byte.
+
+The reset value of RCM is 00h immediately after a reset release but
+automatically changes to 80h after oscillation accuracy stabilization of
+high-speed internal oscillator has been waited.
+
+
+
+
+# <a name="pngbitmaps"></a>PNG Bitmaps
+
+
+
+Used by DSi Browser (rom:\\*.png)
+
+
+
+## File Header
+
+
+```
+  000h 8    ID (89h,'PNG',0Dh,0Ah,1Ah,0Ah)
+  008h ..   Chunks
+```
+
+
+
+## Chunk Format
+
+
+```
+  000h 4    Chunk Size (LEN)                  ;big-endian
+  004h 4    Chunk ID (4-letter ASCII) ("A..Z" and "a..z")
+  008h LEN  Chunk Data
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+The Chunk ID is 4-letter ASCII, with upper/lowercase having special meanings:
+
+```
+  1st char  Uppercase=Critical (Basic)   Lowercase=Ancillary (Optional extras)
+  2nd char  Uppercase=Public (Official)  Lowercase=Private (Custom extensions)
+  3rd char  Uppercase=Normal             Lowercase=Reserved
+  4th char  Uppercase=Unsafe to copy     Lowercase=Safe to copy
+```
+
+PNG Chunks
+
+```
+  IHDR v1.0  Image header (first chunk)                ;\
+  PLTE v1.0  Palette (if any)                          ; Critical chunks
+  IDAT v1.0  Image data (can be multiple IDAT chunks!) ; (aka the bitmap data)
+  IEND v1.0  Image trailer (last chunk)                ;/
+  tRNS v1.0  Transparency                              ;-Transparency
+  cHRM v1.0  Primary chromaticities and white point    ;\
+  gAMA v1.0  Image gamma                               ;
+  iCCP v1.1  Embedded ICC profile                      ; Colour space info
+  sBIT v1.0  Significant bits                          ;
+  sRGB v1.1  Standard RGB colour space                 ;
+  cICP v3rd  Coding-independent code points            ;/
+  bKGD v1.0  Background colour                         ;\
+  hIST v1.0  Image histogram                           ;
+  pHYs v1.0  Physical pixel dimensions                 ; Miscellaneous info
+  sPLT v1.1  Suggested palette                         ;
+  eXIf v3rd  EXIF chunk (starts with "MM"=byteorder)   ;/
+  tEXt v1.0  Textual data                              ;\Textual information
+  zTXt v1.0  Compressed textual data                   ; (aka comments)
+  iTXt v1.2  International textual data                ;/
+  tIME v1.0  Image last-modification time              ;-Time stamp
+  acTL v3rd  Animation Control Chunk                   ;\
+  fcTL v3rd  Frame Control Chunk                       ; Animation (APNG)
+  fdAT v3rd  Frame Data Chunk                          ;/
+```
+
+Note: There are some rules for the chunk ordering, see PNG specs for details.
+
+
+
+## IHDR Chunk (first chunk)
+
+
+```
+  000h 4    Chunk Size (always 0Dh)       ;big-endian
+  004h 4    Chunk ID   ("IHDR")
+  008h 4    Width in pixels  (0=invalid)  ;big-endian
+  00Ch 4    Height in pixels (0=invalid)  ;big-endian
+  010h 1    Bits per sample  (1,2,4,8,16) (allowed values depend on Color Type)
+  011h 1    Color Type       (0,2,3,4,6)
+  012h 1    Compression method  (always 0=Zlib-Deflate)
+  013h 1    Filter method       (always 0=Adaptive; with subtype per line)
+  014h 1    Interlace method    (0=None, 1=Adam7)
+  015h 4    Chunk CRC32 on [004h..]       ;big-endian
+```
+
+The valid Color types and bits per sample are:
+
+```
+  Color type             (Samples)  Bits/sample     Bits/pixel
+  0=Grayscale            (I)        1,2,4,8,16  --> 1,2,4,8,16
+  2=Truecolor            (RGB)      8,16        --> 24,48
+  3=Palette indices      (I)        1,2,4,8     --> 1,2,4,8
+  4=Grayscale with alpha (IA)       8,16        --> 16,32
+  6=Truecolor with alpha (RGBA)     8,16        --> 32,64
+```
+
+
+
+## PLTE Chunk (required for Color type 3)
+
+
+```
+  000h 4    Chunk Size (LEN=NumColors*3) (3..300h)            ;big-endian
+  004h 4    Chunk ID ("PLTE")
+  008h LEN  Palette Data (three bytes per color, ordered R,G,B)
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+Additional Alpha values for each palette entry can be defined in tRNS chunk.
+
+
+
+## IDAT Chunk(s)
+
+
+```
+  000h 4    Chunk Size (LEN)                      ;big-endian
+  004h 4    Chunk ID ("IDAT")
+  008h LEN  Zlib-Deflate compressed image data
+  ...  4    Chunk CRC32 on [004h+(0..LEN+3)]  ;big-endian
+```
+
+There may be multiple IDAT chunks; if so, they shall appear consecutively with
+no other "intervening" chunks. The compressed datastream is then the
+"concatenation" of the contents of the data fields of all the IDAT chunks.
+
+
+
+## IEND Chunk (last chunk)
+
+
+```
+  000h 4    Chunk Size (0)                    ;big-endian
+  004h 4    Chunk ID ("IEND")
+  008h 4    Chunk CRC32 on [004h..007h] (always AE426082h) ;big-endian
+```
+
+
+```
+ _________________ Decompression, Unfiltering, Deinterlacing __________________
+```
+
+
+
+## Overall image decoding flowchart
+
+
+- merge SDAT chunk(s) into a continous bitstream (remove Chunk Headers/CRCs)
+
+- decompress via Zlib-Inflate
+
+- unfilter
+
+- convert to desired color depth and RGBA bit-order
+
+- deinterlace
+
+
+
+## Decompression
+
+
+The merged IDAT chunks contain:
+
+```
+  000h 1   zlib compression method/flags code (usually 78h)
+  001h 1   Additional flags/check bits        (usually 9Ch) (or DAh)
+  002h ..  Compressed data blocks (deflate)
+  ...  4   Adler32 checksum on decompressed data   ;big-endian
+```
+
+- [ZIP Decompression](#zipdecompression)
+"tinf\_zlib\_uncompress"
+
+All scanlines are padded to 1-byte boundary, and all scanlines include a
+leading filter bytes. That is, the decompressed size is:
+
+```
+  decompressed_size = ((width*bpp+7)/8+1)*height
+```
+
+For interlaced images, compute the width & height for each pass, then
+compute the sum of the decompressed\_size's.
+
+
+
+## Unfiltering
+
+
+Pixels can have 1..64 bpp, but unfiltering is always done in BYTE units.
+
+```
+  for pass=1 to num_passes   ;for 7-pass interlacing
+    calc width/height for current pass
+    for x=1 to (bpp+7)/8 + (width*bpp+7)/8
+      byte[dst]=00h, dst=dst+1            ;-pad topmost for unfiltering
+    for y=1 to height
+      filter = byte[src], src=src+1
+      for x=1 to (bpp+7)/8
+        byte[dst]=00h, dst=dst+1          ;-pad leftmost for unfiltering
+      for x=1 to (width*bpp+7)/8
+        left      = byte[dst-(bpp+7)/8]
+        upper     = byte[dst-bytes_per_scanline]
+        upperleft = byte[dst-bytes_per_scanline-(bpp+7)/8]
+        if filter=0 then byte[dst]=byte[src]
+        if filter=1 then byte[dst]=byte[src]+left
+        if filter=2 then byte[dst]=byte[src]+upper
+        if filter=3 then byte[dst]=byte[src]+(left+upper)/2
+        if filter=4 then
+          pa=abs(upper-upperleft)
+          pb=abs(left-upperleft)
+          pc=abs(left+upper-(upperleft*2))
+          if pa<=pb AND pa<=pc then byte[dst]=byte[src]+left
+          elseif pb<=pc then        byte[dst]=byte[src]+upper
+          else                      byte[dst]=byte[src]+upperleft
+        if filter>4 then error
+        src=src+1, dst=dst+1
+      next x
+    next y
+  next pass
+```
+
+Note: The dst buffer may be as small as two scanlines (when directly forwarding
+the unfiltered data to the color conversion & deinterlacing steps).
+
+
+
+## Color Depth conversion and RGBA bit-order
+
+
+The MSB of first pixel is in bit7 of first byte (ie. 16bit samples are
+big-endian, and 2bpp would have 1st pixel in bit7-6). Pixels with multiple
+samples are ordered R,G,B or R,G,B,A or Luminance,A.
+
+The data should be converted to a format supported by the OS/hardware. Also,
+deinterlacing will be easier when converting to at least 8bpp (or simply
+convert everything to 32bpp).
+
+
+
+## Deinterlacing (if enabled in IHDR chunk)
+
+
+Interlace allows to display a low-resolution preview during slow network
+downloads. The image is divided into 8x8 pixel blocks.
+
+```
+  Pass Numbers per 8x8:      Width/Height per pass:
+  1 6 4 6 2 6 4 6            Pass 1   (width+7)/8, (height+7)/8  ;\
+  7 7 7 7 7 7 7 7            Pass 2   (width+3)/8, (height+7)/8  ;
+  5 6 5 6 5 6 5 6            Pass 3   (width+3)/4, (height+3)/8  ; seven-pass   7 7 7 7 7 7 7 7            Pass 4   (width+1)/4, (height+3)/4  ; (Adam7
+  3 6 4 6 3 6 4 6            Pass 5   (width+1)/2, (height+1)/4  ; interlace)
+  7 7 7 7 7 7 7 7            Pass 6   (width+0)/2, (height+1)/2  ;
+  5 6 5 6 5 6 5 6            Pass 7   (width+0)/1, (height+0)/2  ;/
+  7 7 7 7 7 7 7 7            Single   (width+0)/1, (height+0)/1  ;-single-pass
+```
+
+For example, a 12x2 pixel image would be interlaced as so:
+
+```
+  1 6 4 6 2 6 4 6 1 6 4 6      ;\Pass1=2x1, Pass2=1x1, Pass3=Empty, Pass4=4x1,
+  7 7 7 7 7 7 7 7 7 7 7 7      ;/Pass5=Empty, Pass6=6x1, Pass7=12x1.
+```
+
+All seven passes are stored in a single Zlib-bitstream (for low-res preview,
+one must pause the Zlib decompression every once and then to display the yet
+downloaded pixels).
+
+
+```
+ ____________________________________ Misc ____________________________________
+```
+
+
+
+## tRNS Chuunk
+
+
+Colour type 0    Grayscale
+
+```
+  Grey sample value              2 bytes   (big-endian) (0..SampleSize-1)
+```
+
+Colour type 2    RGB
+
+```
+  Red sample value               2 bytes   (big-endian) (0..SampleSize-1)
+  Blue sample value              2 bytes   (big-endian)
+  Green sample value             2 bytes   (big-endian)
+```
+
+Colour type 3    Color-indexed
+
+```
+  Alpha for palette index 0      1 byte (alpha value, 00h..FFh; FFh=Solid)
+  Alpha for palette index 1      1 byte
+  ...etc...                      1 byte
+```
+
+
+
+## References
+
+
+Official PNG specs are filled with overhelming details (without actually
+getting to the point).
+
+- [http://www.libpng.org/pub/png/spec/1.0/](http://www.libpng.org/pub/png/spec/1.0/)
+- (gzip)      PNG v1.0
+- [http://www.libpng.org/pub/png/spec/1.1/](http://www.libpng.org/pub/png/spec/1.1/)
+- (html/txt)  PNG v1.1
+- [http://www.libpng.org/pub/png/spec/1.2/](http://www.libpng.org/pub/png/spec/1.2/)
+- (html/txt)  PNG v1.2
+- [http://www.w3.org/TR/2003/REC-PNG-20031110/#minitoc](http://www.w3.org/TR/2003/REC-PNG-20031110/#minitoc)
+- PNG "second edition"
+- [http://w3c.github.io/PNG-spec/](http://w3c.github.io/PNG-spec/)
+- (corrupted html)     PNG "third edition"
+
+To figure out "how to decode the damn bitmap", there is this valuable resource:
+
+- [http://pyokagan.name/blog/2019-10-14-png/](http://pyokagan.name/blog/2019-10-14-png/)
+- Writing a (simple) PNG decoder
+
+For testing different color depths and interlacing:
+
+- [http://www.schaik.com/pngsuite/](http://www.schaik.com/pngsuite/)
+- PNG test images (color types, interlace, etc)
+
+
+
+
+# <a name="parentalcontrolsreset"></a>Parental Controls Reset
+
+
+
+
+## Parental Controls Reset
+
+
+Click "I Forgot" when getting prompted to enter the PIN and Secret Question,
+the console will then display an 8-digit Enquiry Number (or 10-digit with
+region/version RV/RVV in upper digits), the customer service hotline uses that
+number (and the current month/day, MMDD) to compute a 5-digit Master Key for
+resetting Parental Controls.
+
+
+## DSi/Wii version
+
+
+```
+  This uses a standard CRC32 with polynomial EDB88320h.
+  Enquiry = "XXXXNNNN" (8-digit, based on MAC but only last 4-digits are used)
+  MasterKey = ((StandardCRC32("MMDDNNNN") XOR 0000AAAAh)+14C1h mod 100000
+  The XOR 0000AAAAh is replacing the standard crc32's final XOR FFFFFFFFh?
+```
+
+
+## 3DS firmware version 1.0.0-X through 6.3.0-X
+
+
+```
+  Same as DSi/Wii, but using a nonstandard CRC32 (with polynomial EDBA6320h
+  instead of EDB88320h, and adding 1657h instead of 14C1h to the final result.
+  Enquiry = "XXXXNNNN" (8-digit, based on MAC but only last 4-digits are used)
+  MasterKey = ((NonStandardCRC32("MMDDNNNN") XOR 0000AAAAh)+1657h mod 100000
+  "This had a minor refactor in 6.0.0-X but is functionally identical."
+```
+
+
+## 3DS firmware version7.0.0-X through 7.1.0-X (with version V=0)
+
+
+```
+  Similar as above, using a 10-digit Enquiry, and SHA256-HMAC instead CRC32.
+  Enquiry = "RVNNNNNNNN" (10-digit, based on MAC?, upper digits=region/ver?)
+  HmacKey = from mset .rodata, differs between regions.
+  MasterKey = (FirstWordOf(SHA256HMAC("MMDDR0NNNNNNNN",HmacKey)) mod 100000
+```
+
+
+## 3DS firmware versio n7.2.0-X and up (with version VV=10 and up)
+
+
+```
+  As above, but with HmacKey stored in a separate encrypted file.
+  AesIv,RVV = from masterkey.bin (found in System Data Archives 2, CVer)
+  AesKey = from mset .rodata, using RVV as decrypt key number
+  Enquiry = "RVVNNNNNNN" (10-digit, based on MAC?, upper digits=region/ver)
+  HmacKey = from masterkey.bin (decrypt via AES-CTR with AesIv and AesKey)
+  MasterKey = (FirstWordOf(SHA256HMAC("MMDDR0NNNNNNNN",HmacKey)) mod 100000
+```
+
+Newer(?) firmwares are using R=9 for japan (instead of R=0, maybe because
+people did tend to omit leading zeroes when specifying the Enquiry Number).
+
+Alternately, an easier way to reset parental controls is to dump the PIN from
+"config" (3DS) or TWLCFG (DSi).
+
+
+
 
 
 # <a name="3dsreference"></a>3DS Reference
@@ -135,6 +1319,7 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 - [3DS Files - Video Shaders (DVLB and DVOB Format)](#3dsfilesvideoshadersdvlbanddvobformat)
 - [3DS Files - Video Fonts (CFNT and FFNT Format)](#3dsfilesvideofontscfntandffntformat)
 - [3DS Files - Video Texture Package (CTPK)](#3dsfilesvideotexturepackagectpk)
+- [3DS Files - Video Texture Binary (CTXB)](#3dsfilesvideotexturebinaryctxb)
 - [3DS Files - Video Bitmap (BMP)](#3dsfilesvideobitmapbmp)
 - [3DS Files - Sound Archive (CSAR Format)](#3dsfilessoundarchivecsarformat)
 - [3DS Files - Sound SEQ (CSEQ Format)](#3dsfilessoundseqcseqformat)
@@ -149,6 +1334,7 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 - [3DS Files - BASE64 Encoding](#3dsfilesbase64encoding)
 - [3DS Files - Video 3D Photos (MPO)](#3dsfilesvideo3dphotosmpo)
 - [3DS Files - Module NWM (Wifi Driver)](#3dsfilesmodulenwmwifidriver)
+- [3DS Files - DSiWare Exports](#3dsfilesdsiwareexports)
 - [3DS Console IDs](#3dsconsoleids)
 
 
@@ -157,13 +1343,15 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 
 - [3DS eMMC and MCU Images](#3dsemmcandmcuimages)
 - [3DS Component Lists](#3dscomponentlists)
+- [3DS Testpoints](#3dstestpoints)
+- [3DS Connector Pinouts](#3dsconnectorpinouts)
 - [3DS Chipset Pinouts](#3dschipsetpinouts)
 
 
 ## Operating System
 
 
-- [http://forums.nesdev.com/viewtopic.php?f=23&t=18490&p=242531#p242456](http://forums.nesdev.com/viewtopic.php?f=23&t=18490&p=242531#p242456)
+- [http://forums.nesdev.org/viewtopic.php?f=23&t=18490&p=242531#p242456](http://forums.nesdev.org/viewtopic.php?f=23&t=18490&p=242531#p242456)
 - [http://www.3dbrew.org/wiki/Services](http://www.3dbrew.org/wiki/Services)
 - [http://www.3dbrew.org/wiki/Services\_API](http://www.3dbrew.org/wiki/Services_API)
 
@@ -171,7 +1359,7 @@ Gameboy Advance / Nintendo DS / DSi / 3DS - Technical Info - Extracted from no$g
 ## 3DS Reverse Engineering
 
 
-- [http://forums.nesdev.com/viewtopic.php?f=23&t=18490](http://forums.nesdev.com/viewtopic.php?f=23&t=18490)
+- [http://forums.nesdev.org/viewtopic.php?f=23&t=18490](http://forums.nesdev.org/viewtopic.php?f=23&t=18490)
 
 
 ## Credits
@@ -251,7 +1439,7 @@ may appear elsewhere in virtual memory).
   10004000h  Yes     A9      CTRCARD Registers  ROM cart in 3DS mode
   10005000h          A9      CTRCARD?           2nd ROM cart slot?
   10006000h  Yes     A9      SDMMC Registers    For eMMC and SD Card slot
-  10007000h          A9      SDxx?              ?
+  10007000h  Yes     A9      Alternate SD/MMC Slot controller ;CFG9_SDMMC_CTL
   10008000h  Yes     A9      PXI Registers      aka IPC
   10009000h  Yes     A9      AES Registers      Crypto
   1000A000h  Yes     A9      SHA Registers      Crypto
@@ -277,7 +1465,7 @@ separate ARM11-only area at 10300000h and up).
 One exception is NTRCARD (this does have IRQ/DMA on both ARM9 and ARM11 side).
 
 ```
-  10100000h  Yes     A11/A9  Debug WIFI SDIO Regs?  ;uh, actually zerofilled
+  10100000h  Yes     A11/A9  Alternate SD/MMC Slot controller ;CFG9_SDMMC_CTL
   10101000h  Yes     A11/A9  HASH Registers     Crypto (same as SHA)
   10102000h  Yes     A11/A9  Y2R_0 Registers    First YUV-to-RGBA
   10103000h  Yes     A11/A9  CSND Registers     Sound channels and capture
@@ -295,7 +1483,7 @@ One exception is NTRCARD (this does have IRQ/DMA on both ARM9 and ARM11 side).
   10142000h  Yes     A11/A9  SPI Registers      SPI Bus1 (Tsc)
   10143000h  Yes     A11/A9  SPI Registers      SPI Bus2 (unused)
   10144000h  Yes     A11/A9  I2C Registers      I2C Bus1 (for 3DS devices)
-  10145000h  Yes     A11/A9  CODEC Registers    ?
+  10145000h  Yes     A11/A9  CODEC Registers    ? aka I2S registers
   10146000h  Yes     A11/A9  HID Registers      Keypad
   10147000h  Yes     A11/A9  GPIO Registers
   10148000h  Yes     A11/A9  I2C Registers      I2C Bus2 (for 3DS gimmicks)
@@ -320,7 +1508,7 @@ One exception is NTRCARD (this does have IRQ/DMA on both ARM9 and ARM11 side).
   10201000h  Yes     A11     FCRAM Registers    FCRAM Control
   10202000h  Yes     A11     LCD Registers      LCD
   10203000h  Yes     A11     DSP Registers      Teak DSP (if enabled)
-  10204000h  Yes     A11     UNKNOWN            ?
+  10204000h  No      A11     UNKNOWN            New3DS: ?
   10205000h  ?       -       N/A ?              ?
   10206000h  No      A11     CDMA               New3DS: DMA
   10207000h  No      A11     MVD Registers      New3DS: Movie Decoder or so?
@@ -389,7 +1577,7 @@ That is:
 
 
 
-## Unknown Registers at 10204000h (ARM11 only)
+## Unknown Registers at 10204000h (ARM11 only) (New3DS only)
 
 
 ```
@@ -397,7 +1585,7 @@ That is:
   10204004h 4    Unknown, readonly (00000001h) (R)
   10204008h 08h  Unused (0) ?
   10204010h 4    Unknown, readonly (00000202h) (R)
-  10204014h 4    Unknown, readonly (12000802h) (R) (or data abort!)
+  10204014h 4    Unknown, readonly (12000802h/12000002h) (R) (or data abort!)
   10204018h 08h  Unused (0) ?
   10204020h 4    Unknown, readonly (00000020h) (R) ;or res=00000000h?
   10204024h FDCh Unused (0) ?
@@ -508,13 +1696,16 @@ can/may/must initialize those registers.
 
 
 ```
-  10006000h A9      SD/MMC (for SD/MMC Slot and internal eMMC)
-  10006200h A9      mirrors of above (each 200h bytes)
-  10007000h A9      SDxx (unused? or maybe SDIO wifi on ARM9 side?)
-  10007200h A9      mirrors of above (each 200h bytes)
-  10100000h A11/A9  Debug SDIO Regs? (actually just zerofilled?)
-  10122000h A11/A9  SDIO WIFI? this is wifi?
-  10123000h A11/A9  Reportedly SDIO? (actually just data abort?)
+  10006000h A9      Standard controller for SD/MMC Slot and internal eMMC
+  10006200h A9        mirrors of above (each 200h bytes)
+  10007000h A9      Alternate SD/MMC Slot controller (see CFG9_SDMMC_CTL.8/9)
+  10007200h A9        mirrors of above (each 200h bytes)
+  10100000h A11/A9  Alternate SD/MMC Slot controller (see CFG9_SDMMC_CTL.8/9)
+  10122000h A11/A9  SDIO Wifi controller
+  10123000h A11/A9  Unknown, reportedly SDIO? (actually just data abort?)
+  10300000h A11     DATA32 FIFO for registers at 10100000h (Alternate SD/MMC)
+  10322000h A11     DATA32 FIFO for registers at 10122000h (SDIO Wifi)
+  10323000h A11     DATA32 FIFO for registers at 10123000h (Unknown)
 ```
 
 These registers are used to access the system NAND and the inserted SD card.
@@ -532,6 +1723,20 @@ fast mode?).
 - [DSi SD/MMC Filesystem](ds.html#dsisdmmcfilesystem)
 - [DSi Atheros Wifi SDIO Interface](ds.html#dsiatheroswifisdiointerface)
 - [DSi Atheros Wifi Internal Hardware](ds.html#dsiatheroswifiinternalhardware)
+See also: CFG9\_SDMMC\_CTL
+
+
+
+## DATA FIFOs
+
+
+The ARM9 controllers (10006000h/10007000h) have DATA32 FIFO at base+10Ch.
+
+The ARM11 controllers (10100000h/10122000h/10123000h) have DATA32 FIFO at
+base+200000h (the ARM11 controllers can be also accessed from ARM9 side, but
+the DATA32 FIFOs (and DRQs/IRQs) are on ARM11 side only; so ARM9 could only use
+DATA16 FIFOs and polling in place of DRQs/IRQs).
+
 
 
 ## IRQ\_STAT
@@ -540,33 +1745,13 @@ fast mode?).
 ```
   3     SD card removal flag     (Set to 1 when SD card is removed)
   4     SD card insertion flag   (Set to 1 when SD card is inserted)
-  5     SD card insertion status (0=Missing, 1=Inserted)
+  5     SD card insertion status (0=Missing, 1=Inserted) SIGSTATE
 ```
 
 SD card insertion status
 
 Assertion happens around 250 ms after SD card insertion and/or enabling the
 EMMC hardware (delay could possibly be due to an SD bus timeout?).
-
-
-
-## Wifi Registers
-
-
-These registers are used to control the Wifi card via the SDIO protocol.
-
-```
-  Address  Width  Name
-  10122000h 2  WIFI_CMD
-  10006002h 2  uh, at 10006002h?
-  10122004h 2  WIFI_CMDARG0
-  10122006h 2  WIFI_CMDARG1
-  1012200ah 2  WIFI_BLKCOUNT
-  10122024h 2  WIFI_CLKCTL
-  10122026h 2  WIFI_BLKLEN
-```
-
-XXX DATA32 FIFO might be at 10322000h (instead of 1012210Ch)... ?
 
 
 ```
@@ -717,10 +1902,10 @@ Same as NDS/DSi, but with X/Y buttons included right in this register.
 
 
 ```
-  0-11  IRQ Buttons     (0=Ignore, 1=Select)
+  0-11  Button IRQ Source    (0=Ignore, 1=Select) (Button A, B, Select, etc.)
   12-13 Unused (0)
-  14    IRQ Enable Flag (0=Disable, 1=Enable, Interrupt 5Bh)
-  15    IRQ Condition   (0=Logical OR, 1=Logical AND)
+  14    Button IRQ Enable    (0=Disable, 1=Enable, Interrupt 5Bh)
+  15    Button IRQ Condition (0=Logical OR, 1=Logical AND)
 ```
 
 Similar as Port 4000132h on GBA/NDS, used as wake-up source in sleep mode.
@@ -733,7 +1918,7 @@ Similar as Port 4000132h on GBA/NDS, used as wake-up source in sleep mode.
 ```
   Circle Pad: Connected to Touchscreen/Sound controller
   Power/Home buttons: see I2C MCU
-  Wifi button: see I2C MCU (older 3DS only?)
+  Wifi button: see I2C MCU (older 3DS only)
   Volume/3D Sliders: see I2C MCU
   Accelerometer: see I2C MCU (also includes pedometer step counter)
   Gyroscope: see I2C Gyroscope
@@ -875,13 +2060,12 @@ used to describe the entire register space(that CAN be changed in future).
 
 
 ```
-  Address  Width Name
-  10147000h 2   GPIO_DATA0
-  10147010h 4x1 GPIO_DATA1
-  10147014h 2   GPIO_DATA2
-  10147020h 4x2 GPIO_DATA3
-  10147028h 2   GPIO_DATA4_WIFI
-  10147100h ..  Legacy RTC ?
+  10147000h 2   GPIO_DATA0      IN      ;GPIO services bitmask 7h
+  10147010h 4x1 GPIO_DATA1      IN/OUT  ;GPIO services bitmask 18h
+  10147014h 2   GPIO_DATA2      OUT     ;GPIO services bitmask 20h
+  10147020h 4x2 GPIO_DATA3      IN/OUT  ;GPIO services bitmask 3FFC0h
+  10147028h 2   GPIO_DATA4_WIFI OUT     ;GPIO services bitmask 40000h
+  10147100h ..  Legacy RTC (for RTC emulation in NDS/DSi mode)
 ```
 
 
@@ -890,38 +2074,38 @@ used to describe the entire register space(that CAN be changed in future).
 
 
 ```
-  0      Unknown (0=?, 1=Normal) HID-sysmodule, HID PAD state  ;\GPIO services
-  1      Touchscreen (0=Pen Down, 1=No)        (IRQ:63h)       ; bitmask 7h
-  2      Hinge (0=Shell Open, 1=Shell Closed)  (IRQ:60h/62h?)  ;/
-  3      Unused (0)?
-  4      Unused (0)?  ;"Only used by Boot11" (uh, but bootrom tests only bit2)
-  5-15   Unused (0)?
+  0      Unknown (0=?, 1=Normal) HID-sysmodule, HID PAD state    ;DEBUG Button?
+  1      TP125 Touchscreen (0=Pen Down, 1=No)       (IRQ:63h)
+  2      TP126 Hinge (0=Shell Open, 1=Shell Closed) (IRQ:60h/62h)
+  3      Unused (0)
+  4      Unused (0)  ;"Only used by Boot11" (uh, but bootrom tests only bit2)
+  5-15   Unused (0)
 ```
 
 
 
-## 10147010h - GPIO\_DATA1\_DATA\_IN (R)
+## 10147010h - GPIO\_DATA1\_DATA\_IN (0=Low, 1=High) (R)
 
 
 
-## 10147010h - GPIO\_DATA1\_DATA\_OUT (W)
+## 10147010h - GPIO\_DATA1\_DATA\_OUT (0=Low, 1=High) (W)
 
 
 
-## 10147011h - GPIO\_DATA1\_DIRECTION (R/W)
+## 10147011h - GPIO\_DATA1\_DIRECTION (0=Input, 1=Output) (R/W)
 
 
 
-## 10147012h - GPIO\_DATA1\_IRQ\_EDGE (R/W)    ?
+## 10147012h - GPIO\_DATA1\_IRQ\_EDGE (0=Falling, 1=Rising) (R/W)
 
 
 
-## 10147013h - GPIO\_DATA1\_IRQ\_ENABLE (R/W)
+## 10147013h - GPIO\_DATA1\_IRQ\_ENABLE (0=Disable, 1=Enable) (R/W)
 
 
 ```
-  0      Headphone (0=None, 1=Connected) gpio:CDC (IRQ:64h) ;\GPIO services
-  1      Unknown   (0=?, 1=Normal)                (IRQ:66h) ;/bitmask 18h
+  0      TP49-Q3-CL20 Headphone (0=None, 1=Connected) gpio:CDC  (IRQ:64h)
+  1      Unknown (0=?, 1=Normal)   ;TWL Depop ?                 (IRQ:66h)
   2-7    Unused (0)
 ```
 
@@ -931,9 +2115,11 @@ used to describe the entire register space(that CAN be changed in future).
 
 
 ```
-  0      gpio:MCU, gpio:NWM: Wifi?     ;-GPIO services bitmask 20h
+  0      gpio:MCU, gpio:NWM: Wifi?
   1-15   Unused (0)
 ```
+
+Reportedly "WiFi mode/freq. select (0 = CTR, 1 = MP (DS WiFi)" or so?
 
 
 
@@ -962,20 +2148,23 @@ Stuff like QTM, NFC, ir:rst is New3DS only, so Old3DS is probably different
 here?
 
 ```
-  0      C-stick! gpio:CDC, gpio:IR <-- 1 after ir:rst read(IRQ:68h?);\
-  1      IrDA IRQ gpio:IR   (0=IRQ)   Boot11(uh, really?)  (IRQ:69h) ;
-  2      Gyro IRQ gpio:HID  (1=IRQ, in default cfg)        (IRQ:6Ah?); GPIO
-  3      ?        gpio:HID, gpio:IR   used with ir:rst.    (IRQ:6Bh) ; services
-  4      ?        gpio:IR send? 1=IR LED enable, 0=disable (IRQ:6Ch) ; bitmask
-  5      ?        gpio:IR receive?                         (IRQ:6Dh) ; 3FFC0h
-  6      ?        gpio:NFC                                 (IRQ:6Eh) ;
-  7      ?        gpio:NFC                                 (IRQ:6Fh) ;
-  8      TSC?     gpio:HID  HID-sysmodule, HID PAD state   (IRQ:70h?);
-  9      MCU IRQ  gpio:MCU  MCU[10h-1Fh]                   (IRQ:71h) ;
-  10     NFC?     gpio:NFC  <-- cleared after NFC read     (IRQ:72h) ;
-  11     ?        gpio:QTM   (Twlbg? and/or New3DS?)       (IRQ:73h?);/
+  0      TP153 C-stick    gpio:CDC, gpio:IR <-- 1 after ir:rst read(IRQ:68h?)
+  1      TP239 IrDA IRQ   gpio:IR   (0=IRQ)   Boot11(uh, really?)  (IRQ:69h)
+  2      TP158 Gyro IRQ   gpio:HID  (1=IRQ, in default cfg)        (IRQ:6Ah?)
+  3      TP154 ?          gpio:HID, gpio:IR   used with ir:rst.    (IRQ:6Bh)
+  4      TP141 IrDA TX-RC gpio:IR send? 1=IR LED enable, 0=disable (IRQ:6Ch)
+  5      TP255 IrDA RXD   gpio:IR receive?                         (IRQ:6Dh)
+  6      -     ?          gpio:NFC                                 (IRQ:6Eh)
+  7      TP155 ?          gpio:NFC                                 (IRQ:6Fh)
+  8      TP156 TSC?       gpio:HID  HID-sysmodule, HID PAD state   (IRQ:70h?)
+  9      TP157 MCU IRQ    gpio:MCU  MCU[10h-1Fh]                   (IRQ:71h)
+  10     -     NFC?       gpio:NFC  <-- cleared after NFC read     (IRQ:72h)
+  11     -     ?          gpio:QTM   (Twlbg? and/or New3DS?)       (IRQ:73h?)
   12-15  Unused (0)
 ```
+
+Note: Bootrom uses bit7 and bit10 to configure some LCD/backlight hardware for
+pre-Old3DS prototypes (when Port 10140FFCh CFG11\_SOCINFO bit0=0).
 
 
 
@@ -983,9 +2172,11 @@ here?
 
 
 ```
-  0      Wifi Enable (1=On) ;gpio:MCU, gpio:NWM ;-GPIO services bitmask 40000h
+  0      Wifi Enable (0=Reset, need re-upload wifi firmware, 1=On)
   1-15   Unused (0)
 ```
+
+Probably wired to RESET or SYS\_RST\_L pin on wifi board connector?
 
 
 
@@ -1006,70 +2197,64 @@ After bootrom initialization, these are the values of the registers:
 
 
 
-## 10147100h - Legacy RTC ?
+## 10147100h - Legacy RTC (for RTC emulation in NDS/DSi mode)
 
 
 Normally only 10147100h.bit15 is R/W, and the other bits/registers at 101471xxh
 are all zero. But reportedly they can contain this...
 
 ```
-  10147100h 2      RTC_CNT          Control register
- Below are all bytewise bitswapped...
-  10147110h 1      RTC_REG_STAT1    Rtc status register 1                  0
-  10147111h 1      RTC_REG_STAT2    Rtc status register 2                  1
-  10147112h 1      RTC_REG_CLKADJ   Rtc clock adjustment register          6
-  10147113h 1      RTC_REG_FREE     The free general purpose rtc register  7
-  10147120h 4      RTC_REG_TIME1    Seconds, minutes, hours, day of week
-  10147124h 4 (3?) RTC_REG_TIME2    Day, month and year
-  10147130h 4 (3?) RTC_REG_ALRMTIM1 Rtc alarm time register 1              4
-  10147134h 4 (3?) RTC_REG_ALRMTIM2 Rtc alarm time register 2              5
+  10147100h 2   RTC_CNT               Control register (see below)
+ Caution: Below are all bytewise bitswapped (swap bit7<-->bit0, etc)
+  10147110h 1   RTC_REG_STAT1         Rtc status register 1         ;-STAT1 (0)
+  10147111h 1   RTC_REG_STAT2         Rtc status register 2         ;-STAT2 (1)
+  10147112h 1   RTC_REG_CLKADJ        Rtc clock adjustment register ;-CLKADJ(6)
+  10147113h 1   RTC_REG_FREE          Free general purpose register ;-FREE  (7)
+  10147114h 0Ch Unused
+  10147120h 1   RTC_REG_TIME_SECOND   Second                   ;\
+  10147121h 1   RTC_REG_TIME_MINUTE   Minute                   ;
+  10147122h 1   RTC_REG_TIME_HOUR     Hour                     ;
+  10147123h 1   RTC_REG_TIME_DOW      Day of week              ; TIME
+  10147124h 1   RTC_REG_TIME_DAY      Day                      ;
+  10147125h 1   RTC_REG_TIME_MONTH    Month                    ;
+  10147126h 1   RTC_REG_TIME_YEAR     Year                     ;/
+  10147127h 09h Unused
+  10147130h 1   RTC_REG_ALARM1_MINUTE Alarm 1 Minute           ;\
+  10147131h 1   RTC_REG_ALARM1_HOUR   Alarm 1 Hour             ; ALRMTIM1 (4)
+  10147132h 1   RTC_REG_ALARM1_DOW    Alarm 1 Day of week      ;/
+  10147133h 01h Unused
+  10147134h 1   RTC_REG_ALARM2_MINUTE Alarm 2 Minute           ;\
+  10147135h 1   RTC_REG_ALARM2_HOUR   Alarm 2 Hour             ; ALRMTIM2 (5)
+  10147136h 1   RTC_REG_ALARM2_DOW    Alarm 2 Day of week      ;/
+  10147137h 09h Unused
  Below are for DSi, unknown if they are used/enabled for NDS, too...
-  10147140h 4 (3?) RTC_REG_COUNT    Rtc DSi counter register               ex0
-  10147150h 1      RTC_REG_FOUT1    Rtc DSi fout register 1                ex1
-  10147151h 1      RTC_REG_FOUT2    Rtc DSi fout register 2                ex2
-  10147160h 4 (3?) RTC_REG_ALRMDAT1 Rtc DSi alarm date register 1          ex4
-  10147164h 4 (3?) RTC_REG_ALRMDAT2 Rtc DSi alarm date register 2          ex5
- In single bytes...
-  10147110h 1      RTC_REG_STAT1          Rtc status register 1
-  10147111h 1      RTC_REG_STAT2          Rtc status register 2
-  10147112h 1      RTC_REG_CLKADJ         Rtc clock adjustment register
-  10147113h 1      RTC_REG_FREE           Free general purpose register
-  10147114h 0Ch    Unused
-  10147120h 1      RTC_REG_TIME_SECOND    Second
-  10147121h 1      RTC_REG_TIME_MINUTE    Minute
-  10147122h 1      RTC_REG_TIME_HOUR      Hour
-  10147123h 1      RTC_REG_TIME_DOW       Day of week
-  10147124h 1      RTC_REG_TIME_DAY       Day
-  10147125h 1      RTC_REG_TIME_MONTH     Month
-  10147126h 1      RTC_REG_TIME_YEAR      Year
-  10147127h 09h    Unused
-  10147130h 4 (3?) RTC_REG_ALARM1_MINUTE  Alarm 1 Minute
-  10147131h        RTC_REG_ALARM1_HOUR    Alarm 1 Hour
-  10147132h        RTC_REG_ALARM1_DOW     Alarm 1 Day of week
-  10147133h 01h    Unused
-  10147134h 4 (3?) RTC_REG_ALARM2_MINUTE  Alarm 2 Minute
-  10147135h        RTC_REG_ALARM2_HOUR    Alarm 2 Hour
-  10147136h        RTC_REG_ALARM2_DOW     Alarm 2 Day of week
-  10147137h 09h    Unused
-  10147140h 4 (3?) RTC_REG_COUNT_LSB      Rtc DSi Counter LSB?
-  10147141h        RTC_REG_COUNT_MID      Rtc DSi Counter MID
-  10147142h        RTC_REG_COUNT_MSB      Rtc DSi Counter MSB?
-  10147143h 0Dh    Unused
-  10147150h 1      RTC_REG_FOUT1          Rtc DSi Fout register 1
-  10147151h 1      RTC_REG_FOUT2          Rtc DSi Fout register 2
-  10147152h 0Eh    Unused
-  10147160h 4 (3?) RTC_REG_ALARM1_DAY     Rtc DSi Alarm 1 Day
-  10147161h        RTC_REG_ALARM1_MONTH   Rtc DSi Alarm 1 Month
-  10147162h        RTC_REG_ALARM1_YEAR    Rtc DSi Alarm 1 Year
-  10147163h 01h    Unused
-  10147164h 4 (3?) RTC_REG_ALARM2_DAY     Rtc DSi Alarm 2 Day
-  10147165h        RTC_REG_ALARM2_MONTH   Rtc DSi Alarm 2 Month
-  10147166h        RTC_REG_ALARM2_YEAR    Rtc DSi Alarm 2 Year
-  10147167h ..     Unused
+  10147140h 1   RTC_REG_COUNT_LSB     Rtc DSi Counter LSB?     ;\
+  10147141h 1   RTC_REG_COUNT_MID     Rtc DSi Counter MID      ; COUNT (ex0)
+  10147142h 1   RTC_REG_COUNT_MSB     Rtc DSi Counter MSB?     ;/
+  10147143h 0Dh Unused
+  10147150h 1   RTC_REG_FOUT1         Rtc DSi Fout register 1  ;-FOUT1 (ex1)
+  10147151h 1   RTC_REG_FOUT2         Rtc DSi Fout register 2  ;-FOUT2 (ex2)
+  10147152h 0Eh Unused
+  10147160h 1   RTC_REG_ALARM1_DAY    Rtc DSi Alarm 1 Day      ;\
+  10147161h 1   RTC_REG_ALARM1_MONTH  Rtc DSi Alarm 1 Month    ; ALRMDAT1 (ex4)
+  10147162h 1   RTC_REG_ALARM1_YEAR   Rtc DSi Alarm 1 Year     ;/
+  10147163h 01h Unused
+  10147164h 1   RTC_REG_ALARM2_DAY    Rtc DSi Alarm 2 Day      ;\
+  10147165h 1   RTC_REG_ALARM2_MONTH  Rtc DSi Alarm 2 Month    ; ALRMDAT2 (ex5)
+  10147166h 1   RTC_REG_ALARM2_YEAR   Rtc DSi Alarm 2 Year     ;/
+  10147167h ..  Unused
 ```
 
-That is probably for NDS/DSi RTC (4000138h). For GBA Cart RTC see
-"ARM7\_RTC\_xxx" registers at 100181xxh.
+These registers are for initializing the NDS/DSi RTC (Port 4000138h).
+
+- [DS Real-Time Clock (RTC)](ds.html#dsrealtimeclockrtc)
+The registers can be used to set the time/date... but unknown if/how the
+hardware can increment the time (it doesn't do so automatically, unless there's
+a separate CLK enable flag somewhere, or one might be to supposed to increment
+it manually once per second from ARM11 side??) (the GBA mode RTC does increment
+seconds without problems).
+
+For GBA Cart RTC see "ARM7\_RTC\_xxx" registers at 100181xxh.
 
 
 
@@ -1077,26 +2262,26 @@ That is probably for NDS/DSi RTC (4000138h). For GBA Cart RTC see
 
 
 ```
-  0     Latch STAT1                                                 (W)
-  1     Latch STAT2                                                 (W)
-  2     Latch CLKADJ                                                (W)
-  3     Latch FREE                                                  (W)
-  4     Latch TIME                                                  (W)
-  5     Latch ALRMTIM1                                              (W)
-  6     Latch ALRMTIM2                                              (W)
-  7     Latch COUNT                                                 (W)
-  8     Latch FOUT1                                                 (W)
-  9     Latch FOUT2                                                 (W)
-  10    Latch ALRMDAT1                                              (W)
-  11    Latch ALRMDAT2                                              (W)
+  0     Latch STAT1        (0=No change, 1=Apply)                   (W)
+  1     Latch STAT2        (0=No change, 1=Apply)                   (W)
+  2     Latch CLKADJ       (0=No change, 1=Apply)                   (W)
+  3     Latch FREE         (0=No change, 1=Apply)                   (W)
+  4     Latch TIME         (0=No change, 1=Apply)                   (W)
+  5     Latch ALRMTIM1     (0=No change, 1=Apply)                   (W)
+  6     Latch ALRMTIM2     (0=No change, 1=Apply)                   (W)
+  7     Latch COUNT        (0=No change, 1=Apply)                   (W)
+  8     Latch FOUT1        (0=No change, 1=Apply)                   (W)
+  9     Latch FOUT2        (0=No change, 1=Apply)                   (W)
+  10    Latch ALRMDAT1     (0=No change, 1=Apply)                   (W)
+  11    Latch ALRMDAT2     (0=No change, 1=Apply)                   (W)
   12    ARM7 Busy? This may be chipselect                           (R)
   13    ARM7 write command received? (writing 1 clears it seems)    (R/ack)
   14    ARM7 read command received? (writing 1 clears it seems)     (R/ack)
   15    DS SIO SI pin (rtc irq pin)                                 (R/W)
 ```
 
-Unknown if "Latch" means writing or reading the registers, or if both is
-somehow supported.
+Bit0-11 are used to forward the settings from 10147110h-10147166h to the actual
+NDS RTC registers.
 
 Unknown why RTC IRQ pin is write-able, maybe ARM11 must manually trigger it?
 But if the ALARM registers are write-only then ARM11 couldn't know their
@@ -1213,6 +2398,8 @@ normal-key from keyX and keyY is as follows":
 
 Key 0-3 are writeable only via the old DSi-style AES\_KEY0..3 registers (not via
 AES\_KEYxyFIFO), and key0-3 are always using the old DSi-style Key scrambler.
+Key 0-3 can be used in 3DS and DSi mode, but they are reset to zero on
+3DS-to-DSi mode switch, and thus need to be (re-)initialized in DSi mode.
 
 
 
@@ -1416,6 +2603,11 @@ to the data stream before computing the final result.
 Contains the SHA state/result. The word order is fixed, the byte order (per
 32bit word) depends on SHA\_CNT.bit3.
 
+Before reading the result, wait for SHA\_CNT bit0 and bit1 to be BOTH zero (when
+testing only bit1, the result tends to contain "XX234567...", where "XX" is
+correct first byte of result, and "234567..." are still containing the initial
+values).
+
 Setting SHA\_CNT.bit0 does automatically apply the following initial values:
 
 - SHA256 6A09E667,BB67AE85,3C6EF372,A54FF53A,510E527F,9B05688C,1F83D9AB,5BE0CD19
@@ -1444,7 +2636,7 @@ the SHA224 result).
 The FIFO is mapped to a 40h-byte area at FIFO+0..3Fh. The word address is don't
 care (one can write all words to FIFO+0, or to FIFO+0,4,8,..,3Ch).
 
-However, 8bit/16bit writes do REQUIRE the lower two addresss bits to match up
+However, 8bit/16bit writes do REQUIRE the lower two address bits to match up
 with the number of previously written bytes (eg. byte writes must go to
 FIFO+0,1,2,3,4,5,..,3Fh or FIFO+0,1,2,3,0,1,.,3). Writing 8bit/16bit is
 normally needed only for the last block before setting final flag (and only if
@@ -1468,6 +2660,23 @@ Untested...
   Writing 32bit to FIFO content is odd (not N*4 bytes)... causes what?
   Writing 32bit to FIFO already contains 3Dh..3Fh bytes... causes what?
 ```
+
+
+
+## SHA256-HMAC and SHA1-HMAC keys
+
+
+Apart from raw SHA checksums, the 3DS does use some SHA-HMACs (that are
+scrambled with 'secret' keys):
+
+- - The HWCAL header contains a SHA256-HMAC (see HWCAL chapter)
+- - FIRM Launch Parameters contains a "SHA1-HMAC across banner for TWL/NTR
+    - titles" (unknown what HMAC key is used there, and what kind of banner (or
+    - icon?) that refers to).
+- - The NCCH "logo" is a DARC file with appended SHA256-HMAC (unknown what
+    - HMAC key is used there)
+- - The "CVer" Archive contains a "masterkey.bin" file that contains an
+    - encrypted HMAC for resetting Parental Controls (unknown how to decrypt it).
 
 
 
@@ -1603,10 +2812,10 @@ The upper bits are unused/don't care when SLOTSIZE\<40h.
 
 
 ```
-  0.9ms (E475h clks)   Public key, 80h-bytes (DSi-style)
+  0.9ms (E475h clks)   Public key, 80h-bytes (DSi signatures)
   3.3ms (3571Dh clks)  Public key, 80h-bytes zeropadded to 100h-bytes size
-  3.3ms (3574Ah clks)  Public key, 100h-bytes (3DS-style)
-  200ms (CE59A5h clks) Private key, 100h-bytes (3DS-style)
+  3.3ms (3574Ah clks)  Public key, 100h-bytes (3DS signatures)
+  200ms (CE59A5h clks) Private key, 100h-bytes
 ```
 
 
@@ -1711,6 +2920,45 @@ uh, also, MOD may be required to be bigger than DATA?
 
 
 
+## 3DS RSA Usage
+
+
+```
+  NCSD Header for gamecard (key in ITCM)
+  NCSD Header for booting FIRM from eMMC (key in "Process9" (and bootrom?))
+  NCSD Header for booting FIRM from WifiFlash or NtrCard
+  FIRM Header
+  NCCH Header CFAs with fixed key
+  NCCH Header CXIs with key in Exheader
+  NCCH Exheader with key from bootrom
+  DSP1 Header
+  LocalFriendCodeSeed_B Header
+  movable.sed Header
+  SecureInfo_A Header
+  TMD has RSA certs
+  Ticket has RSA certs
+  certs.db has RSA certs
+  CIA has RSA certs
+  CRR0 has RSA
+  Savedata FLASH uses a "keyY is generated via the RSA engine"
+  .pem files contain RSA keys
+  bootrom contains RSA keys
+```
+
+
+
+## ECC/ECDSA Keys (also uses private/public keys, similar to RSA)
+
+
+```
+  3DS Tickets can have a ECC Public Key
+  DSiware Exports are using ECDSA
+  OTP contains a "CTCert" with ECDSA
+  Apart from OTP (?) there is reportedly also a "CTCert" file, and .ctx files?
+```
+
+
+
 
 # <a name="3dscryptoprngandotpregisters"></a>3DS Crypto - PRNG and OTP Registers
 
@@ -1744,15 +2992,15 @@ Used as entropy-source for seeding random number generators.
 
 
 ```
-  10012000h 100h  Encrypted 3DS OTP  (R)
-  10012100h 8     DSi OTP Console ID (R/W?)
+  10012000h 100h  OTP_ENCRYPTED - Encrypted 3DS OTP  (R)
+  10012100h 8     OTP_TWLMODE   - DSi OTP Console ID (R/W)
 ```
 
 Access to this region is disabled once the ARM9 writes 02h to CFG9\_SYSPROT9.
 
 
 
-## 10012000h - 100h bytes - Encrypted 3DS OTP (R)
+## 10012000h - 100h bytes - OTP\_ENCRYPTED - Encrypted 3DS OTP (R)
 
 
 Console-unique data encrypted with AES-CBC. The normalkey and IV are stored in
@@ -1760,7 +3008,7 @@ Boot9 (retail/devunit have seperate normalkey+IV for this).
 
 
 
-## 10012100h - 8 bytes - DSi OTP Console ID (R/W?)
+## 10012100h - 8 bytes - OTP\_TWLMODE - DSi OTP Console ID (R/W)
 
 
 Before writing CFG9\_SYSPROT9 bit1, the ARM9 copies the 8-byte TWL Console ID
@@ -2004,7 +3252,7 @@ keyslot 0x11), the New3DS Process9 does this too.
   key_y.0Ch-3Eh = uninitialized
   key_y.3Fh     = as set for above CBC encrypt
   key.00h-03h   = uninitialized
-  key.04h-0Bh   = uninitialized (or are they set via above key X/Y combo?)
+  key.04h-0Bh   = set via above key X/Y combos
   key.0Ch-0Fh   = rom_seed+270h         ;\
   key.10h       = rom_seed+280h         ;
   key.11h-13h   = uninitialized         ;
@@ -2045,8 +3293,8 @@ Misc keys:
 ```
   key_y.05h = 4D,80,4F,4E,99,90,19,46,13,A2,04,AC,58,44,60,BE  ;by New3DS FIRM
   key_y.30h = movable.sed[110h..11Fh]
-  key_y.34h = movable.sed[110h..11Fh]
-  key_y.3Ah = movable.sed[110h..11Fh]
+  key_y.34h = movable.sed[110h..11Fh]   ;SD Key
+  key_y.3Ah = movable.sed[110h..11Fh]   ;DSiware Exports
 ```
 
 NCCH retail keys:
@@ -2065,6 +3313,19 @@ NCCH debug keys:
   key_x.25h = 81,90,7A,4B,6F,1B,47,32,3A,67,79,74,CE,4A,D7,1B ;NCCH firm 7.0
   key_x.18h = 30,4B,F1,46,83,72,EE,64,11,5E,BD,40,93,D8,42,76 ;NCCH firm 9.3
   key_x.1Bh = 6C,8B,29,44,A0,72,60,35,F9,41,DF,C0,18,52,4F,B6 ;NCCH firm 9.6
+```
+
+DSi keys (in little endian):
+
+```
+  OTP_TWLMODE = decrypted_otp+08h..0Fh xor 08C267B7B358A6AFh or 80000000h
+  key_x.03h[0..3]: OTP_TWLMODE[0..3]
+  key_x.03h[4..B]: "NINTENDO"        ;<-- this unlike as on real DSi
+  key_x.03h[C..F]: OTP_TWLMODE[4..7]
+  key_y.03h[0..F]: 0AB9DC76h,BD4DC4D3h,202DDD1Dh,E1A00005h
+  Note: DSi-keys can be set by 3DS/ARM9, but the 3DS-to-DSi mode switch does
+  reset all AES KEY/IV registers to zero, so one must (re-)initialize them
+  via DSi/ARM7 after switching to DSi-mode.
 ```
 
 
@@ -2343,7 +3604,7 @@ And with changed startup modes:
   04h      CTRCARD0                                    (maybe 10004000h)
   05h      CTRCARD1                                    (maybe 10005000h)
   06h      SDMMC controller (eMMC and SD/MMC slot)      (Port 10006000h)
-  07h      SDxx ?     ... apparently not SDIO wifi?    (maybe 10007000h)
+  07h      Alternate SD/MMC Slot controller            (maybe 10007000h)
   08h      AES IN (WRFIFO)                              (Port 10009008h)
   09h      AES OUT (RDFIFO)                             (Port 1000900Ch)
   0Ah      SHA IN (WRFIFO)                              (Port 1000A000h)
@@ -2379,13 +3640,6 @@ Mode 0Fh is subclassed by new bits from NDMAxCNT.bit0-4:
   0Fh.12h-1Fh ?
 ```
 
-Obviously still missing is MIC microphone (which should be supported by either
-NDMA, XDMA, or CDMA) (but maybe needs to be enabled somewhere, maybe selecting
-ARM/TEAK as target?).
-
-Also nice would be having SDIO-Wifi on ARM9 side somewhere. Old NDS-Wifi might
-exist somewhere, too?
-
 
 
 
@@ -2402,8 +3656,8 @@ exist somewhere, too?
   01h                   NTRCARD    (requires 1014010Ch.bit1=1)
   02h   camera (cam)    Camera Bus 0 (DSi cameras)     (Port 10120000h)
   03h   camera (cam)    Camera Bus 1 (left-eye camera) (Port 10121000h)
-  04h   nwm             maybe wifi controller?
-  05h   nwm             maybe debug wifi?
+  04h   nwm             maybe wifi controller?   ;\probably requires
+  05h   nwm             maybe debug wifi?        ;/1014010Ch.bit/bit5
   06h   camera (y2r)    Y2R_0 INPUT_Y      ;\      (Port 10302000h)
   07h   camera (y2r)    Y2R_0 INPUT_U      ;       (Port 10302080h)
   08h   camera (y2r)    Y2R_0 INPUT_V      ; Y2R   (Port 10302100h)
@@ -3141,16 +4395,17 @@ Allows MOV instead LP, and LOOP instead LPEND, and "ADD reg,+/-imm" instead of
   10000000h 1  Yes   CFG9_SYSPROT9              Boot9
   10000001h 1  Yes   CFG9_SYSPROT11             Boot9
   10000002h 1  Yes   CFG9_RST11                 Boot9
-  10000004h 4  Yes   CFG9_DEBUGCTL
+  10000004h 4  Yes   CFG9_DEBUG_CTL
   10000008h 1  Yes   CFG9_AES                   Boot9, Process9, TwlProcess9
   1000000Ch 2  Yes   CFG9_CARD_CTL              Process9
   10000010h 1  Yes   CFG9_CARD_POWER            Process9
   10000012h 2  Yes   CFG9_CARD_INSERT_DELAY     Boot9, Process9
   10000014h 2  Yes   CFG9_CARD_PWROFF_DELAY     Boot9, Process9
-  10000020h 2  Yes   CFG9_SDMMCCTL              Process9
+  10000020h 2  Yes   CFG9_SDMMC_CTL             Process9
   10000100h 2  Yes   CFG9_UNKNOWN
   10000200h 1  No    CFG9_EXTMEMCNT9 (New3DS)   NewKernel9
   10000FFCh 4  Yes   CFG9_MPCORECFG
+  ---------
   10010000h 4  Yes   CFG9_BOOTENV
   10010010h 1  Yes   CFG9_UNITINFO              Process9
   10010014h 1  Yes   CFG9_TWLUNITINFO           Process9
@@ -3202,13 +4457,13 @@ be reused, since the OTP would then be inaccessible.
 ```
   0     Presumably takes ARM11 out of reset. Cannot be set to 1 once it has
           been cleared.
-        Reportedly: Bit0 is actually for "write-protecting the bootrom area"
+        Reportedly: Bit0 is actually for "write-protecting the bootrom area"?
   1-7   Unused (0)
 ```
 
 
 
-## 10000004h - CFG9\_DEBUGCTL
+## 10000004h - CFG9\_DEBUG\_CTL
 
 
 ```
@@ -3302,37 +4557,23 @@ There are related IRQs on ARM9 and ARM11 side (CGC aka Change Gamecard or so):
 
 
 
-## 10000020h - CFG9\_SDMMCCTL
+## 10000020h - CFG9\_SDMMC\_CTL
 
-
-Controls power? Also controls SD card detect?
-
-```
-  0     SD slot power                                 (1=Unknown?) Process9
-  1     eMMC power? NAND init hangs if set            (1=Set?)     Process9
-  2-3   Other power supplies?                         (??)         Process9
-  4-5   Unused (0)
-  6     Unknown, set at cold boot                     (1=Set?)     R/W
-  7     Unknown                                       (?)          R/W
-  8     ? This bit seems to do nothing.               (?)          Process9
-  9     If not set force pulls all SD card lines high (0=Not set?) Process9
-  10-15 Unused (0)
-```
 
 This register controls power of multiple ports/controllers and allows to map
 controller 3 to ARM9 or ARM11. The SD card can be accessed on ARM11 by setting
 bit8 and clearing bit9.
 
 ```
-  0     Controller 1/3 port 0 power (SD card) (0=On, 1=Off)  ;10xxx000h.port0
-  1     Controller 1 port 1 power (eMMC)      (0=On, 1=Off)  ;10006000h.port1
-  2     Controller 2 port 0 power (WiFi SDIO) (0=On, 1=Off)  ;10122000h.port0
-  3     Controller 3 port 1 power? Set at cold boot????      ;?
+  0     Controller 1/3 port 0 power (0=On, 1=Off) ;10xxx000h.port0 SD slot TP13
+  1     Controller 1 port 1 power   (0=On, 1=Off) ;10006000h.port1 eMMC
+  2     Controller 2 port 0 power   (0=On, 1=Off) ;10122000h.port0 Wifi SDIO
+  3     ...Unknown... (initially 1 on Old3DS, initially 0 on New3DS)
   4-5   Unused (0)
-  6     Wifi port related? Pull up? Set at cold boot
-  7         R/W
-  8     Controller 3 mapping (0=ARM9 0x10007000, 1=ARM11 0x10100000)
-  9     SD card controller select (0=0x10007000/0x10100000, 1=0x10006000)
+  6     ...Unknown... Wifi port related? Pull up? Set at cold boot
+  7     ...Unknown... New3DS: initially 1 (R/W), Old3DS: Unused (0)
+  8     Controller 3 mapping (0=ARM9 10007000h, 1=ARM11 10100000h)
+  9     SD card controller select (0=10007000h/10100000h, 1=10006000h)
   10-15 Unused (0)
 ```
 
@@ -3365,19 +4606,7 @@ bit8 and clearing bit9.
 ## 10000FFCh - CFG9\_MPCORECFG (R)
 
 
-Identical to "PDN\_MPCORE\_CFG". Uh, what?
-
-Above seems to refer to one of the "CONFIG11" registers.
-
-Perhaps 10140FFCh - 16bit CFG11\_SOCINFO, though the ARM9 register is 32bit?
-
-Or maybe one of the CFG11\_MPCORE\_xxx registers, though those are New3DS only?
-
-Or maybe it does actually refer to ARM11 cp15 coprocessor registers???
-
-Or maybe one of the MPCore registers at 17E0xxxxh?
-
-PROBABLY it's CFG11\_SOCINFO (as they are both read-only 0007h on New3DS)!
+Same as CFG11\_SOCINFO (Port 10140FFCh).
 
 
 
@@ -3389,12 +4618,13 @@ PROBABLY it's CFG11\_SOCINFO (as they are both read-only 0007h on New3DS)!
 ```
 
 This register is used to determine what the previous running FIRM was. Its
-value is kept following an MCU reboot. Its initial value (on a cold boot) is 0.
-NATIVE\_FIRM sets it to 1 on shutdown/FIRM launch.
+value is kept following an MCU reboot.
 
 ```
-  LGY FIRM writes value 3 here when launching a TWL title
-  LGY FIRM writes value 7 when launching an AGB title
+  00000000h Coldboot
+  00000001h Warmboot from 3DS mode
+  00000003h Warmboot from DSi mode (need checking TLNC)
+  00000007h Warmboot from GBA mode (need forwarding .sav)
 ```
 
 NATIVE\_FIRM will only launch titles if this is not value 0, and will only save
@@ -3435,22 +4665,22 @@ from REG\_UNITINFO to this register.
   Address   Width Old3DS  Name                            Used by
   10140000h 1*8   Yes     CFG11_SHAREDWRAM_32K_CODE<0-7>  Boot11,Process9,DSP
   10140008h 1*8   Yes     CFG11_SHAREDWRAM_32K_DATA<0-7>  Boot11,Process9,DSP
-  10140100h 2     Yes     ?
-  10140102h 2     Yes     ?
+  10140100h 4     Yes     CFG11_NULLPAGE_CNT
   10140104h 1     Yes     CFG11_FIQ_CNT                   Kernel11
   10140105h 1     Yes     ?                               Kernel11
   10140108h 2     Yes     ?  Related to HID_PAD_IRQ (??)  TwlBg
-  1014010Ch 2     Yes     CFG11_CDMA_CNT                  TwlBg
+  1014010Ch 2     Yes     CFG11_CDMA_CNT                  TwlBg, NWM
   10140140h 4     Yes     CFG11_GPUPROT                   Kernel11
   10140180h 1     Yes     CFG11_WIFICNT                   TwlBg, NWM Services
   101401C0h 4     Yes     CFG11_SPI_CNT                   SPI Services, TwlBg
   10140200h 4     Yes     ?
-  10140400h 1     No      ?  Clock related?               NewKernel11
+  10140400h 1     No      CFG11_GPU_NEW3DS_CNT            NewKernel11
   10140410h 4     No      CFG11_CDMA_PERIPHERALS          NewKernel11
   10140420h 1     No      CFG11_BOOTROM_OVERLAY_CNT       NewKernel11
   10140424h 4     No      CFG11_BOOTROM_OVERLAY_VAL       NewKernel11
   10140428h 4     No      ?
   10140FFCh 2     Yes     CFG11_SOCINFO                   Boot11, Kernel11
+  ---------
   10141000h 2     Yes     CFG11_PDN_CNT          ;???     Kernel11, TwlBg
   10141008h 4     Yes     CFG11_PDN_WAKE_ENABLE           PTM, PDN
   1014100Ch 4     Yes     CFG11_PDN_WAKE_REASON           PTM, TwlBg, PDN
@@ -3458,22 +4688,21 @@ from REG\_UNITINFO to this register.
   10141104h 2     Yes     CFG11_TWLMODE_SLEEP             TwlBg
   10141108h 2     Yes     CFG11_TWLMODE_2  ;IRQ? ;?       TwlBg
   1014110Ah 2     Yes     CFG11_TWLMODE_HID_IRQ           TwlBg
-  1014110Ch 1     Yes     CFG11_WIFIUNK                   NWM Services
   10141110h 2     Yes     CFG11_TWLMODE_HID_MODE          TwlBg
   10141112h 2     Yes     CFG11_TWLMODE_HID_SET           TwlBg
-  10141114h 2     Yes     CFG11_CODEC_0                   Codec, TwlBg
-  10141116h 2     Yes     CFG11_CODEC_1                   Codec, TwlBg
-  10141118h 1     Yes     ?                               TwlBg
-  10141119h 1     Yes     ?                               TwlBg
+  10141114h 2     Yes     CFG11_TWLMODE_GPIO_MODE         TwlBg, Codec
+  10141116h 2     Yes     CFG11_TWLMODE_GPIO_SET          TwlBg, Codec
+  10141118h 1     Yes     CFG11_TWLMODE_CARD_MODE         TwlBg
+  10141119h 1     Yes     CFG11_TWLMODE_CARD_SET          TwlBg
   10141120h 1     Yes     ?                               TwlBg
   10141200h 4     Yes     CFG11_GPU_CNT         Boot11, Kernel11, PDN, TwlBg
-  10141204h 4     Yes     CFG11_GPU_CNT2        Boot11, Kernel11, TwlBg
-  10141208h 1     ?       ? GPU related?        Boot11
+  10141204h 4     -       CFG11_VRAM_CNT        Boot11, Kernel11, TwlBg
+  10141208h 1     -       CFG11_LCD_CNT         Boot11
   10141210h 2     Yes     CFG11_FCRAM_CNT                 Kernel11, TwlBg
-  10141220h 1     Yes     CFG11_CODEC_CNT                 Boot11, TwlBg, PDN
+  10141220h 1     Yes     CFG11_SPEAKER_CNT               Boot11, TwlBg, PDN
   10141224h 1     Yes     CFG11_CAMERA_CNT                PDN Services
   10141230h 1     Yes     CFG11_DSP_CNT                   Process9, PDN
-  10141240h ?     No      unknown (nonzero in New3DS mode) XXX !!!!!!!!!!!!
+  10141240h ?     No      CFG11_MVD_CNT
   10141300h 4     No      CFG11_MPCORE_CLKCNT             NewKernel11
   10141304h 2     No      CFG11_MPCORE_CNT                NewKernel11
   10141310h 1     No      CFG11_MPCORE_BOOTCNT_CPU0       NewKernel11
@@ -3511,14 +4740,21 @@ if bit7 is cleared, or on missing slot values in bit2-4).
 
 
 
-## 10140100h - ??? 1bit? (R/W)
+## 10140100h - CFG11\_NULLPAGE\_CNT (R/W)
 
 
+```
+  0     Address 00000000h..00000FFFh Trap (0=Off/Normal, 1=Data Abort)  (R/W)
+  1-15  Unused (0)
+  16    Address 00000000h..00000FFFh Flag (1=Accessed, write 0 to clear)(R/ack)
+  17-31 Unused (0)
+```
 
-## 10140102h - ??? 1bit? (R)   -- But, cleared in New3DS mode?
-
-
-Unknown.
+Allows to trap ARM11 memory access to physical address 00000000h..00000FFFh.
+Apparently intended for debugging uninitialzed pointers. The exception vectors
+(except reset) should still work because they don't require data in that area.
+The bit doesn't behave as anti-dumping feature (the memory mirrors at 00010000h
+and FFFF0000h are still accessible, and bit0 can be cleared at any time).
 
 
 
@@ -3574,7 +4810,8 @@ Unknown. Maybe bit0-3 are for CPU0-3?
   0     Enable Microphone DMA             (0=Off, 1=Enable CDMA 00h)      (R/W)
   1     Enable NTRCARD DMA on ARM11 side  (0=Off, 1=Enable CDMA 01h)      (R/W)
   2-3   Unused (0)
-  4-5   Unknown...?                                                       (R/W)
+  4     Wifi-related? Set to 1 very early in NWM-module    CDMA 04h ?     (R/W)
+  5     Unknown...? maybe debug sdio ?                     CDMA 05h ?     (R/W)
   6-15  Unused (0)
 ```
 
@@ -3648,11 +4885,12 @@ Unknown.
 
 
 
-## 10140400h - New3DS - Clock related?
+## 10140400h - New3DS - CFG11\_GPU\_NEW3DS\_CNT (R/W, even in Old3DS mode)
 
 
 ```
-  0-1   Unknown (R/W, even if New3DS didn't enable New3DS mode)
+  0     Enable NEW3DS mode? (enables GPU? access to extra FCRAM banks, etc.)
+  1     Texture related? (observing texture glitches when disabling this bit)
   2-31  Zero
 ```
 
@@ -3719,11 +4957,22 @@ Unknown.
 ## 10140FFCh - CFG11\_SOCINFO (R)
 
 
+Same as CFG9\_MPCORECFG (Port 10000FFCh).
+
 ```
   0     Always 1 (bootrom would do extra GPIO if it were cleared)      (R)
   1     Console Type        (0=Old3DS, 1=New3DS)                       (R)
   2     Max Clock on New3DS (0=536MHz, 1=804MHz) ;unused 0 on Old3DS   (R)
   3-15  Unused (0)
+```
+
+Possible values are:
+
+```
+  0=Old3DS/Prototype (with some GPIO bits used for LCD/backlight enable)
+  1=Old3DS/Retail
+  3=New3DS/Prototype (with slower clock and without Level 2 Cache)
+  7=New3DS/Retail
 ```
 
 Unknown if there are any New3DS consoles released with bit2=0.
@@ -3766,8 +5015,8 @@ Bit2 is also related to CFG11\_MPCORE\_CNT bit8?
   18    GPIO_DATA3_IRQ_ENABLE.bit1   IRQ 69h IrDA IRQ
   19    GPIO_DATA3_IRQ_ENABLE.bit2   IRQ 6Ah Gyro IRQ
   20    GPIO_DATA3_IRQ_ENABLE.bit3   IRQ 6Bh ?
-  21    GPIO_DATA3_IRQ_ENABLE.bit4   IRQ 6Ch ?
-  22    GPIO_DATA3_IRQ_ENABLE.bit5   IRQ 6Dh ?
+  21    GPIO_DATA3_IRQ_ENABLE.bit4   IRQ 6Ch IrDA TX-RC (manual out)
+  22    GPIO_DATA3_IRQ_ENABLE.bit5   IRQ 6Dh IrDA RXD   (manual in)
   23    GPIO_DATA3_IRQ_ENABLE.bit6   IRQ 6Eh ?
   24    GPIO_DATA3_IRQ_ENABLE.bit7   IRQ 6Fh ?
   25    GPIO_DATA3_IRQ_ENABLE.bit8   IRQ 70h TSC[67h:2Bh] (Headphone connect)
@@ -3831,16 +5080,22 @@ ARM11 side, and (after ARM11 wakeup) wakeup ARM7 via CFG11\_TWLMODE\_SLEEP.bit0.
   0-15  Unknown, reportedly "Bitfield", but looks like readonly, returns zero?
 ```
 
+"LGY\_IRQ\_ENABLE: ARM11 interrupt enable bits for legacy interrupts, same bit
+layout as the TWLMODE\_GPIO regs below." Uh, what is that layout. And which
+ARM11 interrupt(s) gets triggered? And why isn't this R/W?
+
+MAYBE meant to be a readonly mirror of some bits in 4004C03h?
+
 
 
 ## 1014110Ah - CFG11\_TWLMODE\_HID\_IRQ (R)
 
 
 ```
-  0-9   Button IRQ Enable flags (0=Ignore, 1=Select)
+  0-9   Button IRQ Source    (0=Ignore, 1=Select) (Button A, B, Select, etc.)
   10-13 Not used
-  14    IRQ Enable Flag (0=Disable, 1=Enable)
-  15    IRQ Condition   (0=Logical OR, 1=Logical AND)
+  14    Button IRQ Enable    (0=Disable, 1=Enable)
+  15    Button IRQ Condition (0=Logical OR, 1=Logical AND)
 ```
 
 This is a readonly mirror of the ARM7 Key Interrupt Control register (KEYCNT,
@@ -3854,20 +5109,7 @@ forwarded to ARM11 side.
 
 
 
-## 1014110Ch - CFG11\_WIFIUNK (always 0, not R/W?)
-
-
-```
-  0-3   unknown/unspecified
-  4     Wifi-related? Set to 1 very early in NWM-module... but isn't R/W... ?
-  5-xx  unknown/unspecified
-```
-
-Read-only or write-only, always returns zero?
-
-
-
-## 10141110h - CFG11\_TWLMODE\_HID\_MODE - R/W:0FFFh
+## 10141110h - CFG11\_TWLMODE\_HID\_MODE - R/W:0FFFh (0=Auto, 1=Manual)
 
 
 ```
@@ -3885,7 +5127,7 @@ shown to prevent the button presses from propagating to the DS/GBA CPU.
 
 
 
-## 10141112h - CFG11\_TWLMODE\_HID\_SET - R/W:0FFFh
+## 10141112h - CFG11\_TWLMODE\_HID\_SET - R/W:0FFFh (Manual state, 0 or 1)
 
 
 ```
@@ -3900,26 +5142,50 @@ CFG11\_TWLMODE\_HID\_MODE are set.
 
 
 
-## 10141114h - 2 - R/W:0287h CFG11\_CODEC\_0
+## 10141114h - CFG11\_TWLMODE\_GPIO\_MODE - R/W:0287h (0=Auto, 1=Manual)
 
 
 
-## 10141116h - 2 - R/W:0387h CFG11\_CODEC\_1
+## 10141116h - CFG11\_TWLMODE\_GPIO\_SET  - R/W:0387h (Manual state, 0 or 1)
+
+
+```
+  0     DEBUG     Debug Button for NDS mode (inverted ???)
+  1     /PENIRQ   Touchscreen Pen Down for NDS mode (0=Pressed, 1=Released)
+  2     HINGE     Hinge for NDS mode (inverted ???)
+  3-6   Unused (0)
+  7     GPIO33[1] Headphone connect (HP#SP) (0=None, 1=Connected)
+  8     GPIO33[2] Powerbutton interrupt (0=Short Keydown Pulse, 1=Normal)
+  9     GPIO33[3] Sound Enable Output (ie. not a useful input)
+  10-15 Unused (0)
+```
+
+Allows to remote control some GPIO bits in DSi Port 4004C00h and NDS Port
+4000136h. Other bits in GPIO18[0,1,2] and GPIO33[0] seem to be always set and
+cannot be changed from 3DS side.
 
 
 
-## 10141118h - 1 - R/W:01h ?
+## 10141118h - CFG11\_TWLMODE\_CARD\_MODE - R/W:01h (0=Auto, 1=Manual)
 
 
 
-## 10141119h - 1 - R/W:01h ?
+## 10141119h - CFG11\_TWLMODE\_CARD\_SET  - R/W:01h (Manual state, 0 or 1)
+
+
+```
+  0     Slot Game Cartridge (0=Inserted, 1=Ejected)
+  1-7   Unused (0)
+```
+
+Allows to remote control Port 4004010h SCFG\_MC.bit0.
 
 
 
 ## 10141120h - 1 - R:0 ?
 
 
-Unknown.
+Unknown. Always zero? Is that register really used by TwlBg?
 
 
 
@@ -3942,23 +5208,21 @@ Unknown.
 
 
 
-## 10141204h - CFG11\_GPU\_CNT2 (W)
+## 10141204h - CFG11\_VRAM\_CNT (W)
+
+
+
+## 10141208h - CFG11\_LCD\_CNT (W)
 
 
 ```
-  0     Power on GPU? (W)
-  1-31  unknown/unspecified (0)
+  0     Clock enable? (1=Enable) (W)
+  1-31  Unused (0)
 ```
 
-
-
-## 10141208h - CFG11\_GPU\_..........? (W)
-
-
-```
-  0     unknown/unspecified (used by bootrom) (W)
-  1-7   unknown/unspecified (0)
-```
+Bootrom seems write these registers for VRAM and LCD clock enable, although the
+registers don't seem to be actually implemented in hardware (or they are write
+only, always returning 0 when reading).
 
 
 
@@ -3990,18 +5254,18 @@ busy (or if GBA mode is active).
 
 
 
-## 10141220h - CFG11\_CODEC\_CNT
+## 10141220h - CFG11\_SPEAKER\_CNT (R/W)
 
 
 ```
-  0     Unknown...?            (R/W)
-  1     turn on/off DSP ... ?  (R/W)
-  2-xx  Unused (0)
+  0     Unknown (R/W)
+  1     Audio Clock TP152 (Speaker PWM?) (0=Off/Muted Sound, 1=8MHz/16MHz On)
+  2-31  Unused (0)
 ```
 
-This (what?) is the only time the ARM11 CODEC module uses any 10141xxxh
-registers. In one case CODEC module clears bit1 in register 10141114h, in the
-other case CODEC module sets bit1 in registers 10141114h and 10141116h.
+Should be set to 02h. Bit1=1 is required for Audio and Touchscreen. The Speaker
+Clock seems to drive speaker PWM (sound gets muted when bit1=0, although audio
+I2S clock/data are kept running).
 
 
 
@@ -4009,7 +5273,7 @@ other case CODEC module sets bit1 in registers 10141114h and 10141116h.
 
 
 ```
-  0     Camera Enable (needed for camera I2C bus)  (0=Disable, 1=Enable)
+  0     Camera 16MHz Enable TP229 (for camera I2C bus)  (0=Disable, 1=Enable)
  (1)    Unused (0)      ;<--- reportedly "turn on/off cameras" uh???
   1-31  Unused (0)
 ```
@@ -4029,12 +5293,12 @@ be BOTH set though, otherwise registers at 10203000h are always zero).
 
 
 
-## 10141240h - New3DS - unknown?
+## 10141240h - New3DS - CFG11\_MVD\_CNT (R/W) (always 0 in Old3DS mode)
 
 
 ```
-  0     Unknown (R/W)
-  1-31  Unused (0) (?)
+  0     Reset MVD (0=Reset, 1=Normal)
+  1-31  Unused (0)
 ```
 
 
@@ -4126,6 +5390,10 @@ CP15 Wait-for-IRQ opcode instead of WFI does work, too.
 ```
 
 Kernel11 sets this to 101h when bit2 in CFG11\_SOCINFO is set otherwise 001h.
+
+```
+  Bit8: "Enables the L2C block (LGR2 only)" == Level 2 Cache Controller?
+```
 
 
 
@@ -4796,7 +6064,7 @@ The IRQ triggers interrupt 76h.
 
 
 ```
-  0-15  Way bits (for way 0..15) (1=Trigger/busy?)                (R/W)
+  0-15  Way bits (for way 0..15) (1=Trigger/Busy?)                (R/W)
   16-31 Reserved (0)
 ```
 
@@ -4954,7 +6222,7 @@ configure GBA/NDS/DSi mode.
   10018118h 4   ARM7_RTC_HEX_TIME       ;
   1001811Ch 4   ARM7_RTC_HEX_DATE       ;/
   10018120h 4   ARM7_SAVE_CFG_?         ;\
-  10018124h 4   ARM7_SAVE_CFG_?         ; GBA savedata timings?
+  10018124h 4   ARM7_SAVE_CFG_?         ; GBA savedata write/erase timings?
   10018128h 4   ARM7_SAVE_CFG_?         ;
   1001812Ch 4   ARM7_SAVE_CFG_?         ;/
   04700000h 4   <-- on ARM7 side, disable bootcode overlay
@@ -5067,12 +6335,16 @@ Type values (same as used in the footer of the GBA ROM-image):
 ```
 
 
+Below registers are for emulating the GBA cartridge RTC
+
+- [GBA Cart Real-Time Clock (RTC)](gba.html#gbacartrealtimeclockrtc)
+
 
 ## 10018108h - ARM7\_RTC\_CNT (W and R)
 
 
 ```
-  0     Write   (0=No change, 1=Apply RTC_HEX)                              (W)
+  0     Write   (0=No change, 1=Apply RTC_BCD and RTC_HEX)                  (W)
   1     Read    (0=No change, 1=Latch RTC_BCD and RTC_HEX)                  (W)
   2-13  Unused (0)
   14    Write Error Flag      (0=Okay, 1=Error, invalid data)               (R)
@@ -5082,14 +6354,13 @@ Type values (same as used in the footer of the GBA ROM-image):
 To get the current time:
 
 ```
-  Set Read flag, wait until busy=0, then read RTC_HEX or RTC_BCD registers
+  Set Read flag, wait until busy=0, then read RTC_HEX and/or RTC_BCD registers
 ```
 
 To set the current time:
 
 ```
-  Write RTC_HEX registers, then set Write flag, then wait until busy=0
-  (this does also set BCD registers, the hardware auto-converts HEX to BCD)
+  Write RTC_HEX and RTC_BCD registers, set Write flag, then wait until busy=0
 ```
 
 The initial time on power-up in 01 Jan 2000, 00:00:00. The actual battery
@@ -5099,7 +6370,7 @@ The GBA software can access the RTC via port 080000C4h, 080000C6h, 080000C8h.
 
 
 
-## 10018110h - ARM7\_RTC\_BCD\_DATE (R)
+## 10018110h - ARM7\_RTC\_BCD\_DATE (R=Latched Read value, W=Written value)
 
 
 ```
@@ -5111,7 +6382,7 @@ The GBA software can access the RTC via port 080000C4h, 080000C6h, 080000C8h.
 
 
 
-## 10018114h - ARM7\_RTC\_BCD\_TIME (R)
+## 10018114h - ARM7\_RTC\_BCD\_TIME (R=Latched Read value, W=Written value)
 
 
 ```
@@ -5122,20 +6393,28 @@ The GBA software can access the RTC via port 080000C4h, 080000C6h, 080000C8h.
 ```
 
 
+The HEX registers below contain some control flags, and some weird signed
+offsets for the time/date values (the hardware does automatically
+increase/decrease the BCD time/date using that offsets; set the offsets to zero
+to avoid that).
+
+
 
 ## 10018118h - ARM7\_RTC\_HEX\_TIME (R=Latched Read value, W=Written value)
 
 
 ```
   0-6   Second      (signed -40h..+3Fh, usually 00h..3Bh)
-  7     Force Reset (0=Normal, 1=Force 1st Jan 2000, 00:00:00)
+  7     Ctrl bit7   (0=Normal, 1=Time lost, force 1st Jan 2000, 00:00:00)
   8-14  Minute      (signed -40h..+3Fh, usually 00h..3Bh)
-  15    12/24-hour  (0=12 hour, 1=24 hour) (for GBA side, both with AM/PM flag)
+  15    Ctrl bit6   (0=12 hour, 1=24 hour) (for GBA side, both with AM/PM flag)
   16-21 Hour        (signed -20h..+1Fh, usually 00h..17h)
   22-23 Unused      (0)
-  24-27 Day of Week (signed -08h..+07h, usually 00h..06h) (WHAT=Monday?)
-  28-30 Unknown     (can be 0..7)
-  31    Error       (0=Normal, 1=Triggers error)
+  24-27 Day of Week (signed -08h..+07h, usually 00h..06h)
+  28    Ctrl bit1   (IRQ duty/hold related?)
+  29    Ctrl bit3   (Per Minute IRQ)
+  30    Ctrl bit5   (Unknown?)
+  31    Error ?     (0=Normal, 1=Triggers error)
 ```
 
 
@@ -5144,8 +6423,8 @@ The GBA software can access the RTC via port 080000C4h, 080000C6h, 080000C8h.
 
 
 ```
-  0-15  Days since 1st Jan 2000 (0000h..8EACh=100 years, Bigger=Triggers error)
-  16-31 Unknown                 (can be 0000h..FFFFh)
+  0-15  Days        (unsigned, 0000h..8EACh=100 years, Bigger=Triggers error)
+  16-31 Unknown     (can be 0000h..FFFFh)
 ```
 
 
@@ -5165,16 +6444,7 @@ The GBA software can access the RTC via port 080000C4h, 080000C6h, 080000C8h.
 ## 1001812Ch - ARM7\_SAVE\_CFG\_? - R/W mask 000FFFFFh (reset=00051000h=331776)
 
 
-Maybe video/color config, or write/erase timings, or so?
-
-```
-  "This is copied from rom footer + 10h."
-```
-
-Uh, but the description of the ROM footer doesn't mention anything at
-"footer+10h".
-
-Maybe this is the "ghosting" stuff, whatever that is... maybe color bleeding?
+Maybe write/erase timings, or so?
 
 
 ```
@@ -5239,6 +6509,22 @@ Main RAM needs enable in EXMEMCNT, Main RAM uses only the lower 16bit of the
 enable in POWCNT1. VRAM needs enable in VRAMCNT. New Shared WRAM needs MBK.
 Wifi RAM needs POWCNT2.
 
+Booting NDS/DSi titles requires initializing various ARM and TSC registers, and
+initial RAM content:
+
+- [BIOS RAM Usage](#biosramusage)
+
+
+## GBA Titles
+
+
+Nintendo did never actually release GBA titles for 3DS (except, they did
+release ten "ambassador" GBA titles as a surprise gift for people who had
+connected to the eshop during the first some months after the Old3DS release
+date; that was before 3DS XL and 2DS and New3DS were released, so those GBA
+titles seem to exist for original Old3DS only; the System Transfer tool might
+allow to transfer them from Old3DS to New3DS though).
+
 
 
 ## GBA Footers
@@ -5280,6 +6566,27 @@ file?).
 
 
 
+## lcd\_ghosting\_enum:
+
+
+```
+    0xFFFF: no # Some seems to use this ..
+    0xFF: no
+    0xF0: little
+    0xC0: official_standard
+    0x80: official_more
+    0x90: official_more_plus # ?
+    0x20: insane
+    0x01: max
+```
+
+Ghosting seems to be an alpha value for blending the picture with the previous
+frame, which was itself blended with the previous frames, thus generating a
+horribly smeared picture resembling old 8bit monochrome gameboys (unknown why
+Nintendo has used that effect that for GBA titles).
+
+
+
 ## GBA Savedata
 
 
@@ -5293,8 +6600,7 @@ format and filename for that savedata are unknown...?
 
 
 ARM7 has the GBA BIOS implemented in hardware. The BIOS is completely identical
-to the original GBA BIOS (uh, actually, it is the GBA BIOS version from NDS,
-which has [3F0Ch]=01h).
+to the GBA BIOS on NDS consoles (ie. with [3F0Ch]=01h).
 
 The system is booted silently by calling SWI 01h (aka RegisterRamReset),
 followed by jumping to the code that does SWI 00h (aka SoftReset) to finish
@@ -5352,9 +6658,9 @@ branch to more copied code (GBA)."
 
 - [3DS I2C MCU Register Summary](#3dsi2cmcuregistersummary)
 - [3DS I2C MCU[00h-01h,05h-07h] - Firmware](#3dsi2cmcu00h01h05h07hfirmware)
-- [3DS I2C MCU[02h-0Fh] - Status](#3dsi2cmcu02h0fhstatus)
+- [3DS I2C MCU[02h, 08h-0Fh, 27h, 58h-59h] - Status](#3dsi2cmcu02h08h0fh27h58h59hstatus)
 - [3DS I2C MCU[10h-1Fh] - Interrupt Flags](#3dsi2cmcu10h1fhinterruptflags)
-- [3DS I2C MCU[20h-24h] - Power Control](#3dsi2cmcu20h24hpowercontrol)
+- [3DS I2C MCU[03h-04h, 20h-24h] - Power Control](#3dsi2cmcu03h04h20h24hpowercontrol)
 - [3DS I2C MCU[28h-2Eh] - LED Control](#3dsi2cmcu28h2ehledcontrol)
 - [3DS I2C MCU[30h-3Fh] - Real-Time Clock (RTC)](#3dsi2cmcu30h3fhrealtimeclockrtc)
 - [3DS I2C MCU[40h-51h] - Accelerometer/Pedometer](#3dsi2cmcu40h51haccelerometerpedometer)
@@ -5461,7 +6767,8 @@ direction at a time, with dummy data in opposite direction).
 ```
   0-2   Baudrate   (0=512KHz, 1=1MHz, 2=2MHz, 3=4MHz, 4=8MHz, 5..7=16MHz)
   3-5   Unused (0)
-  6-7   SPI_BUS0-2: Device Select (0..2, or 3=Hangs/Reads as 2)
+  6-7   SPI_BUS0-1: Device Select (0..2, or 3=Hangs/Reads as 2)
+        SPI_BUS2:   Unused (0)
         SPI_CARD:   Unused (0)
   8-11  Unused (0)
   12    Bus Mode                (0=1bit, 1=4bit)
@@ -5586,14 +6893,15 @@ Bit0 also fires on each autopoll try? No: it does not fire on autopoll.
 
 
 ```
+  Card, Device 0      Cartridge SPI (eg. FLASH savedata) ;-similar as NDS/DSi
   Bus0, Device 0      Power Managment Device             ;\
   Bus0, Device 1      Wifi FLASH                         ; same as NDS/DSi
   Bus0, Device 2      DSi Touchscreen/Sound/Microphone   ;/
   Bus1, Device 0      3DS Touchscreen/Sound/Microphone   ;-extra 3ds registers
   Bus1, Device 1,2    Unused
-  Bus2, Device 0,1,2  Unused
-  Card, Device 0      Cartridge SPI (eg. FLASH savedata) ;-similar as NDS/DSi
-  Card, Device 1,2    Don't exist (there are no device-select bits for card)
+  Bus2, Device 0      Unused
+  Bus2, Device 1,2    Don't exist (there are no device-select bits for Bus2)
+  Card, Device 1,2    Don't exist (there are no device-select bits for Card)
 ```
 
 
@@ -5619,9 +6927,9 @@ contain some wifi/user settings, mostly for NDS titles.
 - [DS Firmware Wifi Calibration Data](ds.html#dsfirmwarewificalibrationdata)
 - [DS Firmware Wifi Internet Access Points](ds.html#dsfirmwarewifiinternetaccesspoints)
 - [DS Firmware User Settings](ds.html#dsfirmwareusersettings)
-The 3DS does probably additionally store User settings (and maybe also Wifi
-Acess Point info) in a eMMC file, but unknown where?
+The 3DS does additionally store wifi/user settings in a eMMC file:
 
+- [3DS Files - Config Savegame](#3dsfilesconfigsavegame)
 
 
 ## SPI Bus/Device 0:2 - DSi Touchscreen/Sound (DSi mode)
@@ -5729,6 +7037,10 @@ details).
 The above coefficient RAM pages exists on DSi, too. However, the DSi is usually
 initializing only those in page 04h.
 
+Caution: The various 16bit Filter values in the HWCAL and config files are
+stored in LITTLE-ENDIAN, but the TSC chip wants them in BIG-ENDIAN, so one must
+swap each 2 bytes.
+
 Unknown how the 3DS is using the extra coefficients... does it use miniDSP
 instructions for that?
 
@@ -5736,7 +7048,7 @@ Unknown what the duplicated entries are for... maybe left/right channels?
 
 
 
-## Page 64h (3DS Sound/Microphone Config)
+## Page 64h (100 decimal) (3DS Sound/Microphone Config)
 
 
 ```
@@ -5761,7 +7073,7 @@ Unknown what the duplicated entries are for... maybe left/right channels?
 
 
 
-## Page 65h (3DS Sound/Microphone Gains)
+## Page 65h (101 decimal) (3DS Sound/Microphone Gains)
 
 
 ```
@@ -5788,19 +7100,38 @@ Some here seem to be alike TSC[1:24h]..TSC[1:2Bh]
 
 
 
-## Page 67h,FBh (3DS Touchscreen/Circle Pad)
+## Page 67h (103 decimal) (3DS Touchscreen/Circle Pad, Control)
 
 
 ```
   TSC[67h:17h]=43h     ;3DS AnalogSense & Precharge     ;HWCAL[40Fh]+[40Eh]*10h
-  TSC[67h:19h]=69h     ;3DS AnalogStabilize & XP Pullup ;HWCAL[40Dh]+[411h]*10h
+  TSC[67h:19h]=69h     ;3DS AnalogStabilize & XP_Pullup ;HWCAL[40Dh]+[411h]*10h
   TSC[67h:1Bh]=80h     ;3DS AnalogDebounce & YM_Driver  ;HWCAL[410h]+[412h]*80h
   TSC[67h:24h]=98h/18h ;3DS bit7=0=touchscreen.on  ;bit2=1=has new touchdata?
-  TSC[67h:25h]=43h/53h ;3DS bit5-2=0100b=touchscreen.on
+  TSC[67h:25h]=43h/53h ;3DS bit5-2=0100b=touchscreen.on, bit6=0=DSi mode
   TSC[67h:26h]=00h/ECh ;3DS bit7=1=touchscreen.on  ;bit1=1=had old touchdata?
-  TSC[67h:27h]=11h     ;3DS AnalogInterval           ;HWCAL[40Ch]+10h
+  TSC[67h:27h]=11h     ;3DS AnalogInterval              ;HWCAL[40Ch]+10h
   TSC[67h:2Bh]=read    ;3DS Ack Headphone connect IRQ (always returns 00h)
+```
+
+
+
+## Page FBh (251 decimal) (3DS Touchscreen/Circle Pad, Data)
+
+
+```
   TSC[FBh:01h]=read    ;3DS fifo 26x16bit; 5xTSC.x, 5xTSC.y, 8xCPAD.y, 8xCPAD.x
+```
+
+
+
+## Notes
+
+
+```
+  L/R     Left/Right
+  HP/SP   Headphone/Speaker
+  32/47   I2S Clock (32.73 kHz or 47.61 kHz)
 ```
 
 
@@ -5817,15 +7148,15 @@ Some here seem to be alike TSC[1:24h]..TSC[1:2Bh]
 ```
   Address   Width Old3DS  Name
   10161000h 1     Yes     I2C_BUS0_DATA     ;\
-  10161001h 1     Yes     I2C_BUS0_CNT      ; BUS 0 (old DSi devices)
+  10161001h 1     Yes     I2C_BUS0_CNT      ; BUS 0 (old DSi devices) (1.8V)
   10161002h 2     Yes     I2C_BUS0_CNTEX    ;
   10161004h 2     Yes     I2C_BUS0_SCL      ;/
   10144000h 1     Yes     I2C_BUS1_DATA     ;\
-  10144001h 1     Yes     I2C_BUS1_CNT      ; BUS 1 (extra 3DS devices)
+  10144001h 1     Yes     I2C_BUS1_CNT      ; BUS 1 (extra 3DS devices) (1.8V)
   10144002h 2     Yes     I2C_BUS1_CNTEX    ;
   10144004h 2     Yes     I2C_BUS1_SCL      ;/
   10148000h 1     Yes     I2C_BUS2_DATA     ;\
-  10148001h 1     Yes     I2C_BUS2_CNT      ; BUS 2 (extra 3DS gimmicks)
+  10148001h 1     Yes     I2C_BUS2_CNT      ; BUS 2 (extra 3DS gimmicks) (3.3V)
   10148002h 2     Yes     I2C_BUS2_CNTEX    ;
   10148004h 2     Yes     I2C_BUS2_SCL      ;/
 ```
@@ -5977,7 +7308,7 @@ CPUs).
 ```
   MCU:30h   Accelerometer                                 ;\
   MCU:6Ch   Fuel Gauge MAX17040 (or newer chip in New3DS) ; connected to
-  MCU:84h   video related?   ;Power Managment Device?     ; MCU chip)
+  MCU:84h   video related?   ;Power Managment Device?     ; MCU chip
   MCU:A4h   batt.flg/volume? ;Touchscreen/Sound chip?     ;/
   Wifi:A0h  I2C bus EEPROM                   ;connected to Atheros Wifi chip
   NFC:Axh   NFC chip has on-chip CAT24C64 EEPROM (?), but not wired to ARM (?)
@@ -6016,8 +7347,8 @@ once, then stay at index 61h).
   00h     R    Version high (bit0-3) and hardware.type? (bit4-7)         ;\Firm
   01h     R    Version low (8bit)                                        ;/
   02h     R/W  Reset Event flags                                         ;-Stat
-  03h     R/W  Top screen flicker                                        ;\
-  04h     R/W  Bottom screen flicker                                     ;/
+  03h     R/W  LCD Top Screen VCOM "flicker"                             ;\
+  04h     R/W  LCD Bottom Screen VCOM "flicker"                          ;/
   05h-07h R/W  MCU Firmware update unlock sequence   ;ARRAY[4003h]       ;-Firm
   08h     R    Raw 3D slider position                                    ;\
   09h     R    Volume slider state (00h..3Fh) (as MCUHWC:GetSoundVolume) ;
@@ -6032,13 +7363,14 @@ once, then stay at index 61h).
   15h-17h R/W  Unused                                                    ; IRQs
   18h-1Bh R/W  MCU Interrupt Mask, bit0-31 (0=Enable, 1=Disable)         ;
   1Ch-1Fh R/W  Unused                                                    ;/
-  20h     W    System power control (bits are 0=No change, 1=Trigger)    ;\
-  21h     W    Change DSi Power Button Status register BPTWL[10h]        ;
-  22h     W    Used to set LCD states (bits are 0=No change, 1=Trigger)  ; PWR
+  20h     W    System Power Control (bits are 0=No change, 1=Trigger)    ;\
+  21h     W    DSi Power Button Status register BPTWL[10h] change        ;
+  22h     W    LCD Power Control (bits are 0=No change, 1=Trigger)       ; PWR
   23h     -    Unused (has a dummy write handler, but does nothing)      ;
   24h     R/W  Forced Power Off delay (0=Never, 1=Fastest, 5Dh=Insane)   ;/
-  25h-26h R/W  Unused
-  27h     R/W  Raw volume slider state                                   ;-
+  25h     R/W  Unused (0)
+  26h     R/W  Unused (initiallly 0, but, ARM sets MCU[26h]=10h!)
+  27h     R/W  Volume slider raw ADC value                               ;-Stat
   28h     R/W  Brightness of Wifi/Power/3D LEDs                          ;\
   29h *   R/W  Power LED state + Power LED blink pattern ;ARRAY[5]       ;
   2Ah     R/W  Wifi LED state, 4 bits wide                               ; LEDs
@@ -6067,7 +7399,7 @@ once, then stay at index 61h).
   3Fh     W    RTC Flags (bit0=ScreenBlack?, bit1=DisableRtc32KHzOutput) ;/
   40h     R/W  Accelerometer Mode (bit0=AccelerometerOn, bit1=PedometerOn)   ;\
   41h     R/W  Accelerometer Index for Manual I2C Read via MCU[44h]          ;
-  42h     R/W  Unused                                                        ;
+  42h     R/W  Unused (0)                                                    ;
   43h     R/W  Accelerometer Index for Manual I2C Write via MCU[44h]         ;
   44h     R/W  Accelerometer Data from/to Read/Write via MCU[41h/43h]        ;
   45h,46h R    Accelerometer Output X (lsb,msb) ;resting=+/-00xxh            ;
@@ -6122,7 +7454,7 @@ versions to upload MCU firmware if some conditions (?) are met", uh?.
 
 ```
   OldMCU: Version 0.008 or lower   ;\differs on LCD bits:
-  NewMCU: Version 0.009 or higher  ;/backlight and "push"
+  NewMCU: Version 0.009 or higher  ;/backlight and power
 ```
 
 
@@ -6254,7 +7586,7 @@ will destroy the backup of the yet older version though).
 
 
 
-# <a name="3dsi2cmcu02h0fhstatus"></a>3DS I2C MCU[02h-0Fh] - Status
+# <a name="3dsi2cmcu02h08h0fh27h58h59hstatus"></a>3DS I2C MCU[02h, 08h-0Fh, 27h, 58h-59h] - Status
 
 
 
@@ -6262,46 +7594,37 @@ will destroy the backup of the yet older version though).
 ## MCU[02h] - Reset Event flags (R/W)
 
 
-2bit value, writing will mask away/"acknowledge" the event, set to 3 by
-mcuMainLoop on reset if reset source is "Watchdog", uh?
-
 ```
-  0    RTC clock value got reset to defaults           (R/ack)
-  1    Watchdog reset happened                         (R/ack)
-  2-4
-  5    value from BPTWL[12h].bit7 (Unknown)               (R)
-  6    value from BPTWL[12h].bit0 (1=IRQ on Pwr Butt tap) (R)
-  7    value from BPTWL[12h].bit1 (Unknown)               (R)
+  0    RTC time lost           (0=Normal, 1=Lost)  (write 0 to clear) (R/ack)
+  1    Watchdog reset happened (0=Normal, 1=Crash) (write 0 to clear) (R/ack)
+  2-4  Unused (0)
+  5    Value from BPTWL[12h].bit7 (Unknown)                           (R)
+  6    Value from BPTWL[12h].bit0 (1=IRQ on Pwr Butt tap)             (R)
+  7    Value from BPTWL[12h].bit1 (Unknown)                           (R)
 ```
-
-actually, this register returns C0h or C1h
-
-bit0 can be cleared by writing bit0=0 (writing bit0=1 has no effect)
-
-
-
-## MCU[03h] - Top screen flicker (R/W)
-
-
-
-## MCU[04h] - Bottom screen flicker (R/W)
-
-
-Whatever. Maybe from HWCAL files?
 
 
 
 ## MCU[08h] - Raw 3D slider position (R)
 
 
-Slider.
+```
+  0-7  3D slider raw ADC value (00h..FFh)
+```
+
+This the uncalibrated raw ADC value, calibration must be applied on ARM side
+(using calibration settings from HWCAL or "config" files).
 
 
 
 ## MCU[09h] - Volume slider state (00h..3Fh) (as MCUHWC:GetSoundVolume) (R)
 
 
-Slider.
+```
+  0-7  Volume slider calibrated value (00h..3Fh, 0=Mute, 3Fh=Max)
+```
+
+See MCU[27h] for the raw ADC value, and MCU[58h,59h] for calibration values.
 
 
 
@@ -6321,14 +7644,18 @@ Slider.
 ## MCU[0Ch] - Fuel Gauge Battery Percentage, lsb (percent/256, 0..FFh) (R)
 
 
-Battery pecentage, from Fuel Gauge SOC register (State Of Charge).
+```
+  0-15 Battery percent/256, from Fuel Gauge SOC register (State Of Charge)
+```
 
 
 
 ## MCU[0Dh] - Fuel Gauge Battery Voltage (in 20mV units) (R)
 
 
-Battery voltage, from upper 8bit of Fuel Gauge VCELL register.
+```
+  0-7  Battery voltage, from upper 8bit of Fuel Gauge VCELL register
+```
 
 
 
@@ -6342,8 +7669,6 @@ Battery voltage, from upper 8bit of Fuel Gauge VCELL register.
   4    LED brightness related
   5-7  Unused
 ```
-
-Whatever.
 
 
 
@@ -6359,8 +7684,45 @@ Whatever.
   5    OldMCU: Unused                                   ;\
   6    OldMCU: something (1bit) ;\back-                 ; mcu::GPU
   5-6  NewMCU: something (2bit) ;/light(s)?             ;
-  7    whatever                 ;-push?                 ;/
+  7    whatever ... VCOM?       ;-"push"?               ;/
 ```
+
+
+
+## MCU[27h] - Volume slider raw ADC value (R/W, but better treat as R)
+
+
+```
+  0-7  Volume slider raw ADC value (00h..FFh)
+```
+
+
+
+## MCU[58h] - Volume slider calibration point for 0%   (default=36h) (R/W)
+
+
+
+## MCU[59h] - Volume slider calibration point for 100% (default=C9h) (R/W)
+
+
+```
+  0-7  Volume slider calibration value
+```
+
+The MCU defaults to min=36h, max=C9h. Better calibration values can be found in
+HWCAL and "config" files. Observe that one should add/sub 8 to the file values
+as safety margin (eg. for file values=04h,FFh write 0Ch,F7h to MCU[58h,59h]).
+The MCU does need the calibration for forwarding the correct volume to TSC chip
+(and for adjusting MCU[09h]).
+
+
+
+## MCU[5Ah] - R/RW Invalid, do not use!
+
+
+on newer MCU\_FIRM versions this is set to FFh once and then
+
+on older MCU\_FIRM versions this is a read-only counter
 
 
 
@@ -6402,8 +7764,8 @@ Whatever.
   21    TSC[10h].bit3 changed to one
   22    Volume slider position change
   23    Read from BPTWL[00h] version register has occurred
-  24    Video Display "push" off
-  25    Video Display "push" on
+  24    Video LCD "push" Power Supplies off
+  25    Video LCD "push" Power Supplies on
   26    Video Bottom screen backlight off
   27    Video Bottom screen backlight on
   28    Video Top screen backlight off
@@ -6415,12 +7777,42 @@ Whatever.
 
 
 
-# <a name="3dsi2cmcu20h24hpowercontrol"></a>3DS I2C MCU[20h-24h] - Power Control
+# <a name="3dsi2cmcu03h04h20h24hpowercontrol"></a>3DS I2C MCU[03h-04h, 20h-24h] - Power Control
 
 
 
 
-## MCU[20h] - System power control (bits here are 0=No change, 1=Trigger) (W)
+## MCU[03h] - LCD Top Screen VCOM "flicker" (R/W)
+
+
+
+## MCU[04h] - LCD Bottom Screen VCOM "flicker" (R/W)
+
+
+The VCOM voltages should be half of the corresponding AVDD voltages (so that
+positive and negative voltages will have same intensity), otherwise the picture
+may appear flimmering, have colors with wrong brightness, and could suffer
+permanent burn-in, or temporarily stuck pixels.
+
+```
+  0-7   VCOM Voltage (00h..FFh = 0.94V .. 3.15V)
+```
+
+The MCU firmware defaults to MCU[03h]=5Ch=1.74V and MCU[04h]=5Fh=1.77V, but
+better calibrations can be found in HWCAL and "config" files.
+
+To avoid burn-in, the 3DS is toggling between drawing pixels with
+positive/negative voltages each 2nd scanline (and vice-versa in each 2nd
+frame). This interlacing can cause visible dirt effects on animated, scrolled,
+or blinking pixels: For example, if a "red" pixel exists only in each 2nd
+frame, then it might end up to be always drawn with positive voltages (with
+possible burn-in even if VCOM is okay, and with wrong brightness if VCOM isn't
+properly centered, whereas, the exact centering may change when the console
+does warm up).
+
+
+
+## MCU[20h] - System Power Control (bits here are 0=No change, 1=Trigger) (W)
 
 
 ```
@@ -6433,10 +7825,10 @@ Whatever.
           watchdog: Bit 4 sets a bit at a RAM address which seems to control
           the watchdog timer state, then this bit is immediately unmasked.
           This field has a bitmask of 0x0F."
-  4     OldMCU: Both backlights off
-  5     OldMCU: Both backlights on
-  6     OldMCU: Push to LCDs off   ;\uh, what is "push" ?
-  7     OldMCU: Push to LCDs on    ;/
+  4     OldMCU: Both backlights off             ;\this is probably very
+  5     OldMCU: Both backlights on              ; old prototype stuff?
+  6     OldMCU: LCD "push" Power Supplies off   ; (normally use MCU[22h])
+  7     OldMCU: LCD "push" Power Supplies on    ;/
 ```
 
 Unknown how to fully power-off. Writing 01h does somewhat power-off, but the
@@ -6446,7 +7838,7 @@ Wait-for-Interrupt opcode after the I2C write; not tested if that does help
 
 
 
-## MCU[21h] - Change DSi Power Button Status register BPTWL[10h] (W)
+## MCU[21h] - DSi Power Button Status register BPTWL[10h] change (W)
 
 
 00h=No Change, other=Shuffle bits and set BPTWL[10h]
@@ -6458,24 +7850,29 @@ Wait-for-Interrupt opcode after the I2C write; not tested if that does help
   3     Copied to BPTWL[10h].bit5
   4     Copied to BPTWL[10h].bit4
   5     Copied to BPTWL[10h].bit6
-  6-7   Not used (except, affect the "00h=No change" thing)
+  6-7   Not used (except, affect the "00h=No change" thing when nonzero)
 ```
 
 
 
-## MCU[22h] - Used to set LCD states (bits here are 0=No change, 1=Trigger) (W)
+## MCU[22h] - LCD Power Control (bits here are 0=No change, 1=Trigger) (W)
 
 
 ```
-  0     NewMCU: Push to LCDs off   ;\uh, what is "push" ?
-  1     NewMCU: Push to LCDs on    ;/
-  2     NewMCU: Bottom screen backlight off;\For 2DS:
-  3     NewMCU: Bottom screen backlight on ;/both screens
-  4     NewMCU: Top screen backlight off   ;\For 2DS:
-  5     NewMCU: Top screen backlight on    ;/No effect
+  0     NewMCU: LCD "push" Power Supplies and Backlights off
+  1     NewMCU: LCD "push" Power Supplies on
+  2     NewMCU: Bottom Screen Backlight off   ;\For 2DS: Both screens
+  3     NewMCU: Bottom Screen Backlight on    ;/
+  4     NewMCU: Top Screen Backlight off      ;\For 2DS: No effect
+  5     NewMCU: Top Screen Backlight on       ;/
+  6-7   Not used
 ```
 
-"The rest of the bits are masked away."
+Setting bit0 does disable most or all LCD related power supplies: VCOM, AVDD,
+10V (probably also +5V and -5V), and backlights. Setting bit1 enables those
+supplies (except backlights, which require bit3/bit5). The 1.8V supply for the
+LCD I2C controllers is always on. The backlight PWM level is controlled via ARM
+LCD registers.
 
 
 
@@ -6509,14 +7906,14 @@ Brightness for Wifi/Power/3D LEDs (when the LEDs are on). Range 00h..FFh
 1st byte (Power LED mode):
 
 ```
-  00h   = fade to brightness MCU[28h] with battery check
-  01h   = fade to brightness MCU[28h]
-  02h   = pulsating fade on/off with battery check
-  03h   = fade to brightness 00h
-  04h   = instantly set brightness 00h
-  05h   = instantly set brightness FFh
-  06h   = Blinking RED (affects Power+Notification LEDs)
-  Other = Same as 00h
+  00h = Fade to brightness MCU[28h] with battery check
+  01h = Fade to brightness MCU[28h]
+  02h = Pulsating fade on/off with battery check
+  03h = Fade to brightness 00h
+  04h = Instantly set brightness 00h
+  05h = Instantly set brightness FFh
+  06h = Blinking RED (affects Power+Notification LEDs)
+  Other = Invalid (same as 00h)
 ```
 
 2nd..5th bytes (optional, if any written):
@@ -6545,8 +7942,8 @@ Brightness for Wifi/Power/3D LEDs (when the LEDs are on). Range 00h..FFh
   01h = Camera LED slowly blinking
   02h = Camera LED always on
   03h = Camera LED set via BPTWL[31h] (DSi mode)
-  04h = Camera LED flash once (then switch to 00h=off)
-  05h = Camera LED off once   (then switch to 02h=on)
+  04h = Camera LED flash once (and then switch to 00h=off)
+  05h = Camera LED off once   (and then switch to 02h=on)
   06h..0Fh = Invalid (same as 00h)
 ```
 
@@ -6597,52 +7994,110 @@ register seems to do nothing. Reading from this register only returns zeroes."
 
 
 
+## Initial LED States
+
+
+The LED states are uninitialzed at warmboot (eg. after closing System Settings,
+firm0 may boot with 3D LED kept on). All LEDs are automatically fading to zero
+upon power off (for faster power-off, use MCU[29h]=4 before MCU[20h]=1). At
+coldboot, firm0 is started with only Power LED switched on.
+
+Regardless of the above, the Charge LED can be on/off at any time (it is on
+when battery isn't fully charged & charger is connected).
+
+
+
 
 # <a name="3dsi2cmcu30h3fhrealtimeclockrtc"></a>3DS I2C MCU[30h-3Fh] - Real-Time Clock (RTC)
 
 
 
 
-## MCU[30h] - RTC Time second  (7bit)   (BCD, 00h..59h) (R/W)
+## MCU[30h] - RTC Time second      (7bit) (BCD, 00h..59h) (R/W)
 
 
 
-## MCU[31h] - RTC Time minute  (7bit)   (BCD, 00h..59h) (R/W)
+## MCU[31h] - RTC Time minute      (7bit) (BCD, 00h..59h) (R/W)
 
 
 
-## MCU[32h] - RTC Time hour    (6bit)   (BCD, 00h..23h) (R/W)
+## MCU[32h] - RTC Time hour        (6bit) (BCD, 00h..23h) (R/W)
 
 
 
-## MCU[33h] - RTC Time day of week? (3bit) (?..?, ?=Monday) (R/W)
-
-
-```
-              (renesas calls this "Week 0=Sunday")
-              (unknown what Nintendo is using here)
-```
-
-
-## MCU[34h] - RTC Time day     (6bit)   (BCD, 01h..31h) (R/W)
+## MCU[33h] - RTC Time day of week (3bit) (00h..06h=Blah) (R/W)
 
 
 
-## MCU[35h] - RTC Time month   (5bit)   (BCD, 01h..12h) (R/W)
+## MCU[34h] - RTC Time day         (6bit) (BCD, 01h..31h) (R/W)
 
 
 
-## MCU[36h] - RTC Time year    (8bit)   (BCD, 00h..99h) (R/W)
+## MCU[35h] - RTC Time month       (5bit) (BCD, 01h..12h) (R/W)
 
 
-Date/time.
+
+## MCU[36h] - RTC Time year        (8bit) (BCD, 00h..99h) (R/W)
+
+
+Caution: The 3DS is mis-using the MCU RTC registers for counting "time since
+power-up" (with the DD-MM-YY HH:MM:SS values converted into seconds). The
+actual time/date is computed by adding a nanosecond offset from the
+BlkID=00030001h entry in "config" file to the MCU RTC values.
+
+
+## Power loss
+
+  - When regaining power after fully discharging or removing the battery,
+  - the MCU sets RTC time lost flag (MCU[02h].bit0=1), and initializes RTC
+  - registers as time=00:00:00, day=01h, month=01h, year=01h, dayofweek=1.
+
+## First boot-up after power loss
+
+  - When the ARM firmware sees the RTC time lost flag, it does reset that
+  - flag (by writing MCU[02h].bit0=0), and does adjust the offset in the
+  - "config" file so that the current time becomes 1st Jan 2011, 00:00:00.
+  - The MCU RTC registers are NOT changed (they do still contain "time since
+  - power-up").
+
+## Changing time/date in System Menu
+
+  - Time/date can be manually changed in system settings. Again, this does
+  - merely change the BlkID=00030001h entry in the "config" file, without
+  - changing the MCU RTC registers.
+
+Summary: The MCU RTC values have no direct relation the actual time and date.
+For example, if the battery was removed 13 months ago in June, it's perfectly
+normal to see MCU[35h]=Month=02h in July.
+
+Note: For Day of Week, the Renesas datasheet recommends to use 0=Sunday, but
+the 3DS doesn't really use that register (apart from setting it to 1=Day when
+powered up).
+
+Unknown if the RTC treats Year=00h as leap year (centuries are a special case,
+maybe that's why the MCU starts in Year=01h).
 
 
 
 ## MCU[37h] - RTC Watch Error Correction (SUBCUD) (R/W) ;NOT leap year
 
 
-Error correction. Signed 32768Hz offset or so?
+```
+  0-6  Signed offset       (-40h..+3Fh, see below for details)
+  7    Add offset when...  (0=Every 20 seconds, 1=Every 60 seconds)
+```
+
+The offsets are a bit weird:
+
+```
+  +00h       Range 0..(7FFFh)             ;error correction disabled
+  +01h..3Fh  Range 0..(7FFFh+(0..124))    ;add (N-1)*2
+  -01h..3Fh  Range 0..(7FFFh-(0..124))    ;add (N+1)*2 or so?
+  -40h       Range 0..(7FFFh)             ;error correction disabled
+```
+
+After battery loss, the register is 00h, the 3DS firmware changes it to the RTC
+Correction value from "config" or HWCAL files.
 
 
 
@@ -6679,7 +8134,7 @@ powered off, or while playing a game.
 
 
 ```
-  0-15  Range 0..7FFFh (or 0..80xxh)
+  0-15  Range 0..7FFFh (or "0..(7FFFh+error_correction_offset)")
 ```
 
 
@@ -6688,9 +8143,18 @@ powered off, or while playing a game.
 
 
 ```
-  0     ScreenBlack?
-  1     DisableRtc32KHzOutput? what for?
+  0     Disable Power-On and force Screen Black           (0=Normal, 1=Disable)
+  1     Disable RTC-32KHz-Output to Atheros Wifi hardware (0=Normal, 1=Disable)
 ```
+
+This register seens to enter some low power sleep mode. It should be normally
+always zero, nonzero settings can cause problems even after reset or power off:
+
+Bit0=1 prevents to power the console back on (the only way to fix that is to do
+a full power off by opening the battery lid and removing the battery).
+
+Bit1=1 disables the wifi clock, and the clock remains off even after reboot via
+MCU[20h] (to avoid that, best set MCU[3Fh]=00h before and after reboot).
 
 
 
@@ -6786,7 +8250,7 @@ accessed only indirectly, through the MCU.
 
 
 ```
- ___________________ Internal Registes (for manual access) ___________________
+ ___________________ Internal Registers (for manual access) ___________________
 ```
 
 
@@ -7192,10 +8656,12 @@ doesn't care about the RAM content. Instead, the ARM CPU can use it to store
 powerdown/error flags (and then check those flags on next boot).
 
 - The 1st byte at array[00h] is used to store flags for managing FIRM/NS state:
-  - bit0 = "WirelessDisabled"
+  - bit0 = "WirelessDisabled" (0=Enable, 1=Disable) (see Wifi button)
   - bit1 = "SoftwareClosed"
   - bit2 = "PowerOffInitiated"
   - bit4 = "LegacyJumpProhibited"
+- The following 199 bytes are:
+  - Unknown, usually zerofilled (maybe contain error info/warmboot params?)
 
 When exceeding the C8h-byte array size: Writing to index=C8h..FFh is ignored
 (and the index is not incremented). Reading from index=C8h..FFh returns
@@ -7234,12 +8700,28 @@ index=00h).
   [7Fh:12h] Raw button states
     bit0: Power button        (0=Pressed)
     bit1: Home button         (0=Pressed)
-    bit2: Wifi button         (0=Pressed??) (installed in Old3DS only)
+    bit2: Wifi button         (0=Pressed) (installed in Old3DS only)
     bit5: Charger LED         (0=LED On, 1=LED Off)  ;\or vice-versa?
     bit6: Charger connected AND busy (0=Busy, 1=No)  ;/or one just "connected?"
     this byte is reset to 0 before an svcBreak takes effect, uh?
   [7Fh:13h and up] unused (FFh)
 ```
+
+
+
+## Wifi button
+
+
+The Wifi button does trigger an MCU interrupt, but doesn't automatically
+enable/disable the Wifi LED, Wifi Disable bit, or other Wifi Hardware. Instead,
+the ARM software should process the Wifi button IRQ as so:
+
+- - Toggle the Wifi Disabled flag in battery backed MCU[61h:00h].bit0
+- - Enable/disable the Wifi LED in MCU[2Ah] accordingly
+- - Enable/disable the overall Wifi hardware accordingly
+
+The Wifi button exists only in Old3DS (but New3DS does reportedly have a
+similar option... in System Settings or so?).
 
 
 
@@ -7308,8 +8790,8 @@ used (eg. Richtek RT9428 would be also compatible).
   POW[03h]  flags (bit0, bit1)
   POW[04h]  backlight enable flags (bit0, bit1)
   POW[05h]  set to 00h,08h,27h   ;00h=Old3DS, 08h=New3DS, 27h=PowerOff??
-  POW[06h]  from MCU[03h] ;top_screen_flicker
-  POW[07h]  from MCU[04h] ;bottom_screen_flicker
+  POW[06h]  from MCU[03h] ;top_screen_flicker    (VCOM)
+  POW[07h]  from MCU[04h] ;bottom_screen_flicker (VCOM)
   POW[08h..FFh] unused (mirrors of POW[00h..07h])
 ```
 
@@ -7337,8 +8819,12 @@ One can read 1 or more bytes.
 
 
 
+Both DSi and 3DS firmwares can be updated by software from ARM side. If that
+goes wrong, one can reprogram the chip via UART cable.
 
-## Setting Flash Programming Mode
+
+
+## Setting Flash Programming Mode (78K0R) (3DS)
 
 
 ```
@@ -7348,8 +8834,39 @@ One can read 1 or more bytes.
   TOOL0    xx__/"""""""\_/"""""\_/"\_/""""" (merged uart rx/tx on one pin)
 ```
 
-The 3DS seems to have wired some/all of the above pins to the test points
-covered by green solder stop layer.
+The 3DS has the above pins wired to the test points covered by green solder
+stop layer.
+
+
+
+## Setting Flash Programming Mode (78K0) (DSo)
+
+
+The 78K0 suppors three different programming modes:
+
+```
+  FLMD0 constant high         --> UART mode with EXTERNAL clock on X1,X2 pins
+  FLMD0 with three low pulses --> UART mode with EXTERNAL clock on EXCLK pin
+  FLMD0 with eight low pulses --> SPI mode with INTERNAL clock
+```
+
+All three modes do somewhat conflict with the wiring of the DSi mainboard
+(PMOFF on the external clock pin, and secondary I2C bus chips on the SPI pins).
+However, at least one mode is actually working:
+
+```
+  DSi    78K0     Signal
+  VDD33  VDD      __/"""""""""""""""""""""""""""""""" power supply
+  /mRST  /RESET   """"\_/"""""""""""""""""""""""""""" flash mode reset
+  mFE    FLMD0    __/"""""|"|"|"""""""""""""""""""""" flash mode select pulses
+  VOLP   P14/RX   """"""""""""""""\_/"\_/"XXX"""""""" baudrate detect & cmd's
+  VOLN   P13/TX   """"'---------'""""""""""""""XXX""" reply packets
+  PMOFF  EXCLK    __/!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! shortcut to 8MHz SND_MCLK
+```
+
+Whereas, PMOFF is usually LOW, which causes SND\_MCLK to drop from 3.3V to 1V
+when shortcutting the two pins, which is far below the official EXCLK voltage
+limits, but regardless, it's working just fine!
 
 
 
@@ -7357,14 +8874,48 @@ covered by green solder stop layer.
 
 
 ```
-      ??   FLMD0  ??
-     TP79  TP75  TP74
-      _ |   _     _
-     (_)'  (_)-  (_)-
+     1.78V 0.00V 1.76V
+    PVDD18 FLMD0 /RESET
+     TP79  TP75  TP74   GND'
+      _ |   _     _     _|_
+     (_)'  (_)-  (_)-  |   |
+      _     _     _    |EM7|
+    -(_)   (_)-  (_)-  |_ _|
+     TP78  TP76  TP77    |
+     GND   TOOL1 TOOL0  GND
+     0.00V 1.76V 1.76V
+```
+
+
+
+## Old3DS XL Mainboard (near wifi daughterboard, all 6 pins under solderstop)
+
+
+```
+                 [X]
+                 TP78
+                 GND
+            _     _
+           (_)   (_)
+           TP76  TP75
+           TOOL1 FLMD0
       _     _     _
-    -(_)   (_)-  (_)-
-     TP78  TP76  TP77
-     GND   TOOL1 TOOL0
+     (_)   (_)   (_)
+     TP79  TP77  TP74
+    PVDD18 TOOL0 /RES
+```
+
+
+
+## Old2DS Mainboard (near front/middle, all 6 pins under solderstop)
+
+
+```
+      _     _     _     _      _||||_
+     (_)   (_)   (_)   (_)    | P14  |   _
+     TP77  TP75  TP74  TP76   | .... |  (_)             (X)
+     TOOL0 FLMD0 /RES  TOOL1  |______|  TP79            TP78
+                                       PVDD18           GND
 ```
 
 
@@ -7383,18 +8934,29 @@ covered by green solder stop layer.
 
 
 
+## New3DS
+
+
+
+## New2DS
+
+
+Unknown.
+
+
+
 ## Wiring Programmer (PC Parallel Port, GPIO, UART, whatever) to 3DS MCU
 
 
 ```
-  /RESET ----------------|>|------------ PC.Data1.Reset
-  TOOL0  ------------o---|>|------------ PC.Data0.TX
-                     |  BAT85   |  .---- PC.Busy.RX
-  FLMD0  -----.      |          | / B
-              |      '--[33K]---|<  C
-  PVDD18 -----'                 | \ E
-                          BC547 |  v--.
-  GND    -----------------------------o- PC.Ground
+  TP74 /RESET ----------------|>|-------------- PC.Data1.Reset
+  TP77 TOOL0  ------------o---|>|-------------- PC.Data0.TX
+                          |  BAT85     .------- PC.Busy.RX
+  TP75 FLMD0  -----.      |          |/ C
+                   |      '--[33K]---|  B
+  TP79 PVDD18 -----'                 |\ E
+                               BC547   v--.
+  TP78 GND    ----------------------------o---- PC.Ground
 ```
 
 The 3DS MCU programming signals are 1.8V, two BAT85 Schottky diodes can be used
@@ -7416,8 +8978,11 @@ bi-directional transfers.
   22h Block Erase
   32h Block Blank check
   40h Write
-  9Ah Set Baud Rate
+  90h Set Oscillation Frequency (78K0 only) (DSi)
+  9Ah Set Baud Rate             (78K0R only) (3DS)
+  9Eh Set Custom Flash Timings  (78K0 only) (DSi) (undoc)
   A0h Set Security
+  A4h Get 1Kbyte Security info? (78K0 only) (DSi) (undoc)
   B0h Get Checksum
   C0h Get Silicon Signature
   C5h Get Version
@@ -7436,12 +9001,13 @@ The relevant commands are Reset, Block Erase, and Write.
   06h Normal Acknowledge (ACK) (okay)
   07h Checksum Error
   0Fh Verify Error
-  10h Protect Error
+  10h Write Protected Error
   15h Negative Acknowledge (NACK)
-  1Ah MRG10 Error (mrg, uh?)
-  1Bh MRG11 Error (mrg, uh?)
+  1Ah MRG10 Error (mrg, uh?)  ;78K0: Erase verify error
+  1Bh MRG11 Error (mrg, uh?)  ;78K0: Write internal verify or blank check error
   1Ch Write Error
-  FFh N/A (for 2nd status byte, when 1st status byte was bad)
+  20h Security read error (78K0 only, not 78K0R)
+  FFh N/A (for 2nd status byte, when 1st status byte was bad) aka BUSY
 ```
 
 
@@ -7453,7 +9019,7 @@ The relevant commands are Reset, Block Erase, and Write.
   00h 1     Command Start (fixed=01h)
   01h 1     Length (LEN) (1..255, or 00h=256)
   02h 1     Command Number
-  03h LEN-1 Command Parameters
+  03h LEN-1 Command Parameters (if any)
   xxh 1     Checksum (01h minus all of the above bytes)
   xxh 1     Command End (fixed=03h)
 ```
@@ -7481,9 +9047,13 @@ for a moment. Then exchange the following bytes/packets.
 
 Low Pulse (from chip, should arrive within 10ms after releasing /RESET):
 
-```
-  00h 1     Low pulse (value 00h)  ;-transferred at 9600 bps
-```
+- On 78K0R (3DS):
+  - 00h 1     Low pulse (value 00h)  ;-transferred at 9600 bps
+- On 78K0 (DSi):
+  - The 78K0 doesn't specifically output a leading low-pulse on TX pin
+  - (however, it has the TX pin floating for about 35 ms while waiting
+  - for SPI/UART mode selection via FLMD0 pulses) (accordingly, one
+  - should wait about 60ms before trying to send below stuff to RX pin).
 
 Low Pulses (to chip):
 
@@ -7509,7 +9079,35 @@ Response (from chip):
 
 
 
-## Set Baudrate Command
+## Set Oscillation Frequency (78K0 only) (DSi)
+
+
+Allows to set the baudrate to 115200 bauds (in an absurd BCD-based way based on
+the external oscillation clock input), which isn't really needed because the
+baudrate is autodetected when sending the Reset pulses.
+
+Command (to chip):
+
+```
+  00h 3     Start/Len/Command (01h,05h,90h)
+  03h 1     Oscillation Freq, 1st digit (BCD, 0..9)              ;\Example:
+  04h 1     Oscillation Freq, 2nd digit (BCD, 0..9)              ; 1,2,3,4 is
+  05h 1     Oscillation Freq, 3rd digit (BCD, 0..9)              ; 1230000 Hz
+  06h 1     Oscillation Freq, Num trailing 0-digits (BCD, 0..9)  ;/
+  07h 2     Checksum/End      (CHK,03h)
+```
+
+Response (from chip):
+
+```
+  00h 2     Start/Len (02h,01h)
+  02h 1     Status/Error code
+  03h 2     Checksum/End      (CHK,03h)
+```
+
+
+
+## Set Baudrate Command (78K0R only) (3DS)
 
 
 Allows to set the baudrate, which isn't really needed because the baudrate is
@@ -7621,7 +9219,7 @@ Response (from chip):
 
 Requires prior Erase command, max length for erase/write commands seems to be
 1000h bytes. To quit flash mode & resume normal operation, it seems to be
-required to unplug battery supply for moment after having written all data.
+required to unplug battery supply for a moment after having written all data.
 
 Command (to chip):
 
@@ -7665,7 +9263,7 @@ Response (from chip, extra response, about 1.5 seconds after LAST data block):
   03h 2     Checksum/End      (CHK,03h)
 ```
 
-Note: The ugly 1.5 seconds verify delay can avoided by issuing a chip reset
+Note: The ugly 1.5 seconds verify delay can be avoided by issuing a chip reset
 instead of waiting for the final response.
 
 
@@ -7703,7 +9301,7 @@ Response (from chip, after each data block):
 ```
   00h 2     Start/Len (02h,02h)
   02h 1     Status/Error code (data reception result)
-  02h 1     Status/Error code (verify result) (always ACK/okay for Nonlast?)
+  02h 1     Status/Error code (verify result) (always ACK/okay for Nonlast!)
   04h 2     Checksum/End      (CHK,03h)
 ```
 
@@ -7746,8 +9344,8 @@ Data (from chip, after above response):
 ## Set Security Command
 
 
-Allows write protect flash areas. Don't touch (or use with care), some settings
-cannot be undone (not even via Chip Erase command).
+Allows to write protect flash areas. Don't touch (or use with care), some
+settings cannot be undone (not even via Chip Erase command).
 
 Command (to chip):
 
@@ -7765,7 +9363,7 @@ Response (from chip):
   03h 2     Checksum/End      (CHK,03h)
 ```
 
-Data (to chip):
+Data (to chip, on 3DS with 78K0R):
 
 ```
   00h 2     Start/Len (02h,06h)   ;uh, len=6 (but below should have len=8)?
@@ -7774,6 +9372,15 @@ Data (to chip):
   04h 2     FSWS  Flash shield window start ("Higher bits, Lower bits")
   06h 2     FSWE  Flash shield window end   ("Higher bits, Lower bits")
   08h 2     FFH   Fixed (FFh,FFh)
+  0Ah 2     Checksum/End      (CHK,03h)
+```
+
+Data (to chip, on DSi with 78K0):
+
+```
+  00h 2     Start/Len (02h,02h)
+  02h 1     FLG   Security Flags (can disable write/erase etc.)
+  03h 1     BOT   Boot cluster last block number ("fixed to 03h")
   0Ah 2     Checksum/End      (CHK,03h)
 ```
 
@@ -7813,7 +9420,7 @@ Response (from chip, after command):
   03h 2     Checksum/End      (CHK,03h)
 ```
 
-Data (from chip, after above response):
+Data (from chip, after above response, on 3DS with 78K0R):
 
 ```
   00h 2     Start/Len (02h,1Bh)
@@ -7822,13 +9429,30 @@ Data (from chip, after above response):
   04h 1     MSC  Macro function code             (04h)             ;bit7=parity
   05h 3     DET  Device extension code 1,2,3     (DCh,FDh,xxh)     ;bit7=parity
   08h 3     UAE  User flash size-1 (LSB,MID,MSB) (007FFFh, little-endian!)
-  0Bh 10    DEV  Device name                     ("D79F0104  ", ASCII)
+  0Bh 10    DEV  Device name, ASCII              ("D79F0104  ")
   15h 1     SCF  Security flag information                           ;\same as
   16h 1     BOT  Boot block number ("03h=fixed")                     ; from
   17h 2     FSWS Flash shield window start("Higher side, Lower side"); security
   19h 2     FSWE Flash shield window end  ("Higher side, Lower side"); command?
   1Bh 2     RES  Reserved (FFFFh)                                    ;/
   1Dh 2     Checksum/End      (CHK,03h)
+```
+
+Data (from chip, after above response, on DSi with 78K0):
+
+```
+  00h 2     Start/Len (02h,13h)
+  02h 1     VEN  Vendor                          (10h=NEC/Renseas) ;bit7=parity
+  03h 1     MET  Macro extension code            (7Fh=78K0/Kx2)    ;bit7=parity
+  04h 1     MSC  Macro function code             (04h=78K0/Kx2)    ;bit7=parity
+  05h 1     DEC  Device extension code 1         (7Ch=78K0/Kx2)    ;bit7=parity
+  06h 1     END  Flash Memory End, bit0-6        (7Fh) ;\          ;bit7=parity
+  07h 1     END  Flash Memory End, bit7-13       (7Fh) ; =3FFFh    ;bit7=parity
+  08h 1     END  Flash Memory End, bit14-20      (80h) ;/          ;bit7=parity
+  09h 10    DEV  Device name, ASCII with parity  ("D78F0501A ")    ;bit7=parity
+  13h 1     SCF  Security flag information       (7Fh=whatever)
+  14h 1     BOT  Boot block number               (03h=fixed)
+  15h 2     Checksum/End      (CHK,03h)
 ```
 
 
@@ -7855,10 +9479,12 @@ Data (from chip, after above response):
 
 ```
   00h 2     Start/Len (02h,06h)
-  02h 3     Device Version    (MSB,MID,LSB) (000000h)
-  05h 3     Firmware Version  (MSB,MID,LSB) (010000h)
+  02h 3     Device Version    (MSB,MID,LSB) (3DS: 000000h ?) (DSi:000000h)
+  05h 3     Firmware Version  (MSB,MID,LSB) (3DS: 010000h ?) (DSi:020100h)
   08h 2     Checksum/End      (CHK,03h)
 ```
+
+XXX test Get Version on 3DS
 
 
 
@@ -7890,19 +9516,19 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
   61C9/61E9                MOV A, [HL+B]/[HL+C]
   60/--/62/63/64/65/66/67  MOV A, X/-/C/B/E/D/L/H
   70/--/72/73/74/75/76/77  MOV X/-/C/B/E/D/L/H, A
-  50/51/52/53/54/55/56/57  MOV X/A/C/B/E/D/L/H, imm8
+  50/51/52/53/54/55/56/57  MOV X/A/C/B/E/D/L/H, nn
   D8/--/F8/E8              MOV X/-/C/B, [saddr]
   D9/--/F9/E9              MOV X/-/C/B, [nnnn]
   E0/E1/E2/E3/E4/E5        MOV X/A/C/B/[saddr]/[nnnn], 1  ;native: ONEB
   F0/F1/F2/F3/F4/F5        MOV X/A/C/B/[saddr]/[nnnn], 0  ;native: CLRB
-  41/61B8                  MOV ES, imm8/[saddr]
+  41/61B8                  MOV ES, nn/[saddr]
   18/28/48                 MOV [nnnn+B]/[nnnn+C]/[nnnn+BC], A
   98/99/9A/9B/9C           MOV [nn+SP]/[DE]/[nn+DE]/[HL]/[nn+HL], A
   9D/9E/9F                 MOV [saddr]/[sfr]/[nnnn], A
   61D9/61F9                MOV [HL+B]/[HL+C], A
-  19/38/39                 MOV [nnnn+B]/[nnnn+C]/[nnnn+BC], imm8
-  C8/CA/CC                 MOV [nn+SP]/[nn+DE]/[nn+HL], imm8
-  CD/CE/CF                 MOV [saddr]/[sfr]/[nnnn], imm8
+  19/38/39                 MOV [nnnn+B]/[nnnn+C]/[nnnn+BC], nn
+  C8/CA/CC                 MOV [nn+SP]/[nn+DE]/[nn+HL], nn
+  CD/CE/CF                 MOV [saddr]/[sfr]/[nnnn], nn
   08/--/618A/618B/618C/618D/618E/618F   XCH A, X/-/C/B/E/D/L/H
   61AC/61AD/61B9/61A9                   XCH A, [HL]/[HL+byte]/[HL+B]/[HL+C]
   61AE/61AF                             XCH A, [DE]/[DE+byte]
@@ -7915,19 +9541,19 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
 
 
 ```
-  13/15/17/30              MOVW AX, BC/DE/HL/imm16
+  13/15/17/30              MOVW AX, BC/DE/HL/nnnn
   59/69/79                 MOVW AX, [nnnn+B]/[nnnn+C]/[nnnn+BC]
   A8/A9/AA/AB/AC           MOVW AX, [nn+SP]/[DE]/[nn+DE]/[HL]/[nn+HL]
   AD/AE/AF                 MOVW AX, [saddrp]/[sfrp]/[nnnn]
   E6/E7                    MOVW AX/BC,1    ;native: ONEW AX/BC
   F6/F7                    MOVW AX/BC,0    ;native: CLRW AX/BC
-  12/32/DA/DB              MOVW BC, AX/#imm16/[saddrp]/[nnnn]
-  14/34/EA/EB              MOVW DE, AX/#imm16/[saddrp]/[nnnn]
-  16/36/FA/FB              MOVW HL, AX/#imm16/[saddrp]/[nnnn]
+  12/32/DA/DB              MOVW BC, AX/nnnn/[saddrp]/[nnnn]
+  14/34/EA/EB              MOVW DE, AX/nnnn/[saddrp]/[nnnn]
+  16/36/FA/FB              MOVW HL, AX/nnnn/[saddrp]/[nnnn]
   58/68/78                 MOVW [nnnn+B]/[nnnn+C]/[nnnn+BC], AX
   B8/B9/BA/BB/BC           MOVW [nn+SP]/[DE]/[nn+DE]/[HL]/[nn+HL], AX
   BD/BE/BF                 MOVW [saddrp]/[sfrp]/[nnnn], AX
-  C9/CB                    MOVW [saddrp]/[sfrp], imm16
+  C9/CB                    MOVW [saddrp]/[sfrp], nnnn
   C0/C2/C4/C6/61CD         POP  AX/BC/DE/HL/PSW
   C1/C3/C5/C7/61DD         PUSH AX/BC/DE/HL/PSW
   33/35/37                 XCHW AX, BC/DE/HL
@@ -7955,22 +9581,22 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
   6158/----/615A/615B/615C/615D/615E/615F  AND  A, X/-/C/B/E/D/L/H
   6168/----/616A/616B/616C/616D/616E/616F  OR   A, X/-/C/B/E/D/L/H
   6178/----/617A/617B/617C/617D/617E/617F  XOR  A, X/-/C/B/E/D/L/H
-  0B/0C/0D/0E/0F                ADD  A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  1B/1C/1D/1E/1F                ADDC A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  2B/2C/2D/2E/2F                SUB  A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  3B/3C/3D/3E/3F                SUBC A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  4B/4C/4D/4E/4F                CMP  A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  5B/5C/5D/5E/5F                AND  A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  6B/6C/6D/6E/6F                OR   A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  7B/7C/7D/7E/7F                XOR  A,[saddr]/#byte/[HL]/[HL+byte]/[nnnn]
-  0A                            ADD  [saddr],#byte
-  1A                            ADDC [saddr],#byte
-  2A                            SUB  [saddr],#byte
-  3A                            SUBC [saddr],#byte
-  4A/40                         CMP  [saddr]/[nnnn],#byte
-  5A                            AND  [saddr],#byte
-  6A                            OR   [saddr],#byte
-  7A                            XOR  [saddr],#byte
+  0B/0C/0D/0E/0F                ADD  A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  1B/1C/1D/1E/1F                ADDC A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  2B/2C/2D/2E/2F                SUB  A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  3B/3C/3D/3E/3F                SUBC A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  4B/4C/4D/4E/4F                CMP  A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  5B/5C/5D/5E/5F                AND  A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  6B/6C/6D/6E/6F                OR   A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  7B/7C/7D/7E/7F                XOR  A,[saddr]/nn/[HL]/[HL+byte]/[nnnn]
+  0A                            ADD  [saddr],nn
+  1A                            ADDC [saddr],nn
+  2A                            SUB  [saddr],nn
+  3A                            SUBC [saddr],nn
+  4A/40                         CMP  [saddr]/[nnnn],nn
+  5A                            AND  [saddr],nn
+  6A                            OR   [saddr],nn
+  7A                            XOR  [saddr],nn
   D0/D1/D2/D3/D4/D5             CMP  X/A/C/B/[saddr]/[nnnn],0  ;native: CMP0
   80/81/82/83/84/85/86/87/A0/A4/6159 INC X/A/C/B/E/D/L/H/[nnnn]/[saddr]/[HL+nn]
   90/91/92/93/94/95/96/97/B0/B4/6169 DEC X/A/C/B/E/D/L/H/[nnnn]/[saddr]/[HL+nn]
@@ -8026,7 +9652,7 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
   FCnnnn0n              CALL absolute far addr  ;native: CALL !!addr20
   FDnnnn                CALL absolute addr      ;native: CALL !addr16
   FEnnnn                CALL relative addr      ;native: CALL $!addr20
-  61nn                  CALL [000xx]            ;native: CALLT [xx]
+  61nn                  CALL [000xx]  ;80h..BEh ;native: CALLT [xx]
 ```
 
 
@@ -8085,7 +9711,7 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
   61CE                           MOVS [HL+byte],X
   61DE                           CMPS X,[HL+byte]
   61CF/61DF/61EF/61FF            SEL RB0/1/2/3
-  D6                             MULU X   ;unsigned multiply AX=A*X
+  D6                             MULU AX,A,X  ;unsigned AX=A*X  ;native: MULU X
   11                             prefix for [ES:addr]   ;native: ES:addr[reg]
 ```
 
@@ -8102,19 +9728,19 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
 
 ```
       00               10                 20               30
-  00  NOP              ADDW SP,#byte      SUBW SP,#byte    MOVW AX,#word
+  00  NOP              ADDW SP,nn         SUBW SP,nn       MOVW AX,nnnn
   01  ADDW AX,AX       PREFIX (ES:)       -                4th MAP !!!
-  02  ADDW AX,!addr16  MOVW BC,AX         SUBW AX,!addr16  MOVW BC,#word
+  02  ADDW AX,!addr16  MOVW BC,AX         SUBW AX,!addr16  MOVW BC,nnnn
   03  ADDW AX,BC       MOVW AX,BC         SUBW AX,BC       XCHW AX,BC
-  04  ADDW AX,#word    MOVW DE,AX         SUBW AX,#word    MOVW DE,#word
+  04  ADDW AX,nnnn     MOVW DE,AX         SUBW AX,nnnn     MOVW DE,nnnn
   05  ADDW AX,DE       MOVW AX,DE         SUBW AX,DE       XCHW AX,DE
-  06  ADDW AX,saddrp   MOVW HL,AX         SUBW AX,saddrp   MOVW HL,#word
+  06  ADDW AX,saddrp   MOVW HL,AX         SUBW AX,saddrp   MOVW HL,nnnn
   07  ADDW AX,HL       MOVW AX,HL         SUBW AX,HL       XCHW AX,HL
-  08  XCH  A,X         MOV  word[B],A     MOV  word[C],A   MOV  word[C],#byte
-  09  MOV  A,word[B]   MOV  word[B],#byte MOV  A,word[C]   MOV  word[BC],#byte
-  0A  ADD  saddr,#byte ADDC saddr,#byte   SUB  saddr,#byte SUBC saddr,#byte
+  08  XCH  A,X         MOV  [B+nnnn],A    MOV  [C+nnnn],A  MOV  [C+nnnn],nn
+  09  MOV  A,[B+nnnn]  MOV  [B+nnnn],nn   MOV  A,[C+nnnn]  MOV  [BC+nnnn],nn
+  0A  ADD  saddr,nn    ADDC saddr,nn      SUB  saddr,nn    SUBC saddr,nn
   0B  ADD  A,saddr     ADDC A,saddr       SUB  A,saddr     SUBC A,saddr
-  0C  ADD  A,#byte     ADDC A,#byte       SUB  A,#byte     SUBC A,#byte
+  0C  ADD  A,nn        ADDC A,nn          SUB  A,nn        SUBC A,nn
   0D  ADD  A,[HL]      ADDC A,[HL]        SUB  A,[HL]      SUBC A,[HL]
   0E  ADD  A,[HL+byte] ADDC A,[HL+byte]   SUB  A,[HL+byte] SUBC A,[HL+byte]
   0F  ADD  A,!addr16   ADDC A,!addr16     SUB  A,!addr16   SUBC A,!addr16
@@ -8123,19 +9749,19 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
 
 ```
       40                 50               60               70
-  40  CMP  !addr16,#byte MOV  X,#byte     MOV  A,X         MOV  X,A
-  41  MOV  ES,#byte      MOV  A,#byte     2nd MAP !!!      3rd MAP !!!
-  42  CMPW AX,!addr16    MOV  C,#byte     MOV  A,C         MOV  C,A
-  43  CMPW AX,BC         MOV  B,#byte     MOV  A,B         MOV  B,A
-  44  CMPW AX,#word      MOV  E,#byte     MOV  A,E         MOV  E,A
-  45  CMPW AX,DE         MOV  D,#byte     MOV  A,D         MOV  D,A
-  46  CMPW AX,saddrp     MOV  L,#byte     MOV  A,L         MOV  L,A
-  47  CMPW AX,HL         MOV  H,#byte     MOV  A,H         MOV  H,A
-  48  MOV  word[BC],A    MOVW word[B],AX  MOVW word[C],AX  MOVW word[BC],AX
-  49  MOV  A,word[BC]    MOVW AX,word[B]  MOVW AX,word[C]  MOVW AX,word[BC]
-  4A  CMP  saddr,#byte   AND  saddr,#byte OR   saddr,#byte XOR  saddr,#byte
+  40  CMP  !addr16,nn    MOV  X,nn        MOV  A,X         MOV  X,A
+  41  MOV  ES,nn         MOV  A,nn        2nd MAP !!!      3rd MAP !!!
+  42  CMPW AX,!addr16    MOV  C,nn        MOV  A,C         MOV  C,A
+  43  CMPW AX,BC         MOV  B,nn        MOV  A,B         MOV  B,A
+  44  CMPW AX,nnnn       MOV  E,nn        MOV  A,E         MOV  E,A
+  45  CMPW AX,DE         MOV  D,nn        MOV  A,D         MOV  D,A
+  46  CMPW AX,saddrp     MOV  L,nn        MOV  A,L         MOV  L,A
+  47  CMPW AX,HL         MOV  H,nn        MOV  A,H         MOV  H,A
+  48  MOV  [BC+nnnn],A   MOVW [B+nnnn],AX MOVW [C+nnnn],AX MOVW [BC+nnnn],AX
+  49  MOV  A,[BC+nnnn]   MOVW AX,[B+nnnn] MOVW AX,[C+nnnn] MOVW AX,[BC+nnnn]
+  4A  CMP  saddr,nn      AND  saddr,nn    OR   saddr,nn    XOR  saddr,nn
   4B  CMP  A,saddr       AND  A,saddr     OR   A,saddr     XOR  A,saddr
-  4C  CMP  A,#byte       AND  A,#byte     OR   A,#byte     XOR  A,#byte
+  4C  CMP  A,nn          AND  A,nn        OR   A,nn        XOR  A,nn
   4D  CMP  A,[HL]        AND  A,[HL]      OR   A,[HL]      XOR  A,[HL]
   4E  CMP  A,[HL+byte]   AND  A,[HL+byte] OR   A,[HL+byte] XOR  A,[HL+byte]
   4F  CMP  A,!addr16     AND  A,!addr16   OR   A,!addr16   XOR  A,!addr16
@@ -8173,14 +9799,14 @@ There is also an undocumented anti-dumping feature related to bytes at 000C4h
   C5  PUSH DE              CMP0 !addr16      ONEB !addr16     CLRB !addr16
   C6  POP  HL              MULU X ;(AX=A*X)  ONEW AX          CLRW AX
   C7  PUSH HL              RET               ONEW BC          CLRW BC
-  C8  MOV  [SP+byte],#byte MOV  X,saddr      MOV  B,saddr     MOV  C,saddr
-  C9  MOVW saddrp,#word    MOV  X,!addr16    MOV  B,!addr16   MOV  C,!addr16
-  CA  MOV  [DE+byte],#byte MOVW BC,saddrp    MOVW DE,saddrp   MOVW HL,saddrp
-  CB  MOVW sfrp,#word      MOVW BC,!addr16   MOVW DE,!addr16  MOVW HL,!addr16
-  CC  MOV  [HL+byte],#byte BC   $addr20      BR   !!addr20    CALL !!addr20
-  CD  MOV  saddr,#byte     BZ   $addr20      BR   !addr16     CALL !addr16
-  CE  MOV  sfr,#byte       BNC  $addr20      BR   $!addr20    CALL $!addr20
-  CF  MOV  !addr16,#byte   BNZ  $addr20      BR   $addr20     - (TRAP)
+  C8  MOV  [SP+byte],nn    MOV  X,saddr      MOV  B,saddr     MOV  C,saddr
+  C9  MOVW saddrp,nnnn     MOV  X,!addr16    MOV  B,!addr16   MOV  C,!addr16
+  CA  MOV  [DE+byte],nn    MOVW BC,saddrp    MOVW DE,saddrp   MOVW HL,saddrp
+  CB  MOVW sfrp,nnnn       MOVW BC,!addr16   MOVW DE,!addr16  MOVW HL,!addr16
+  CC  MOV  [HL+byte],nn    BC   $addr20      BR   !!addr20    CALL !!addr20
+  CD  MOV  saddr,nn        BZ   $addr20      BR   !addr16     CALL !addr16
+  CE  MOV  sfr,nn          BNC  $addr20      BR   $!addr20    CALL $!addr20
+  CF  MOV  !addr16,nn      BNZ  $addr20      BR   $addr20     - (TRAP)
 ```
 
 Opcode FFh = TRAP (illegal opcode, used by 3DS MCU, triggers Reset vector).
@@ -8649,19 +10275,19 @@ pretty close to the 3DS hardware (aside from the F0500h-F07FFh area).
   FFFBCh R/W 1B- 00h   DRC0       DMA operation control 0
   FFFBDh R/W 1B- 00h   DRC1       DMA operation control 1
   FFFBEh R/W 1B- 00h   BECTL      Background event control register (!)
-  FFFBFh     1                    Undoc:
-  FFFC0h -   --- Undef PFCMD      (used in the self programming library) (!)
-  FFFC1h     1B                   Undoc:
-  FFFC2h -   --- 00h   PFS        (used in the self programming library) (!)
-  FFFC4h -   --- 00h   FLPMC      (used in the self programming library) (!)
-  FFFC5h     1                    Undoc:
-  FFFC6h      B                   Undoc:
-  FFFC7h      B                   Undoc:
-  FFFC8h       W                  Undoc:
-  FFFCAh      B                   Undoc:
-  FFFCBh      B                   Undoc:
-  FFFCCh       W                  Undoc:
-  FFFCEh       W                  Undoc:
+  FFFBFh ?   1   ?     -        Undoc: Flash ... FFFBFh ... bit0,7
+  FFFC0h W?  ?B? ?     PFCMD    Undoc: Flash Protect Command (write A5h)
+  FFFC1h R/W 1B- ?     -        Undoc: Flash ... FFC1h ... bits/pulses FSSQ ?
+  FFFC2h R       ?     PFS      Undoc: Flash Protect Status
+  FFFC4h R/W 1B? ?     FLPMC    Undoc: Flash Programming Mode Ctl ;triple write
+  FFFC5h W   1?- ?     -        Undoc: Flash ... 0FFC5h ... bits/mode   ?
+  FFFC6h W   1B- ?     FLAPH    Undoc: Flash addr ptr upper 8bit (bit1=flag)
+  FFFC7h R/W 1?- ?     -        Undoc: Flash ... 0FFC7h ... flag bits
+  FFFC8h W   1BW ?     FLAPL    Undoc: Flash addr ptr lower 16bit (bit0,1=flag)
+  FFFCAh R/W ?B? ?     -        Undoc: Flash ... 0FFCAh ...       ;triple write
+  FFFCBh W   ?B- ?     FLWE     Undoc: Flash write data ECC error correction?
+  FFFCCh W   --W ?     FLWH     Undoc: Flash write data upper 16bit  ;\4-byte
+  FFFCEh W   --W ?     FLWL     Undoc: Flash write data lower 16bit  ;/
   FFFD0h R/W 1BW 0000h IF2(L/H)   Interrupt request flag 2
   FFFD2h R/W 1BW 00h   IF3(L)     Interrupt request flag 3L       (N/A)
   FFFD4h R/W 1BW FFFFh MK2(L/H)   Interrupt mask flag 2
@@ -8797,11 +10423,11 @@ pretty close to the 3DS hardware (aside from the F0500h-F07FFh area).
 
 
 ```
-  F00C0h      B                   Undoc:
-  F00C1h      B                   Undoc:
-  F00C2h       W                  Undoc:
-  F00C4h       W                  Undoc:
-  F00C8h       W                  Undoc:
+  F00C0h R/W  B        ?          Undoc: Flash ... F00C0h     ;triple write
+  F00C1h R    B        FLrE       Undoc: Flash read data ECC error correction?
+  F00C2h R     W       FLrH       Undoc: Flash read data upper 16bit  ;\4-byte
+  F00C4h R     W       FLrL       Undoc: Flash read data lower 16bit  ;/total
+  F00C8h R/W   W       ?          Undoc: Flash ... F00C8h
 ```
 
 
@@ -9061,8 +10687,8 @@ high byte.
 
 
 ```
- @@def Vbyte            #byte
- @@def Vword            #word
+ @@def Vbyte            #byte          ;nn      ;imm8
+ @@def Vword            #word          ;nnnn    ;imm16
  @@def sfr              sfr        SFR name aka FFF00h..FFFFFh
  @@def sfrp             sfrp       16-bit-manipulatable SFR name (even address)
  @@def saddr            saddr      8bit data addr at FFE20h to FFF1Fh
@@ -9133,13 +10759,11 @@ MCU-FIRM
 
 
 
-CAUTION: This is for a reportedly existing gyroscope that doesn't actually
-exist, at least not in New3DS. New3DS returns only FFh's when trying to read
-below registers.
+I2C Device 2:D0h
 
 
 
-## GYRO Register Map - InvenSense ITG-3200 gyroscope
+## GYRO Register Map - InvenSense ITG-3270 gyroscope (used in Old 3DS)
 
 
 ```
@@ -9329,7 +10953,7 @@ The CLK\_SEL setting determines the device clock source as follows:
 
 
 
-## Gyro Datasheets
+## Gyro Datasheets (for ITG-3200 which is hopefully same as ITG-3270)
 
 
 ```
@@ -9344,6 +10968,9 @@ Older versions did include the Register Map in the Product Specification.
 
 # <a name="3dsi2cgyroscopenewversion"></a>3DS I2C Gyroscope (new version)
 
+
+
+I2C Device 2:D2h
 
 
 
@@ -9791,6 +11418,8 @@ NXP SC16IS750
 Single UART with I2C-bus/SPI interface, 64 bytes of transmit and receive FIFOs,
 IrDA SIR built-in support - Rev. 06 - 13 May 2008 Product data sheet
 
+I2C Device 2:9Ah
+
 
 
 ## Register address byte (I2C)
@@ -10135,7 +11764,7 @@ default state, that is, '00'.
 This register is only available on the SC16IS750 and SC16IS760.
 
 ```
-  7-0  IODir set GPIO pins [7:0] to input or output (0=Input, 1=Output)
+  7-0  IODir set GPIO7-0 pins to input or output (0=Input, 1=Output)
 ```
 
 Remark: If there is a pending input (GPIO) interrupt and IODir is written, this
@@ -10173,9 +11802,9 @@ programmed as output.
 This register is only available on the SC16IS750 and SC16IS760.
 
 This register enables the interrupt due to a change in the I/O configured as
-inputs. If GPIO[7:4] are programmed as modem pins, their interrupt generation
-must be enabled via IER register bit3. In this case bit4-7  of IOIntEna will
-have no effect on GPIO[7:4].
+inputs. If GPIO4-7 are programmed as modem pins, their interrupt generation
+must be enabled via IER register bit3. In this case bit4-7 of IOIntEna will
+have no effect on GPIO4-7.
 
 
 
@@ -10186,7 +11815,7 @@ have no effect on GPIO[7:4].
   7-4  Reserved
   3    Software reset (0=No change, 1=Reset)                    (W)
   2    Reserved
-  1    Use GPIO[7:4] as GPIO or as modem pins (0=GPIO, 1=RI,CD,DTR,DSR)
+  1    Use GPIO4-7 as GPIO or as modem pins (0=GPIO, 1=RI,CD,DTR,DSR)
   0    IOLATCH enable/disable inputs latching
         0 = input values are not latched. A change in any input generates an
          interrupt. A read of the input register clears the interrupt. If the
@@ -10203,7 +11832,7 @@ have no effect on GPIO[7:4].
 
 This register is only available on the SC16IS750 and SC16IS760.
 
-Remark: As I/O pins, the direction, state, and interrupt of GPIO4 to GPIO7 are
+Remark: As I/O pins, the direction, state, and interrupt of GPIO4-7 are
 controlled by the following registers: IODir, IOState, IOIntEna, and IOControl.
 The state of CD, RI, DSR pins will not be reflected in MSR[7:5] or MSR[3:1],
 and any change of state on these three pins will not trigger a modem status
@@ -10272,6 +11901,12 @@ to carry the whole console).
 Additionally, IrDA could be reportedly used for things like file transfers,
 unknown if there are 3DS tools supporting such things?
 
+```
+  XXX see 3DS Connector and Chipset pinout chapters:
+    - Receive PWDOWN is controlled via GPIO0 IR[58h]
+    - ARM GPIO support manual transmit/receive (without using I2C transfer)
+```
+
 
 
 ## Infrared Signals
@@ -10282,8 +11917,8 @@ barely mentions infrared at all (apart from saying that the chip is IrDA SIR
 compatible, and that IrDA can be enabled in MCR.bit6).
 
 Going by other sources, IrDA SIR works like "UART over infrared". In lack of
-further details, here some guesses on how it might work (and how far it is (or
-isn't) compatible with regular cable-based UARTs):
+further details, here are some guesses on how it might work (and how far it is
+(or isn't) compatible with regular cable-based UARTs):
 
 - - RX/TX are probably using pulsed signals instead of constant LOW/HIGH levels?
 - - RTS/CTS/DTR/DSR are probably not implemented at all?
@@ -10395,6 +12030,64 @@ value).
 Odd effect observed during testing: Setting LCD[AFh]=AAh causes MANY more
 registers to become nonzero; this doesn't happen for other values like
 LCD[AFh]=0Fh,F0h,FFh.
+
+
+```
+        MIPI DSI
+```
+
+
+```
+        // LCD_I2C_REG_POWER - 01h
+        #define LCD_REG_POWER_BLACK     (0x11u) // Force blackscreen.
+        #define LCD_REG_POWER_ON        (0x10u) // Normal operation.
+        #define LCD_REG_POWER_OFF       (0x00u) // LCD powered off.
+```
+
+
+```
+        // LCD_I2C_REG_UNK11 - 11h
+        #define LCD_REG_UNK11_UNK10     (0x10u) // Written on init.
+```
+
+
+```
+        // LCD_I2C_REG_HS_SERIAL - 50h ;Highspeed serial, upper LCD only
+        #define LCD_REG_HS_SERIAL_ON    (0x01u) // Enable highspeed serial.
+```
+
+
+```
+        // LCD_I2C_REG_UNK54 - 54h  ;Checksum on/off?
+        // LCD_I2C_REG_UNK55 - 55h  ;Checksum status?
+```
+
+
+```
+        // LCD_I2C_REG_STATUS - 60h ;Initially 0x01.
+        #define LCD_REG_STATUS_OK       (0x00u)
+        #define LCD_REG_STATUS_ERR      (0x01u)
+```
+
+
+```
+        // LCD_I2C_REG_BL_STATUS - 62h ;Backlight status.
+        #define LCD_REG_BL_STATUS_OFF   (0x00u)
+        #define LCD_REG_BL_STATUS_ON    (0x01u)
+```
+
+
+```
+        // LCD_I2C_REG_RST_STATUS - FEh ;Reset status. Initially 0x00.
+        #define LCD_REG_RST_STATUS_NONE (0xAAu)
+        #define LCD_REG_RST_STATUS_RST  (0x00u)
+```
+
+
+```
+        // LCD_I2C_REG_REVISION - FFh  ;Revision/vendor infos.
+```
+
 
 
 
@@ -10852,7 +12545,7 @@ Python scripts to sniff and spoof IR communication between the NFC reader and
 This is a New3DS-only device (the Old3DS does have a similar add-on: Circle Pad
 Pro, connected to the infrared expansion port).
 
-Oberseve that the bootrom doesn't initialized I2C\_BUS2\_CNTEX/SCL (especially
+Oberseve that the bootrom doesn't initialize I2C\_BUS2\_CNTEX/SCL (especially
 CNTEX is required to have "Wait if SCL held low" enabled, else the C-stick
 replies are garbage).
 
@@ -11146,7 +12839,8 @@ Device Address changed from A6h to D6h in 8.0.0-18.
   00h        21      DebugPad state.
 ```
 
-This is the DebugPad device, see here.
+The DebugPad is reportedly a slightly modified "Wii Classic Controller Pro"
+(with type F0h instead of FDh).
 
 
 
@@ -11201,7 +12895,7 @@ Moreover, each screen is having an I2C-bus controller for further
 configuration.
 
 - [3DS I2C LCD Screen Controllers](#3dsi2clcdscreencontrollers)
-And, the MCU has several LCD/backlight enable flags... and a GPU flag?
+And, the MCU has enable flags for LCD Power Supplies and LCD Backlights.
 
 
 
@@ -11244,9 +12938,11 @@ Misc notes...
 - [3DS GPU Fragment Lighting](#3dsgpufragmentlighting)
 - [3DS GPU Pitfalls](#3dsgpupitfalls)
 - [3DS GPU Primitive Engine and Shaders](#3dsgpuprimitiveengineandshaders)
+- [3DS GPU Texture Formats](#3dsgputextureformats)
+- [3DS GPU Texture Types](#3dsgputexturetypes)
 There is also some 3DS GPU open source driver called citro3d, but it's mostly
-higher level stuff and would require a lot of reverse engineering to extract to
-lower level functionality from it.
+higher level stuff and would require a lot of reverse engineering to extract
+the lower level functionality from it.
 
 
 
@@ -11290,64 +12986,57 @@ if CtrlFlags.bit0=1).
 
 
 ```
-  Physical  Size R/W       Name
-  10202000h 4    00070007h reportedly Parallax barrier enable (uh, in 2x3bit?)
-  10202004h 4    FFFFFFFFh Whatever, should be 0A390A39h
-  10202008h 4    (R)       Whatever, readonly (R) (bit0=top screen mode?)
-  1020200Ch 4    00010001h Video Disable Bits (bit0/16=top/bottom disable?)
-  10202010h 4    00001F0Fh Whatever, usually 00000900h
-  10202014h 4    00000001h Video Enable Bit (bit0)
-  10202018h 1E8h (0)       Unused (0) ?
-  10202200h 600h ...       LCD Configuration for Top Screen (see below)
-  10202800h 200h (0)       Unused (0) ?
-  10202A00h 600h ...       LCD Configuration for Bottom Screen (see below)
- (10203200h)40h  (0) uh??  reportedly LCD related, but actually DSP-mirror
+  10202000h 4    LCD_PARALLAX_CNT   Parallax Barrier Enable (R/W)
+  10202004h 4    LCD_PARALLAX_PWM   Parallax Barrier PWM (R/W)
+  10202008h 4    LCD_STATUS         ... Whatever (bit0=top screen mode?) (R)
+  1020200Ch 4    LCD_CLOCK_DIS      Clock Disable (bit0/16=top/bottom disable)
+  10202010h 4    ...                ... Whatever, usually 00000900h
+  10202014h 4    LCD_RESET          Reset both Displays (bit0: 0=reset)
+  10202018h 1E8h -                  Unused (0)
+  10202200h 600h LCD0_xxx           Configuration for Top Screen    (see below)
+  10202800h 200h -                  Unused (0)
+  10202A00h 600h LCD1_xxx           Configuration for Bottom Screen (see below)
 ```
 
 
 
-## LCD Configuration for Top/Bottom Screen
+## LCD0/LCD1 Configuration for Top/Bottom Screen
 
 
 ```
-  Top/Bottom Addr     Size R/W
-  10202200h/10202A00h 4    00000301h CtrlFlags
-  10202204h/10202A04h 4    01FFFFFFh Forced Blank Color
-  10202208h/10202A08h 8    (0)       Unused (0) ?
-  10202210h/10202A10h 4    000003FFh ? (default=0)    ;\
-  10202214h/10202A14h 4    000003FFh ? (default=3FFh) ; darker when all zero
-  10202218h/10202A18h 4    000003FFh ? (default=0)    ; (if CtrlFlags.bit0=1)
-  1020221Ch/10202A1Ch 4    000003FFh ? (default=3FFh) ;/
-  10202220h/10202A20h 4    000001FFh ? (default=100h) ;-
-  10202224h/10202A24h 4    000000FFh ? (default=0)    ;\
-  10202228h/10202A28h 4    000000FFh ? (default=0)    ;
-  1020222Ch/10202A2Ch 4    000000FFh ? (default=0)    ;/
-  10202230h/10202A30h 4    001F000Fh ? (default=4)    ;-
-  10202234h/10202A34h 4    (0)       Unused (0) ?
-  10202238h/10202A38h 4    000000FFh Last same entry in 10202400h (FFh=AllSame)
-  1020223Ch/10202A3Ch 4    000000FFh ? (default=FFh)
-  10202240h/10202A40h 4    000003FFh Backlight ;based on register 244h.low10bit
-  10202244h/10202A44h 4    FFFFF3FFh Backlight?;LSBs: backlight? MSBs=flags?
-  10202248h/10202A48h 8    (0)       Unused (0) ?
-  10202250h/10202A50h 4    00FFFFFFh ? (default=0)    ;\brighter if 2nd=FFFFFFh
-  10202254h/10202A54h 4    00FFFFFFh ? (default=0)    ;/(if CtrlFlags.bit0=1)
-  10202258h/10202A58h 8    (0)       Unused (0) ?
-  10202260h/10202A60h 4    0000CCCCh ? (default=0C84h);\
-  10202264h/10202A64h 4    (0)       Unused (0) ?     ;
-  10202268h/10202A68h 4    0000CCCCh ? (default=840Ch); DITHER alike Y2R ?
-  1020226Ch/10202A6Ch 4    (0)       Unused (0) ?     ;
-  10202270h/10202A70h 4    0000CCCCh ? (default=48C0h);
-  10202274h/10202A74h 4    (0)       Unused (0) ?     ;
-  10202278h/10202A78h 4    0000CCCCh ? (default=C048h);
-  1020227Ch/10202A7Ch 4    (0)       Unused (0) ?     ;/
-  10202280h/10202A80h 24h  000000FFh ? (default=0)    ;-9 words (8th=brighter)
-  102022A4h/10202AA4h 4Ch  (0)       Unused (0) ?
-  102022F0h/10202AF0h 4    (-R-)     ? (R)            ;\initially 00h, but can
-  102022F4h/10202AF4h 4    (-R-)     ? (R)            ; be FFh when screens
-  102022F8h/10202AF8h 4    (-R-)     ? (R)            ;/are on?
-  102022FCh/10202AFCh 4    (0)       Unused (0) ?
-  10202300h/10202B00h 100h 00FFFFFFh New3DS only: LCD calibration array?
-  10202400h/10202C00h 400h 000003FFh Backlight related array, used by bootrom
+  10202200h/10202A00h 4    LCDx_FLAGS           CtrlFlags
+  10202204h/10202A04h 4    LCDx_BLANK_COLOR     Forced Blank Color
+  10202208h/10202A08h 8    -                    Unused (0)
+  10202210h/10202A10h 4      000003FFh ? (default=0)    ;\
+  10202214h/10202A14h 4      000003FFh ? (default=3FFh) ; darker when all zero
+  10202218h/10202A18h 4      000003FFh ? (default=0)    ; (if CtrlFlags.bit0=1)
+  1020221Ch/10202A1Ch 4      000003FFh ? (default=3FFh) ;/
+  10202220h/10202A20h 4      000001FFh ? (default=100h) ;-
+  10202224h/10202A24h 4      000000FFh ? (default=0)    ;\
+  10202228h/10202A28h 4      000000FFh ? (default=0)    ;
+  1020222Ch/10202A2Ch 4      000000FFh ? (default=0)    ;/
+  10202230h/10202A30h 4      001F000Fh ? (default=4)    ;-
+  10202234h/10202A34h 4    -                    Unused (0)
+  10202238h/10202A38h 4      000000FFh LastSameEntry in 10202400h (FFh=AllSame)
+  1020223Ch/10202A3Ch 4      000000FFh ? (default=FFh)
+  10202240h/10202A40h 4    LCDx_BACKLIGHT_DUTY  Backlight Level
+  10202244h/10202A44h 4    LCDx_BACKLIGHT_CNT   Backlight Interval (and flags?)
+  10202248h/10202A48h 8    -                    Unused (0)
+  10202250h/10202A50h 4      00FFFFFFh New3DS only: ? ;\brighter if 2nd=FFFFFFh
+  10202254h/10202A54h 4      00FFFFFFh New3DS only: ? ;/(if CtrlFlags.bit0=1)
+  10202258h/10202A58h 8    -                    Unused (0)
+  10202260h/10202A60h 8    LCDx_DITHER0         Dither ;\
+  10202268h/10202A68h 8    LCDx_DITHER1         Dither ; DITHER alike Y2R
+  10202270h/10202A70h 8    LCDx_DITHER2         Dither ;
+  10202278h/10202A78h 8    LCDx_DITHER3         Dither ;/
+  10202280h/10202A80h 24h    000000FFh ? (default=0)  ;-9 words (8th=brighter)
+  102022A4h/10202AA4h 4Ch  -                    Unused (0)
+  102022F0h/10202AF0h 4      (-R-)     ? (R)          ;\initially 00h, but can
+  102022F4h/10202AF4h 4      (-R-)     ? (R)          ; be FFh when screens
+  102022F8h/10202AF8h 4      (-R-)     ? (R)          ;/are on?
+  102022FCh/10202AFCh 4    -                    Unused (0)
+  10202300h/10202B00h 100h   00FFFFFFh New3DS only: LCD calibration array?
+  10202400h/10202C00h 400h   000003FFh Backlight related array, used by bootrom
 ```
 
 
@@ -11357,50 +13046,70 @@ if CtrlFlags.bit0=1).
 
 
 
-## 10202000h - Parallax barrier enable (uh, in 2x3bit?) (R/W)
+## 10202000h - LCD\_PARALLAX\_CNT - Parallax Barrier Enable (R/W)
 
 
 ```
-  0-2    Unknown (0..7)
+  0-1    TP27 Parallax PWM Output           (0=Off, 1=PWM, 2/3=Off)
+  2      TP27 Parallax PWM Output Invert    (0=Normal, 1=Swap On/Off)
   3-15   Unused (0)
-  16-18  Unknown (0..7)
+  16-17  TP29 Parallax Enable Output        (0=Off, 1=On, 2/3=Off)
+  18     TP29 Parallax Enable Output Invert (0=Normal, 1=Swap On/Off)
   19-31  Unused (0)
 ```
 
-No visible effect, at least not on bottom screen.
+Unknown what setting is best for Parallax enable... probably 10001h? To disable
+parallax: set the register to zero.
+
+Backlight level should be increased when parallax is on (as only half of the
+pixels are visible per eye). And the 3D LED should be enabled via MCU[2Ch] to
+notify the user to watch for the 3D effect.
+
+No visible effect on bottom screen.
+
+On top screen: Settings all bits causes screen to appear darker: After a while,
+it becomes FULLY BLACK when viewed from front (but still visible when viewed
+from above, including changes to VRAM being visible).
 
 
 
-## 10202004h - Whatever, should be 0A390A39h (R/W)
-
-
-```
-  0-15   Unknown
-  16-31  Unknown
-```
-
-Usually set to 0A390A39h. But there's no visible effect when set to 0 or
-FFFFFFFFh.
-
-
-
-## 10202008h - Whatever, readonly (R)
-
-
-```
-  0      Indicates current horizontal resolution of top screen?
-  1-31   Unknown or unused
-```
-
-
-
-## 1020200Ch - Video Disable Bits (R/W)
+## 10202004h - LCD\_PARALLAX\_PWM - Parallax Barrier PWM (R/W)
 
 
 ```
-  0      Unknown (maybe same as bit16, for top screen?)
+  0-15   Parallax PWM Duty Off   ;(N+1)*0.9us   ;\affects TP27
+  16-31  Parallax PWM Duty On    ;(N+1)*0.9us   ;/(if enabled)
+```
+
+Usually set to 0A390A39h (off=2.5ms, on=2.5ms, aka 5ms interval with 50% duty).
+At least, that's the default value is used by bootrom - unknown if better
+calibration is needed?
+
+
+
+## 10202008h - LCD\_STATUS - Whatever, readonly (R)
+
+
+```
+  0      Indicates current horizontal resolution of top screen, uh?
+  1-7    Unknown or unused
+  8      Unknown (bootrom contains unused code for reading this)
+  9      Num layers per screen? (bootrom uses that) (0=One, 1=Two/Stereo)
+  10-15  Unknown or unused
+  16-31  Unknown or unused (maybe same as above, for bottom screen?)
+```
+
+Unknown where those values come from... maybe from Port 10400470h/10400570h?
+
+
+
+## 1020200Ch - LCD\_CLOCK\_DIS - LCD Clock Disable (R/W)
+
+
+```
+  0      Top Screen Clock     (TP163/TP164) (0=Normal/On, 1=Screen fades out)
   1-15   Unused (0)
-  16     Disable Bottom Screen (0=Normal/On, 1=Screen fades out)
+  16     Bottom Screen Clock  (TP189)       (0=Normal/On, 1=Screen fades out)
   17-31  Unused (0)
 ```
 
@@ -11421,15 +13130,18 @@ setting.
 
 
 
-## 10202014h - Video Enable Bit (R/W)
+## 10202014h - LCD\_RESET - LCD Reset both Displays (R/W)
 
 
 ```
-  0      Video enable (0=Off/Black, 1=On/Picture)
+  0      Both Screens Display Enable (TP244) (0=Reset/Black, 1=On/Picture)
   1-31   Unused (0)
 ```
 
-Bottom (and top?) screen goes black when off (though backlight is kept on).
+Resets the LCD I2C Registers (device 1:2Ch and 2:2Eh). The screens are black
+during reset (although clock, data transfers, and backlight are kept on). For
+whatever reason, the top screen isn't fully black: the upper/lower/left/right
+screen borders are becoming dark gray.
 
 
 ```
@@ -11438,7 +13150,7 @@ Bottom (and top?) screen goes black when off (though backlight is kept on).
 
 
 
-## 10202200h/10202A00h - CtrlFlags (R/W)
+## 10202200h/10202A00h - LCDx\_FLAGS - CtrlFlags (R/W)
 
 
 ```
@@ -11455,7 +13167,7 @@ Bit0 seems to enable custom settings in 1020221xh/10202A1xh,
 
 
 
-## 10202204h/10202A04h - Forced Blank Color (R/W)
+## 10202204h/10202A04h - LCDx\_BLANK\_COLOR - Forced Blank Color (R/W)
 
 
 ```
@@ -11528,7 +13240,8 @@ Screen gets darker when set to all zeroes (but only if CtrlFlags.bit0=1).
 ```
   0-3    Unknown (0..0Fh)
   4-15   Unused (0)
-  16-20  Unknown (0..1Fh)
+  16-20  Old3DS: Unused (0)
+  16-20  New3DS: Unknown (0..1Fh)
   21-31  Unused (0)
 ```
 
@@ -11554,39 +13267,52 @@ Screen gets darker when set to all zeroes (but only if CtrlFlags.bit0=1).
 
 
 
-## 10202240h/10202A40h 4    000003FFh Backlight ;based on register 244h.low10bit
+## 10202240h/10202A40h - LCDx\_BACKLIGHT\_DUTY - Backlight Level (R/W)
 
 
 ```
-  0-9    Backlight related (0..3FFh)
+  0-9    Backlight PWM Duty On (0..3FFh, in 67MHz units) (0=off)
   10-31  Unused (0)
 ```
 
+Allows to change backlight brightness. The settings are different for Upper and
+Lower screen (and also depend on Parallax enable).
+
+User settings and calibration are somehow stored in HWCAL and "config" files.
+
+To enable/disable the backlight: Use MCU[22h] (or Powerman when in NDS mode).
+
+Caution: Setting the PWM Interval (Duty On+Off time, in the register shown
+below) to too small values (less than 016h) causes Power Off (if Duty is
+nonzero).
 
 
-## 10202244h/10202A44h 4    FFFFF3FFh Backlight?;LSBs: backlight? MSBs=flags?
+
+## 10202244h/10202A44h - LCDx\_BACKLIGHT\_CNT - Backlight Interval (+flags?) (R/W)
 
 
 ```
-  0-9    Backlight related? (0..3FFh)
+  0-9    Backlight PWM Interval, minus 1 (000h..3FFh, in 67MHz units)
   10-11  Unused (0)
   12-15  Unknown (should be 0 or 6, depending on MCU?)
   16     Unknown
   17     Unknown
-  18-31  More unknown bits/values...
+  18     Unknown
+  19-31  Old3DS: Unused (0)
+  19-31  New3DS: More unknown bits/values... (R/W)
 ```
 
 
 
-## 10202250h/10202A50h 4    00FFFFFFh ? (default=0)
+## 10202250h/10202A50h 4    00FFFFFFh ? (default=0) ;New3DS only
 
 
 
-## 10202254h/10202A54h 4    00FFFFFFh ? (default=0)
+## 10202254h/10202A54h 4    00FFFFFFh ? (default=0) ;New3DS only
 
 
 ```
-  0-23   Unknown (0..FFFFFFh)
+  0-23   New3DS: Unknown (0..FFFFFFh)
   24-31  Unused (0)
 ```
 
@@ -11595,27 +13321,25 @@ Two 24bit values. Screen gets brighter when setting the SECOND value to FFFFFFh
 
 
 
-## 10202260h/10202A60h 4    0000CCCCh ? (default=0C84h)
+## 10202260h/10202A60h - LCDx\_DITHER0 - Dither (default=0C84h)
 
 
 
-## 10202268h/10202A68h 4    0000CCCCh ? (default=840Ch)
+## 10202268h/10202A68h - LCDx\_DITHER1 - Dither (default=840Ch)
 
 
 
-## 10202270h/10202A70h 4    0000CCCCh ? (default=48C0h)
+## 10202270h/10202A70h - LCDx\_DITHER2 - Dither (default=48C0h)
 
 
 
-## 10202278h/10202A78h 4    0000CCCCh ? (default=C048h)
+## 10202278h/10202A78h - LCDx\_DITHER3 - Dither (default=C048h)
 
 
 ```
-  0-15   Unknown (R/W Mask CCCCh)
-  16-31  Unused (0)
+  0-31   Dither alike Y2R, R/W-mask 0000CCCCh
+  32-63  Unused (0) (ie. there are 32bit gaps between the four registers)
 ```
-
-DITHER alike Y2R?
 
 
 
@@ -12588,52 +14312,52 @@ PDC = "PICA Display Control" or so?
 
 
 ```
-  10400400h/10400500h 4   V-Total-1                 ;1C2h       ;\
-  10400404h/10400504h 4   V-Lower-border-end        ;0D1h       ;
-  10400408h/10400508h 4   V-Upper-border-middle     ;1C1h       ;
-  1040040Ch/1040050Ch 4   V-Upper-border-end        ;1C1h       ; V
-  10400410h/10400510h 4   V-Sync-start              ;000h/0CDh  ;
-  10400414h/10400514h 4   V-Sync-end                ;0CFh       ;
-  10400418h/10400518h 4   V-Lower-border-start      ;0D1h       ;
-  1040041Ch/1040051Ch 2   V-IRQ-start               ;1C1h       ;
-  1040041Eh/1040051Eh 2   V-IRQ-end                 ;1C5h       ;/
-  10400420h/10400520h 2   V-Pre-padding fetch start?;000h       ;\V
-  10400422h/10400522h 2   V-??   ;must be <=1C2h    ;001h       ;/
-  10400424h/10400524h 4   H-Total-1                 ;19Dh       ;\
-  10400428h/10400528h 4   H-Left-border-end         ;002h/052h  ;
-  1040042Ch/1040052Ch 4   H-Right-border-middle     ;192h       ;
-  10400430h/10400530h 4   H-Right-border-end        ;192h       ; H
-  10400434h/10400534h 4   H-Sync-Start              ;192h/04Fh  ;
-  10400438h/10400538h 4   H-Sync-End                ;001h/050h  ;
-  1040043Ch/1040053Ch 4   H-Left-border-start       ;002h/052h  ;
-  10400440h/10400540h 2   H-IRQ-start (or end)      ;192h       ;
-  10400442h/10400542h 2   H-IRQ-end (or start)      ;193h       ;/
-  10400444h/10400544h 4   V-Increment-H             ;000h       ;-V
-  10400448h/10400548h 4   Screen Vsync/Hsync type
-  1040044Ch/1040054Ch 4   Screen Border color
-  10400450h/10400550h 4   V-Current position (R)
-  10400454h/10400554h 4   H-Current position (R)
+  10400400h/10400500h 4   PDCx_V_TOTAL           ;1C2h       ;\
+  10400404h/10400504h 4   PDCx_V_LO_BORDER_END   ;0D1h       ;
+  10400408h/10400508h 4   PDCx_V_UP_BORDER_MID   ;1C1h       ;
+  1040040Ch/1040050Ch 4   PDCx_V_UP_BORDER_END   ;1C1h       ; V
+  10400410h/10400510h 4   PDCx_V_SYNC_START      ;000h/0CDh  ;
+  10400414h/10400514h 4   PDCx_V_SYNC_END        ;0CFh       ;
+  10400418h/10400518h 4   PDCx_V_LO_BORDER_START ;0D1h       ;
+  1040041Ch/1040051Ch 2   PDCx_V_IRQ_START       ;1C1h       ;
+  1040041Eh/1040051Eh 2   PDCx_V_IRQ_END         ;1C5h       ;/
+  10400420h/10400520h 2   PDCx_V_FETCH_START     ;000h       ;\V
+  10400422h/10400522h 2   PDCx_V_UNKNOWN_22H     ;001h       ;/
+  10400424h/10400524h 4   PDCx_H_TOTAL           ;19Dh       ;\
+  10400428h/10400528h 4   PDCx_H_LT_BORDER_END   ;002h/052h  ;
+  1040042Ch/1040052Ch 4   PDCx_H_RT_BORDER_MID   ;192h       ;
+  10400430h/10400530h 4   PDCx_H_RT_BORDER_END   ;192h       ; H
+  10400434h/10400534h 4   PDCx_H_SYNC_START      ;192h/04Fh  ;
+  10400438h/10400538h 4   PDCx_H_SYNC_END        ;001h/050h  ;
+  1040043Ch/1040053Ch 4   PDCx_H_LT_BORDER_START ;002h/052h  ;
+  10400440h/10400540h 2   PDCx_H_IRQ_START       ;192h       ;
+  10400442h/10400542h 2   PDCx_H_IRQ_END         ;193h       ;/
+  10400444h/10400544h 4   PDCx_V_INCREMENT_H     ;000h       ;-V
+  10400448h/10400548h 4   PDCx_SYNC_POLARITY
+  1040044Ch/1040054Ch 4   PDCx_BORDER_COLOR
+  10400450h/10400550h 4   PDCx_V_CURR_POS   (R)
+  10400454h/10400554h 4   PDCx_H_CURR_POS   (R)
   10400458h/10400558h 04h Unused (0)
-  1040045Ch/1040055Ch 2   V-Picture size            ;0F0h       ;-V
-  1040045Eh/1040055Eh 2   H-Picture size (no effect);190h/140h  ;-H
-  10400460h/10400560h 2   V-Lower-border-middle     ;0D1h       ;\V
-  10400462h/10400562h 2   V-Upper-border-start      ;1C1h       ;/
-  10400464h/10400564h 2   H-Left-border-middle      ;002h/052h  ;\H
-  10400466h/10400566h 2   H-Right-border-start      ;192h       ;/
-  10400468h/10400568h 4   Framebuffer 0 address for Left eye (or both eyes)
-  1040046Ch/1040056Ch 4   Framebuffer 1 address for Left eye (or both eyes)
-  10400470h/10400570h 4   Framebuffer format
-  10400474h/10400574h 4   Interrupt type
-  10400478h/10400578h 4   Framebuffer Select and Request/Ack
-  1040047Ch/1040057Ch 4   Screen Status flags (R)
-  10400480h/10400580h 4   Color Lookup Table index (R/W)
-  10400484h/10400584h 4   Color Lookup Table data (R/W)
+  1040045Ch/1040055Ch 2   PDCx_V_PICT_SIZE       ;0F0h       ;-V
+  1040045Eh/1040055Eh 2   PDCx_H_PICT_SIZE       ;190h/140h  ;-H
+  10400460h/10400560h 2   PDCx_V_LO_BORDER_MID   ;0D1h       ;\V
+  10400462h/10400562h 2   PDCx_V_UP_BORDER_START ;1C1h       ;/
+  10400464h/10400564h 2   PDCx_H_LT_BORDER_MID   ;002h/052h  ;\H
+  10400466h/10400566h 2   PDCx_H_RT_BORDER_START ;192h       ;/
+  10400468h/10400568h 4   PDCx_FRAMEBUF_0_LT      ;\buffer address for
+  1040046Ch/1040056Ch 4   PDCx_FRAMEBUF_1_LT      ;/Left eye (or both eyes)
+  10400470h/10400570h 4   PDCx_FRAMEBUF_FORMAT
+  10400474h/10400574h 4   PDCx_INTERRUPT_TYPE
+  10400478h/10400578h 4   PDCx_FRAMEBUF_SEL_ACK
+  1040047Ch/1040057Ch 4   PDCx_STATUS       (R)
+  10400480h/10400580h 4   PDCx_COLOR_RAMP_INDEX   ;\color lookup table
+  10400484h/10400584h 4   PDCx_COLOR_RAMP_DATA    ;/
   10400488h/10400588h 08h Unused (0)
-  10400490h/10400590h 4   Framebuffer Horizontal Address Step
-  10400494h/10400594h 4   Framebuffer 0 address for Right eye (or unused
-  10400498h/10400598h 4   Framebuffer 1 address for Right eye (or unused
-  1040049Ch/1040059Ch 2   V-Latching-Point          ;000h       ;-V
-  1040049Eh/1040059Eh 2   H-Latching-Point          ;192h       ;-H
+  10400490h/10400590h 4   PDCx_FRAMEBUF_H_STEP    ;-horizontal address step
+  10400494h/10400594h 4   PDCx_FRAMEBUF_0_RT      ;\buffer address for
+  10400498h/10400598h 4   PDCx_FRAMEBUF_1_RT      ;/Right eye (or unused)
+  1040049Ch/1040059Ch 2   PDCx_V_LATCHING_POINT  ;000h       ;-V
+  1040049Eh/1040059Eh 2   PDCx_H_LATCHING_POINT  ;192h       ;-H
   104004A0h/104005A0h 60h Unused (0)
 ```
 
@@ -12649,15 +14373,18 @@ on the visible picture & timings - until reaching the H/V-Latching Point
 
 
 
-## 10400474h/10400574h - Interrupt Type (R/W)
+## 10400474h/10400574h - PDCx\_INTERRUPT\_TYPE - Interrupt Type (R/W)
 
 
 ```
   0      Display Enable (should be 1) (0=Off/screen fades out, 1=On/normal)
   1-7    Unused (0)
   8-10   Interrupt Mode (5=OncePerFrame, 7=None, 0..4,6=Special) (see below)
+           8  reportedly disable v-irq
+           9  reportedly disable h-irq
+           10 reportedly disable err-irq
   7-11   Unused (0)
-  16     Unknown...?    (0=???, 1=Normal)
+  16     Unknown...?    (0=???, 1=Normal) (reportedly "output enable"?)
   17-31  Unused (0)
 ```
 
@@ -12694,20 +14421,23 @@ for V positions, though those are more difficult to measure).
 
 
 
-## 10400478h/10400578h - Framebuffer Select and Request/Ack (R/W)
+## 10400478h/10400578h - PDCx\_FRAMEBUF\_SEL\_ACK - Buf Select, Req/Ack (R/W)
 
 
 ```
-  0      Display Framebuffer (0=Buffer 0, 1=Buffer 1)
+  0      Display Framebuffer (0=Buffer 0, 1=Buffer 1)                "NEXT"
   1-3    Unused (0)
-  4      Request STAT.bit4 to get triggered (0=No, 1=Request/Busy)
+  4      Request STAT.bit4 to get triggered (0=No, 1=Request/Busy)   "CUR"
   5-7    Unused (0)
-  8      Unknown...?   (0=Normal, 1=???)
+  8      Unknown...?   (0=Normal, 1=???)                           "RST_FIFO"
   9-15   Unused (0)
   16     Unknown...?   (0=Normal, 1=???)
+            reportedly v-irq (read=flag, write=ack?)
   17     Unknown...?   (0=Normal, 1=???, set in bootrom IRQ handler, but why?)
+            reportedly h-irq
   18     Acknowledge STAT.bit15? resurrect after ONESHOT irq (unless,
            bit18/ack works ONLY if OUTSIDE of display area?)
+            reportedly err-irq
   19-31  Unused (0)
 ```
 
@@ -12719,13 +14449,13 @@ get cleared once when the request is handled).
   bit8,16,17,18: cleared after a handful of clock cycles
 ```
 
-Request.bit4 does soemhow relate to the framebuffer selection in bit0 (see
+Request.bit4 does somehow relate to the framebuffer selection in bit0 (see
 STAT.bit4 for details)... Guess: maybe bit4 prevents bit0 from being internally
 applied until hblank?
 
 
 
-## 1040047Ch/1040057Ch - Screen Status flags (R)
+## 1040047Ch/1040057Ch - PDCx\_STATUS - Screen Status flags (R)
 
 
 ```
@@ -12755,20 +14485,17 @@ applied until hblank?
 
 
 
-## 10400448h/10400548h - Screen Vsync/Hsync type (R/W)
+## 10400448h/10400548h - PDCx\_SYNC\_POLARITY - Screen Sync Polarity (R/W)
 
 
 ```
-  0      Seems to disable HSync (or Vsync?), or sync mode/polarity or so?
+  0      V-Sync Polarity (0=Active Low, 1=Active High)  ;Bottom Screen TP190
   1-7    Unused (0)
-  8      Seems to disable VSync (or Hsync?), or sync mode/polarity or so?
+  8      H-Sync Polarity (0=Active Low, 1=Active High)  ;Bottom Screen TP191
   9-31   Unused (0)
 ```
 
-Should be 00h/11h for top/bottom screen. Maybe selects using /SYNC signals or
-types like "DE only" with sync on Display Enable? The pinout for bottom screen
-is said to include /HSYNC and /VSYNC pins. The pinout for top screen is
-unknown.
+Must be 00h for top screen, and 11h for bottom screen.
 
 
 ```
@@ -12777,19 +14504,19 @@ unknown.
 
 
 
-## 10400468h/10400568h - Framebuffer 0 address for Left eye (or both eyes)
+## 10400468h/10400568h - PDCx\_FRAMEBUF\_0\_LT - Buffer 0 for Left/both eyes
 
 
 
-## 1040046Ch/1040056Ch - Framebuffer 1 address for Left eye (or both eyes)
+## 1040046Ch/1040056Ch - PDCx\_FRAMEBUF\_1\_LT - Buffer 1 for Left/both eyes
 
 
 
-## 10400494h/10400594h - Framebuffer 0 address for Right eye (or unused)
+## 10400494h/10400594h - PDCx\_FRAMEBUF\_0\_RT - Buffer 0 for Right/unused eye
 
 
 
-## 10400498h/10400598h - Framebuffer 1 address for Right eye (or unused)
+## 10400498h/10400598h - PDCx\_FRAMEBUF\_1\_RT - Buffer 1 for Right/unused eye
 
 
 ```
@@ -12797,9 +14524,11 @@ unknown.
   4-31   Address, in 16-byte units
 ```
 
+Framebuffer address for Left eye (or both eyes), and Right eye (or unused).
 
 
-## 10400490h/10400590h - Framebuffer Horizontal Address Step (R/W)
+
+## 10400490h/10400590h - PDCx\_FRAMEBUF\_H\_STEP - Horizontal Address Step
 
 
 ```
@@ -12809,7 +14538,7 @@ unknown.
 
 
 
-## 10400470h/10400570h - Framebuffer format (R/W)
+## 10400470h/10400570h - PDCx\_FRAMEBUF\_FORMAT - Framebuffer format (R/W)
 
 
 ```
@@ -12825,11 +14554,14 @@ unknown.
            02h = Unknown                (actually distorted display?)
            03h = Unknown "black screen" (actually normal display?)
   10-15  Unused (0)
-  16-31  Unknown (0..FFFFh) (should be 8)
+  16-31  Unknown (0..FFFFh) (should be 8)  -- Video DMA timings?
             (FFFFh=slow horizontal drawing?)
             maybe... dotclk divider (and perhaps multiplier in other bits)
             hmmm, but, very large values cause vram-misaddressing?
 ```
+
+The upper 16bit(?) seem to be Video DMA timings, there are reportedly also
+Video DMA burst length bits somewhere.
 
 Obscure Color Format Notes:
 
@@ -12846,7 +14578,7 @@ first/bottom? uh, and that's for non-24bit, so, how does 24bit look like?
 
 
 
-## 10400480h/10400580h - Color Lookup Table index (R/W)
+## 10400480h/10400580h - PDCx\_COLOR\_RAMP\_INDEX - Color Table Index (R/W)
 
 
 ```
@@ -12856,7 +14588,7 @@ first/bottom? uh, and that's for non-24bit, so, how does 24bit look like?
 
 
 
-## 10400484h/10400584h - Color Lookup Table data (R/W)
+## 10400484h/10400584h - PDCx\_COLOR\_RAMP\_DATA - Color Table data (R/W)
 
 
 ```
@@ -12877,7 +14609,7 @@ Unknown which indices are used in RGBA 5650, 5551, and 4444 modes.
 
 
 
-## 1040044Ch/1040054Ch - Screen Border color (R/W)
+## 1040044Ch/1040054Ch - PDCx\_BORDER\_COLOR - Screen Border color (R/W)
 
 
 ```
@@ -12906,23 +14638,23 @@ border start/end range, otherwise the screen dies with fading out).
 
 
 ```
-  10400444h/10400544h 4   V-Increment-H             ;000h
-  1040049Ch/1040059Ch 2   V-Latching-Point          ;000h
-  10400420h/10400520h 2   V-Pre-padding fetch start?;000h
-  10400422h/10400522h 2   V-??   ;must be <=1C2h    ;001h
-  10400410h/10400510h 4   V-Sync-start              ;000h/0CDh
-  10400414h/10400514h 4   V-Sync-end                ;0CFh
-  10400418h/10400518h 4   V-Lower-border-start      ;0D1h
-  10400460h/10400560h 2   V-Lower-border-middle     ;0D1h
-  10400404h/10400504h 4   V-Lower-border-end        ;0D1h
-  1040045Ch/1040055Ch 2   V-Picture size            ;0F0h
-  10400462h/10400562h 2   V-Upper-border-start      ;1C1h
-  10400408h/10400508h 4   V-Upper-border-middle     ;1C1h
-  1040040Ch/1040050Ch 4   V-Upper-border-end        ;1C1h
-  1040041Ch/1040051Ch 2   V-IRQ-start               ;1C1h
-  1040041Eh/1040051Eh 2   V-IRQ-end                 ;1C5h
-  10400400h/10400500h 4   V-Total-1                 ;1C2h
-  10400450h/10400550h 4   V-Current position (R)    ;000h..1C2h
+  10400444h/10400544h 4   PDCx_V_INCREMENT_H     ;000h       ;\
+  1040049Ch/1040059Ch 2   PDCx_V_LATCHING_POINT  ;000h       ; Misc
+  10400420h/10400520h 2   PDCx_V_FETCH_START     ;000h       ;
+  10400422h/10400522h 2   PDCx_V_UNKNOWN_22H     ;001h       ;/
+  10400410h/10400510h 4   PDCx_V_SYNC_START      ;000h/0CDh  ;\Sync
+  10400414h/10400514h 4   PDCx_V_SYNC_END        ;0CFh       ;/
+  10400460h/10400560h 2   PDCx_V_LO_BORDER_MID   ;0D1h       ;\
+  10400418h/10400518h 4   PDCx_V_LO_BORDER_START ;0D1h       ; Lower border
+  10400404h/10400504h 4   PDCx_V_LO_BORDER_END   ;0D1h       ;/
+  1040045Ch/1040055Ch 2   PDCx_V_PICT_SIZE       ;0F0h       ;-Picture size
+  10400462h/10400562h 2   PDCx_V_UP_BORDER_START ;1C1h       ;\
+  10400408h/10400508h 4   PDCx_V_UP_BORDER_MID   ;1C1h       ; Upper border
+  1040040Ch/1040050Ch 4   PDCx_V_UP_BORDER_END   ;1C1h       ;/
+  1040041Ch/1040051Ch 2   PDCx_V_IRQ_START       ;1C1h       ;\Irq
+  1040041Eh/1040051Eh 2   PDCx_V_IRQ_END         ;1C5h       ;/
+  10400400h/10400500h 4   PDCx_V_TOTAL           ;1C2h       ;-Total-1
+  10400450h/10400550h 4   PDCx_V_CURR_POS   (R)  ;000h..1C2h ;-Curr Pos
 ```
 
 These are usually using same values for top/bottom screen (with 240pix height
@@ -12934,20 +14666,20 @@ each), except that Nintendo has used different Sync length for some reason.
 
 
 ```
-  10400434h/10400534h 4   H-Sync-Start              ;192h/04Fh
-  10400438h/10400538h 4   H-Sync-End                ;001h/050h
-  1040043Ch/1040053Ch 4   H-Left-border-start       ;002h/052h
-  10400464h/10400564h 2   H-Left-border-middle      ;002h/052h
-  10400428h/10400528h 4   H-Left-border-end         ;002h/052h
-  1040045Eh/1040055Eh 2   H-Picture size (no effect);190h/140h
-  10400466h/10400566h 2   H-Right-border-start      ;192h
-  1040042Ch/1040052Ch 4   H-Right-border-middle     ;192h
-  10400430h/10400530h 4   H-Right-border-end        ;192h
-  1040049Eh/1040059Eh 2   H-Latching-Point          ;192h
-  10400440h/10400540h 2   H-IRQ-start (or end)      ;192h
-  10400442h/10400542h 2   H-IRQ-end (or start)      ;193h
-  10400424h/10400524h 4   H-Total-1                 ;19Dh
-  10400454h/10400554h 4   H-Current position (R)    ;000h..19Dh
+  10400434h/10400534h 4   PDCx_H_SYNC_START      ;192h/04Fh  ;\Sync
+  10400438h/10400538h 4   PDCx_H_SYNC_END        ;001h/050h  ;/
+  1040043Ch/1040053Ch 4   PDCx_H_LT_BORDER_START ;002h/052h  ;\
+  10400464h/10400564h 2   PDCx_H_LT_BORDER_MID   ;002h/052h  ; Left border
+  10400428h/10400528h 4   PDCx_H_LT_BORDER_END   ;002h/052h  ;/
+  1040045Eh/1040055Eh 2   PDCx_H_PICT_SIZE       ;190h/140h  ;-Picture size
+  10400466h/10400566h 2   PDCx_H_RT_BORDER_START ;192h       ;\
+  1040042Ch/1040052Ch 4   PDCx_H_RT_BORDER_MID   ;192h       ; Right border
+  10400430h/10400530h 4   PDCx_H_RT_BORDER_END   ;192h       ;/
+  1040049Eh/1040059Eh 2   PDCx_H_LATCHING_POINT  ;192h       ;-Misc
+  10400440h/10400540h 2   PDCx_H_IRQ_START       ;192h       ;\Irq
+  10400442h/10400542h 2   PDCx_H_IRQ_END         ;193h       ;/
+  10400424h/10400524h 4   PDCx_H_TOTAL           ;19Dh       ;-Total-1
+  10400454h/10400554h 4   PDCx_H_CURR_POS   (R)  ;000h..19Dh ;-Curr Pos
 ```
 
 These are using the same Htotal for top/bottom screen, but different
@@ -12967,10 +14699,10 @@ fading). However, other screens are said to lose sync or misalign lines and
 such stuff.
 
 
-Setting the V-pre-padding bigger than V-lower-border end causes the bottom-most
+Setting V\_FETCH\_START bigger than V\_LO\_BORDER\_END causes the bottom-most
 picture lines to display the most recent pixel color instead of fetching new
 pixels from VRAM. A Similar effect occurs in upper picture area when setting
-V-picture-size too small.
+V\_PICT\_SIZE too small (whilst H\_PICT\_SIZE seems to have no effect at all).
 
 
 ```
@@ -13003,57 +14735,6 @@ left/right buffer after each pixel horizontally (including on bottom screen).
 
 
 
-## Init Values from nngxInitialize for Top Screen
-
-
-Unknown if below values are "better" than bootrom, or if they are typos.
-
-```
-  10400400h = 1C2h
-  10400404h = D1h
-  10400408h = 1C1h
-  1040040Ch = 1C1h
-  10400410h = 0
-  10400414h = CFh
-  10400418h = D1h
-  1040041Ch = 1C501C1h
-  10400420h = 10000h
-  10400424h = 19Dh
-  10400428h = 2
-  1040042Ch = 1C2h ??? ;bootrom: 192h ?
-  10400430h = 1C2h ??? ;bootrom: 192h ?
-  10400434h = 1C2h ??? ;bootrom: 192h ?
-  10400438h = 1
-  1040043Ch = 2
-  10400440h = 1960192h ;bootrom: 1930192h ?
-  10400444h = 0
-  10400448h = 0
-  1040045Ch = 19000F0h   ;msbs=width=400, lsbs=height=240
-  10400460h = 1C100D1h
-  10400464h = 1920002h
-  10400470h = 80340h   ;bootrom: 80040h ?
-  1040049Ch = 0        ;bootrom: 1920000h ?
-```
-
-
-
-## More Init Values from nngxInitialize for Top Screen
-
-
-```
-  10400468h = 18300000h  ;\later changed by GSP module when updating state,
-  1040046Ch = 18300000h  ;/framebuffer
-  10400494h = 18300000h
-  10400498h = 18300000h
-  10400478h = 1          ;-doesn't stay 1, read as 0
-  10400474h = 10501h
-```
-
-Reportedly 10400478h/10400578h.bit0 "doesn't stay 1, read as 0", uh, actually
-that applies for ALL OTHER bits in that register, but NOT for bit0.
-
-
-
 ## Further Registers
 
 
@@ -13061,8 +14742,8 @@ Apart from above GPU registers, the screens do also need initialization of the
 "LCD" registers,
 
 - [3DS Video LCD Registers](#3dsvideolcdregisters)
-plus, initialization of whatever I2C registers for each screen. Plus some
-MCU/I2C registers for backlight or so.
+plus, initialization of I2C registers for each screen. Plus some MCU/I2C
+registers for backlight or so.
 
 
 
@@ -15733,17 +17414,18 @@ Format values:
   02h = RGBA5551        GL_RGBA            GL_UNSIGNED_SHORT_5_5_5_1
   03h = RGB565          GL_RGB             GL_UNSIGNED_SHORT_5_6_5
   04h = RGBA4444        GL_RGBA            GL_UNSIGNED_SHORT_4_4_4_4
-  05h = IA8             GL_LUMINANCE_ALPHA GL_UNSIGNED_BYTE
+  05h = LA8             GL_LUMINANCE_ALPHA GL_UNSIGNED_BYTE
   06h = HILO8
-  07h = I8              GL_LUMINANCE       GL_UNSIGNED_BYTE
+  07h = L8              GL_LUMINANCE       GL_UNSIGNED_BYTE
   08h = A8              GL_ALPHA           GL_UNSIGNED_BYTE
-  09h = IA44            GL_LUMINANCE_ALPHA GL_UNSIGNED_BYTE_4_4_EXT
-  0Ah = I4
+  09h = LA44            GL_LUMINANCE_ALPHA GL_UNSIGNED_BYTE_4_4_EXT
+  0Ah = L4
   0Bh = A4              GL_ALPHA           GL_UNSIGNED_NIBBLE_EXT
   0Ch = ETC1            GL_ETC1_RGB8_OES
   0Dh = ETC1A4
 ```
 
+- [3DS GPU Texture Formats](#3dsgputextureformats)
 
 
 
@@ -16808,7 +18490,8 @@ Uh, LIGHT\_PERMUTATION is a scary homebrew slang for LIGHT\_IDs?
 
 The mirrors (and GPUREG\_RESTART\_PRIMITIVE itself) are R/W, however, writing
 doesn't always work for some reason, or the write is applied only after issuing
-another three writes or so?
+another three writes or so? That may be due to some cache or write buffer in
+the CPU or GPU.
 
 
 
@@ -16819,6 +18502,7 @@ another three writes or so?
 other registers ORed together.
 
 ```
+  Note: below ORing occurred on New3DS XL, but Old3DS behaves differently
   104018BCh = 1040183Ch,1040189Ch,104018B4h           ;ATTR_BUF_DRAWELEMENTS
   104018C0h = 10401840h,104018E0h,10401880h           ;unused (or write-only?)
   104018C4h = 10401844h,104018E4h,10401884h           ;VTX_FUNC
@@ -17926,6 +19610,199 @@ is unknown how this feature is enabled specifically.
 
 
 
+# <a name="3dsgputextureformats"></a>3DS GPU Texture Formats
+
+
+
+
+## 3DS GPU Texture Format numbers (and CLIM numbers)
+
+
+```
+  GPU  CLIM     Name     bpp            Red      Green    Blue     Alpha
+  00h  09h      RGBA8888 32bit          Bit31-24 Bit23-16 Bit15-8  Bit7-0
+  01h  06h      RGB888   24bit          Bit23-16 Bit15-8  Bit7-0   FFh
+  02h  07h      RGBA5551 16bit          Bit15-11 Bit10-6  Bit5-1   Bit0
+  03h  05h      RGB565   16bit          Bit15-11 Bit10-5  Bit4-0   FFh
+  04h  08h      RGBA4444 16bit          Bit15-12 Bit11-8  Bit7-4   Bit3-0
+  05h  03h      LA88     16bit          <--------Bit15-8------->   Bit7-0
+  06h  04h      HILO88   16bit          Bit15-8  Bit7-0   00h      FFh
+  07h  00h      L8       8bit           <--------Bit7-0-------->   FFh
+  08h  01h      A8       8bit           <--------00h----------->   Bit7-0
+  09h  02h      LA44     8bit           <--------Bit7-4-------->   Bit3-0
+  0Ah  0Ch      L4       4bit           <--------Bit3-0-------->   FFh
+  0Bh  0Dh      A4       4bit           <--------00h----------->   Bit3-0
+  0Ch  0Ah      ETC1     4bit/average   <---64bit per 4x4pix--->   FFh
+  0Dh  0Bh      ETC1A4   8bit/average   <---64bit per 4x4pix--->   Bit3-0
+```
+
+The RGB/RGBA bit-order for 3DS is conventionally MSBs=Red, LSBs=Alpha (but the
+GPU shader unit can swap the input/values, so one could also use anything like
+BGRA or ARGB; except, swapping the 1bit-alpha in RGBA5551 may have unintended
+results).
+
+Unknown if any of the GPU's "LUT" look-up tables can be used to convert
+Luminance values (or other RGBA values) to palette indices?
+
+
+
+## OpenTK Format+Type pairs
+
+
+Some 3DS files have the "Texture Format" expressed as "OpenTK Format+Type
+pairs":
+
+```
+  CGFX:TXOB chunks contain OpenTK constants (plus GPU format numbers)
+  CTXB:TEX  chunks contain OpenTK constants (without GPU format numbers)
+```
+
+Below shows how to translate 3DS GPU Format numbers to/from OpenTK constants:
+
+```
+  GPU Format         OpenTK Texture Format           OpenTK Data Type
+  00h RGBA8888  <--> 6752h RGBANativeDMP             1401h UnsignedByte (u8)
+  01h RGB888    <--> 6754h RGBNativeDMP              1401h UnsignedByte (u8)
+  02h RGBA5551  <--> 6752h RGBANativeDMP             8034h UnsignedShort5551
+  03h RGB565    <--> 6754h RGBNativeDMP              8363h UnsignedShort565
+  04h RGBA4444  <--> 6752h RGBANativeDMP             8033h UnsignedShort4444
+  05h LA88      <--> 6758h LuminanceAlphaNativeDMP   1401h UnsignedByte (u8)
+  06h HILO88    <--> 6759h ...NativeDMP?             1401h UnsignedByte (u8)
+  07h L8        <--> 6757h LuminanceNativeDMP        1401h UnsignedByte (u8)
+  08h A8        <--> 6756h AlphaNativeDMP            1401h UnsignedByte (u8)
+  09h LA44      <--> 6758h LuminanceAlphaNativeDMP   6760h UnsignedByte44DMP
+  0Ah L4        <--> 6757h LuminanceNativeDMP        6761h Unsigned4BitsDMP
+  0Bh A4        <--> 6756h AlphaNativeDMP            6761h Unsigned4BitsDMP
+  0Ch ETC1      <--> 675Ah ETC1RGB8NativeDMP         0000h (implied in ETC1)
+  0Dh ETC1A4    <--> 675Bh ETC1AlphaRGB8A4NativeDMP  0000h (implied in ETC1A4)
+ <a href="https://wiki.cloudmodding.com/oot/3D:CTXB_format"><font color="#808080">https://wiki.cloudmodding.com/oot/3D:CTXB_format</font></a>
+ <a href="https://github.com/dptug/FEZ/blob/master/OpenTK/Graphics/OpenGL/PixelType.cs"><font color="#808080">https://github.com/dptug/FEZ/blob/master/OpenTK/Graphics/OpenGL/PixelType.cs</font></a>
+```
+
+
+
+## ETC1 (64bit per 4x4 pixels) (iPACKMAN aka Ericsson Texture Compression)
+
+
+```
+  0-15   Bit0 of Pixel0..15 (aka 0=Small, 1=Large)  ;\clamp to 00h..FFh
+  16-31  Bit1 of Pixel0..15 (aka 0=Add, 1=Sub)      ;/
+  32     Flip bit (0=LeftColor1+RightColor2, 1=TopColor1+BottomColor2)
+  33     Diff bit (0=2xRGB444, 1=RGB555+/-RGB333)
+  34-36  Color 2 Offset Table (0..7, see below)
+  37-39  Color 1 Offset Table (0..7, see below)
+ When Diff=0
+  40-43  Color 2 Blue  (4bit)        ;\
+  44-47  Color 1 Blue  (4bit)        ; when Diff=0,
+  48-51  Color 2 Green (4bit)        ;  for color1/2, use 4bit as is
+  52-55  Color 1 Green (4bit)        ; and expand to 8bit = 4bit*11h
+  56-59  Color 2 Red   (4bit)        ;
+  60-63  Color 1 Red   (4bit)        ;/
+ When Diff=1
+  40-42  Color 2 Blue  (signed 3bit) ;\when Diff=1,
+  43-47  Color 1 Blue  (5bit)        ;  for color1, use 5bit as is
+  48-50  Color 2 Green (signed 3bit) ;  for color2, use 5bit=5bit+signed3bit
+  51-55  Color 1 Green (5bit)        ;  (the result should never exceed 0..1Fh)
+  56-58  Color 2 Red   (signed 3bit) ; thereafer, expand to 8bit = 5bit*21h/4
+  59-63  Color 1 Red   (5bit)        ;/
+```
+
+Offset Tables (with "(Small,Large)" step pairs):
+
+```
+  (2,8), (5,17), (9,29), (13,42), (18,60), (24,80), (33,106), (47,183)
+```
+
+Pixel ordering (unlike the usual Z-order which is used for other 3DS textures):
+
+```
+  0   4   8   12
+  1   5   9   13
+  2   6   10  14
+  3   7   11  15
+ A whole 8x8pix tile consists of four such 4x4pix blocks (that four blocks
+ are stored in Z-order, but the pixels inside of the block are ordered as
+ shown above, ie. NOT in Z-order).
+ The official ETC1 specs suggest to store the 64bit ETC1 values in big-endian,
+ however, the 3DS is storing them in little-endian.
+```
+
+ETC1 specs can be found in the TXT document linked below (there are also
+distorted HTM documents with endiannes expressed as "backslash times" instead
+of "multiply").
+
+khronos.org/registry/OpenGL/extensions/OES/OES\_compressed\_ETC1\_RGB8\_texture.txt
+
+
+
+## ETC1A4 (128bit per 4x4 pixels)
+
+
+```
+  0-63   Alpha for Pixel0..15 (pixel0 in bit0..3, pixel1 in bit4..7, etc.)
+  64-127 ETC1 with Colors and Luminance bits for Pixel0..15
+```
+
+This is some kind of a custom extension of the ETC1 format, with additional
+4bit alpha for each pixel (the alpha values are ordered the same way as in the
+ETC1 format, eg. Pixel3 is lower-left of the 4x4 pixel area).
+
+
+
+
+# <a name="3dsgputexturetypes"></a>3DS GPU Texture Types
+
+
+
+
+## Mipmap
+
+
+Mipmaps have the original texture bundled with smaller copies (with halved
+width/height, used for rendering more distant polygons). This may improve
+memory cache hits, and also improve display quality (eg. when resampling
+black+white pixels to gray). Mipmaps don't waste too much memory (orginal=100%,
+total=133%) (or in other terms, original=75%, total=100%).
+
+The Mipmap could be stored as separate rectangles (as done on 3DS), or within a
+single rectangle:
+
+```
+     _____________    _______________ _______ ___ _
+   _| |   |       |  |               |       |   |_|
+  |___|   |       |  |               |       |___|
+  |       |       |  |               |       |
+  |_______|       |  |               |_______|
+  |               |  |               |
+  |               |  |               |
+  |               |  |               |
+  |_______________|  |_______________|
+```
+
+
+
+## Cubemap (panorama)
+
+
+A cubemap consists of six textures arranged as a cube, allowing to render 360'
+panoramas (with the camera being located INSIDE of the cube).
+
+```
+          ______
+         |Top   |
+         |      |
+   ______|______|______ ______
+  |Left  |Front |Right |Back  |
+  |      |      |      |      |
+  |______|______|______|______|
+         |Bottom|
+         |      |
+         |______|
+```
+
+
+
+
 # <a name="3dsgputriangledrawingsamplecode"></a>3DS GPU Triangle Drawing Sample Code
 
 
@@ -18416,7 +20293,7 @@ strobe/trigger/ack/reset some internal stuff?
 ## Standard YUV to RGB Formula (aka YCbCr to RGB)
 
 
-The standard formula uses the constants shown below. However, one can also
+The standard formula uses the constants shown below. However, one can also use
 different values in the Y2R\_MULTIPLIER\_xxx and Y2R\_OFFSET\_xxx registers (that
 would allow to support other YUV variants, or to adjust more pale or more
 colorful output, or even to change RGB to BGR order; if the input FIFOs are
@@ -18688,7 +20565,6 @@ SERVICES". Searching for that two strings gives this source code,
 
 ```
   <a href="http://git.jp.linux-rockchip.org/cgit/rk3288_r-box_android4.4.2_sdk/tree"><font color="#808080">http://git.jp.linux-rockchip.org/cgit/rk3288_r-box_android4.4.2_sdk/tree</font></a>
-
   /kernel/arch/arm/mach-rockchip/vcodec_service.c
 ```
 
@@ -18724,7 +20600,7 @@ GBA/NDS/DSi software on ARM7/ARM9 side.
   10110008h/10111008h 4     LGYFB_IRQ_STAT   R/ack mask:01f80007h  ; Status
   1011000Ch/1011100Ch 4     LGYFB_IRQ_ENABLE R/W   mask:0007h      ;/
   10110020h/10111020h 4     LGYFB_ALPHA      R/W   mask:000000ffh  ;-Alpha
-  101100F0h/101110F0h 4     LGYFB_UNKNOWN    R/W   mask:0000000fh  ;-Unknown?
+  101100F0h/101110F0h 4     LGYFB_PREFETCH   R/W   mask:0000000fh  ;-Prefetch?
   10110100h/10111100h 4     LGYFB_DITHER0    R/W   mask:0000cccch  ;\
   10110108h/10111108h 4     LGYFB_DITHER1    R/W   mask:0000cccch  ; Dither
   10110110h/10111110h 4     LGYFB_DITHER2    R/W   mask:0000cccch  ;
@@ -18760,6 +20636,11 @@ GBA/NDS/DSi software on ARM7/ARM9 side.
   17-31 Unused (0)
 ```
 
+Caution: Starting the LGYFB transfers needs to be synced to the
+CFG11\_TWLMODE\_BOOT mode switch (eg. after the mode switch, wait some thousands
+of cycles, then start LGYFB, otherwise some scanline counter isn't synced
+properly, causing garbage to be displayed in upper scanlines of all frames).
+
 Once when started, the transfer does auto-repeat each frame (although, that may
 hang with some/wrong settings; in that case it can help to toggle CNT.bit0
 after DMAing the last block of each frame).
@@ -18776,8 +20657,12 @@ after DMAing the last block of each frame).
   25-31 Unused (0)
 ```
 
-Caution: Must be written via 32bit STR (trying to use 16bit STRH will set BOTH
-halfwords to the same value).
+Caution: Must be written via 32bit STR opcodes (trying to use 16bit STRH will
+set BOTH halfwords to the same value).
+
+Design Mistake: The 512pix limit prevents using the upper screen in 800x240
+mode (ie. sharp horizontal scaling can be done only via GPU or software
+scaling, not via LGYFB hardware scaling).
 
 
 
@@ -18832,17 +20717,17 @@ Used as alpha for output format 8888 and 5551 (the latter uses only bit7 of the
 
 
 
-## 101100F0h/101110F0h - LGYFB\_UNKNOWN (R/W)
+## 101100F0h/101110F0h - LGYFB\_PREFETCH (R/W)
 
 
 ```
-  0-3   Unknown (initially 0Fh on reset)
+  0-3   Number of pixel prefetches before scaling? (initially 0Fh on reset)
   4-31  Unused (0)
 ```
 
-Unknown. IRQ and DMA requests won't occur when using too small values. Without
-scaling values 01h..0Fh are working, with 2x vertical scaling only values
-06h..0Fh are working.
+IRQ and DMA requests won't occur when using too small values. Without scaling
+values 01h..0Fh are working, with 2x vertical scaling only values 06h..0Fh are
+working.
 
 
 
@@ -18965,6 +20850,19 @@ brightness multipliers for 6 input pixels each.
   16-31 Unused (0)
 ```
 
+Caution: The first/last array entries are supporting only smaller signed
+numbers (the hardware triggers Data Abort writing larger values and forcefully
+copies bit15 to all sign bits, eg. [10110340h]=8230h becomes FE30h).
+
+```
+  range=FC00h-03FFh for 1st input pixel  ;-first 6 words
+  range=F000h-0FFFh for 2nd input pixel
+  range=8000h-7FFFh for 3rd input pixel  ;\middle 12 words, with full range
+  range=8000h-7FFFh for 4th input pixel  ;/
+  range=F000h-0FFFh for 5th input pixel
+  range=FC00h-03FFh for 6th input pixel  ;-last 6 words
+```
+
 The sum of six input values should be 400h (the hardware does automatically
 clip results to min/max brightness; clipping can happen when mixing positive
 and negative values; with some of them getting multiplied with dark input
@@ -18989,8 +20887,13 @@ brightness:
   4000h,2000h,0000h,4000h,2000h,0000h, N/A , N/A  <-- for 4th input pixel
   0000h,0000h,0000h,0000h,0000h,0000h, N/A , N/A  <-- for 5th input pixel
   0000h,0000h,0000h,0000h,0000h,0000h, N/A , N/A  <-- for 6th input pixel
-    |     |     |     |     |     |
-    |                             '-----------------> to 6th output pixel
+    |     |     |     |     |     |     |     |
+    |     |     |     |     |     |     '-----'-----> unused array entries
+    |     |     |     |     |     '-----------------> to 6th output pixel
+    |     |     |     |     '-----------------------> to 5th output pixel
+    |     |     |     '-----------------------------> to 4th output pixel
+    |     |     '-----------------------------------> to 3rd output pixel
+    |     '-----------------------------------------> to 2nd output pixel
     '-----------------------------------------------> to 1st output pixel
 ```
 
@@ -19014,14 +20917,96 @@ pixels:
   4000h,3B6Fh,2F08h,1E35h,0D47h, N/A , N/A , N/A  <-- for 4th input pixel
   0000h,F873h,F69Dh,F8D0h,FCA5h, N/A , N/A , N/A  <-- for 5th input pixel
   0000h,01C1h,01E3h,011Dh,004Eh, N/A , N/A , N/A  <-- for 6th input pixel
-    |     |     |     |     |
-    |                       '-----------------------> to 5th output pixel
+    |     |     |     |     |     |     |     |
+    |     |     |     |     |     '-----'-----'-----> unused array entries
+    |     |     |     |     '-----------------------> to 5th output pixel
+    |     |     |     '-----------------------------> to 4th output pixel
+    |     |     '-----------------------------------> to 3rd output pixel
+    |     '-----------------------------------------> to 2nd output pixel
     '-----------------------------------------------> to 1st output pixel
 ```
 
 Weirdly, the values for 2nd-5th output pixel values sum up to 3FDDh/3FAAh
 (actually less, because the lower 4bit are ignored), making them a bit darker
 than 1st output pixel.
+
+
+```
+ ____________________________ Touchscreen Scaling _____________________________
+```
+
+
+
+## Touchscreen Scaling for NDS/DSi mode
+
+
+The 3DS does have the 320x240 pixel touchscren calibration stored in the
+BlkID=00040000h entry in "config" file (and additionally has the original
+factory calibration in HWCAL files).
+
+- [3DS Files - Config Savegame](#3dsfilesconfigsavegame)
+The NDS (and DSi) have touch screen calibration in Wifi FLASH user settings
+(and additionally in a RAM copy at 2FFFC80h).
+
+- [DS Firmware User Settings](ds.html#dsfirmwareusersettings)
+The DSi additionally has the same touch screen calibration values in
+TWLCFGn.dat files (and additionally in a RAM copy at 2000400h; whereof, the
+TWLCFGn.dat files don't exist on 3DS, but the RAM copy at 2000400h should be
+present in DSi mode).
+
+- [DSi SD/MMC Firmware System Settings Data Files](ds.html#dsisdmmcfirmwaresystemsettingsdatafiles)
+Normally, NDS/DSi titles are zoomed from 256x192 to 320x240 pixels (with 1.25
+scaling). For that, Nintendo has simply adjusted to pixel coordinates (without
+changing the ADC values:
+
+```
+  pixNds = pix3ds * 4 / 5     ;(20h,18h),(120h,D8h) --> (19h,13h),(E6h,ACh)
+  note: adjusting the ADC values would give slightly better precision
+```
+
+Optionally, NDS/DSi titles can be displayed at 256x192 without scaling (when
+holding START or SELECT while starting the title, or while starting DS Download
+Play). The image is then horizontally centered (with 32pix borders on left and
+right sides), and moved as close to the hinge as possible (0pix upper border,
+and 48pix lower border). For that, Nintendo has also used the same "scaled"
+pixel coordinates (for whatever reason), and then adjusted to ADC values
+somewhat as so:
+
+```
+  adcNds = (pixNds+32-pix3ds1)*(adc3ds2-adc3ds1)/(pix3ds2-pix3ds1)+adc3ds1 ;x
+  adcNds = (pixNds+0-pix3ds1) *(adc3ds2-adc3ds1)/(pix3ds2-pix3ds1)+adc3ds1 ;y
+  note: the formula used by nintendo has some additional rounding errors
+```
+
+Below are some sample values from a 3DS config file, with corresponding scaled
+& unscaled NDS/DSi-mode values. Plus values from a real NDS console.
+
+```
+  3DS/config  NDS/scaled  NDS/unscaled  RealNDS
+  021Ch       021Ch       0342h         02A4h     ;adc.x1
+  023Dh       023Dh       01EDh         0354h     ;adc.y1
+  0020h       19h         19h           20h       ;pix.x1
+  0018h       13h         13h           20h       ;pix.y1
+  0DF2h       0DF2h       0CBDh         0D38h     ;adc.x2
+  0E0Ah       0E0Ah       0B55h         0D28h     ;adc.y2
+  0120h       E6h         E6h           E0h       ;pix.x2
+  00D8h       ACh         ACh           A0h       ;pix.y2
+```
+
+Note: Real NDS/DSi did use pixel points (20h,20h),(E0h,A0h). And, for the
+unscaled mode, the ADC values may exceed the boundaries of the used 256x192
+pixel screen area. Anyways, most or all NDS/DSi titles should work with
+whatever points being stored in the calibration data, and should
+ignore/saturate any out of bounds ADC values.
+
+Depending on the cart header, the NDS/DSi mode can emulate old NDS or new DSi
+touchscreen conrollers:
+
+- [DS Touch Screen Controller (TSC)](ds.html#dstouchscreencontrollertsc)
+- [DSi Touchscreen/Sound Controller](ds.html#dsitouchscreensoundcontroller)
+The NDS/DSi calibration is same for both modes. Whereas, NDS seems to have
+assigned upper-left as pixel (1,1) instead of (0,0), unknown if that applies
+for DSi and 3DS, too.
 
 
 
@@ -19092,7 +21077,7 @@ The 3DS has some hardware for converting scanlines to swizzled textures:
 Examples for scanline pixels before/after swizzling:
 
 ```
-  Linear scanlines, 16x8 pixels:                    Linear lines, 8x8 pixels:
+ Linear scanlines, 16x8 pixels:                    Linear lines, 8x8 pixels:
   00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F   00 01 02 03 04 05 06 07
   10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F   08 09 0A 0B 0C 0D 0E 0F
   20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F   10 11 12 13 14 15 16 17
@@ -19101,7 +21086,7 @@ Examples for scanline pixels before/after swizzling:
   50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F   28 29 2A 2B 2C 2D 2E 2F
   60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F   30 31 32 33 34 35 36 37
   70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F   38 39 3A 3B 3C 3D 3E 3F
-  Swizzled texture, 2 tiles:                        Swizzled texture, 1 tile:
+ Swizzled texture, 2 tiles:                        Swizzled texture, 1 tile:
   00 01 10 11 02 03 12 13  ;\                       00 01 08 09 02 03 0A 0B
   20 21 30 31 22 23 32 33  ;                        10 11 18 19 12 13 1A 1B
   04 05 14 15 06 07 16 17  ;                        04 05 0C 0D 06 07 0E 0F
@@ -19155,9 +21140,6 @@ program code.
 ```
  ________________________________ DSP Registers _______________________________
 ```
-
-
-Reportedly 10141220h - CFG11\_CODEC\_CNT also has a DSP related bit?
 
 
 
@@ -19420,21 +21402,27 @@ Capture works even if address and size are unaligned (even so for PCM16).
 
 
 
-## 10145000h - CODEC\_SNDEXCNT, reportedly "Empty" uh? (R/W)
+## 10145000h - CODEC\_SNDEXCNT (R/W)
 
 
 ```
-  0-5   DSP sound volume (00h..3Fh) (R/W)
-  6-11  GBA sound volume (00h..3Fh) (R/W)
+  0-5   DSP sound volume (00h..3Fh) (20h=max?)
+  6-11  GBA sound volume (00h..3Fh) (20h=max?)
   12    Enable Microphone timing
-  13    Sound/Microphone I2S frequency (0=32.73 kHz, 1=47.61 kHz)
-  14    Unknown (maybe Mute, alike DSi's SNDEXCNT)
+  13    Sound/Microphone I2S Clock Frequency (0=32.73 kHz, 1=47.61 kHz)
+  14    Unknown...? (maybe Mute, alike DSi's SNDEXCNT)
   15    Enable Microphone and Teak BTDMP timing and GBA sound
   16-28 Unused (0)
-  29    Unknown                   (R/W)
-  30    Unknown, disonnant sound? (R/W)
-  31    Master Enable Microphone (and Sound?)
+  29    Unknown...? (R/W)
+  30    Audio Clock TP152 (Speaker PWM?) (0=3DS/8MHz, 1=GBA/16MHz)
+  31    Sound/Microphone I2S Clock Enable (TP149/TP150)
 ```
+
+Bit12-14 and bit28-30 are write-able only if bit31 was zero before the write.
+
+Bit30 with wrong setting causes dissonant sound (it should be 0=3DS, 1=GBA).
+
+Setting this register while sound was playing can produce a high-pitch fieeep.
 
 Microphone requires bit31 set, and also one or both of bit15/bit12 set.
 
@@ -19444,6 +21432,8 @@ GBA sound requires bit15 set, and nonzero volume in bit6-11.
 
 Maybe some further bits here resemble DSi's SNDEXCNT...?
 
+See also: 
+- [https://www.3dbrew.org/wiki/I2S\_Registers](https://www.3dbrew.org/wiki/I2S_Registers)
 
 ```
  ________________________________ MIC Registers _______________________________
@@ -19579,12 +21569,77 @@ The encryption seed is initialized as follows:
   send further CTRCARD commands...              ;-get chip id, read data, etc.
 ```
 
-The inner workings of the encryption hardware are unknown, it does probably
-contain AES hardware with some built-in secret key/iv values. Cart dumping is
-possible using the 3DS console hardware, there are also "sky3DS" flashcards
-that can run pirate copies on 3DS consoles without needing exploits, but that's
-kinda useless and works only for RSA signed official titles with region lock
-(the game selection is done via buttons on the cartridge instead of file menu).
+The crypto hardware does reportedly use SNOW 2.0 and RC4 encryption. RC4 is the
+standard WEP algorithm, SNOW 2.0 is a less known algorithm:
+
+- [http://web.archive.org/web/20060202010143/http://www.it.lth.se/cryptology/snow](http://web.archive.org/web/20060202010143/http://www.it.lth.se/cryptology/snow)
+
+The overall encryption does reportedly work as shown below (but cardrc4keyhalf
+and cardsnowiv are unknown, so it's not possible to confirm if it's really
+working; and there may be few more unknown keys for other CTRCARD\_SECCNT
+settings).
+
+```
+  ##################################.py
+  from snow20 import SNOW20
+  from rc4 import RC4
+  cardrc4keyhalf = 0x4##############################7
+  cardsnowiv = 0xD##############################4
+  #cardrc4keyhalf = 0x3##############################9
+  #cardsnowiv = 0xD##############################4
+  #cardrc4keyhalf = 0x7##############################C
+  #cardsnowiv = 0x0##############################A
+  def tolist(val, nbytes):
+    return [val >> i & 0xff for i in reversed(range(0, nbytes*8, 8))]
+  def initsnowstream(snowkey):
+    snow20stream = SNOW20(snowkey, cardsnowiv)
+    for _ in xrange(32): #discard 1024 bits of output, each output is 32 bits
+        snow20stream.next()
+    return snow20stream
+  def initrc4stream(snowstream):
+    tmp = snowstream.next() << 96 | snowstream.next() << 64 | \
+          snowstream.next() << 32 | snowstream.next()
+    key = cardrc4keyhalf << 128 | tmp
+    rc4stream = RC4(tolist(key, 32))
+    for _ in xrange(256): #discard the first 256 bytes of output
+        rc4stream.next()
+    return rc4stream
+  #sample data from <a href="http://www.3dbrew.org/wiki/Gamecards"><font color="#808080">http://www.3dbrew.org/wiki/Gamecards</font></a> ...
+  titlekey1 = 0x################ #decrypted from NCSD[1000h..103Bh] header
+  titlekey2 = 0x################
+  enccmds = [[0xF32C92D85C9D44DED3E0E41DBE7C90D9, 0x00],
+             [0x696B9D8582FB55D31B68CAFE70C74A95, 0x04],
+             [0xBAA4812CA0AC9C5D19399530E3ACCCAB, 0x04],
+             [0x178E427C22D87ADB86387249A97D321A, 0x00],
+             [0xE06019B1BD5C9130ED6A4D9F4A9E7193, 0x04],
+             [0x4E0D224862523BBFE2E6255F80E15F37, 0x04],
+             [0x4CDF93D319FB62D0DB632A45E3E8D84C, 0x04],
+             [0x9AA5D80551002F955546D296A57F0FEF, 0x04],
+             [0xC12BA81AEF30DDDBD93FAD5D544C6334, 0x04],
+             [0x62EC5FB7F420AE1DC6253AE18AFA5BB3, 0x200+4], #+crc
+             [0xE3FA23AA016BE0C93430D1F42FF41324, 0x200+4]] #+crc
+   snow20stream = initsnowstream(titlekey1 << 64 | titlekey2)
+   rc4stream = initrc4stream(snow20stream)
+   for cmd, datalen in enccmds:
+     print 'encrypted command: %032X' % (cmd)
+     dec = reduce(lambda x, y: x<<8 | y, [rc4stream.next() ^ x \
+           for x in tolist(cmd, 16)])
+     print 'decrypted command: %032X' % (dec)
+     if dec >> (15*8) == 0x83: #"set seed" command
+       randseed = dec & 0xFFFFFFFFFFFFFFFF
+       print 'changing "seed" to %016X' % (randseed)
+       snow20stream = initsnowstream(titlekey1 << 64 | randseed)
+     rc4stream = initrc4stream(snow20stream)
+     print 'skipping %d bytes' % (datalen)
+     for _ in xrange(datalen):
+       rc4stream.next() #these RC4 bytes would be used to decrypt the data
+```
+
+Even without the unknown keys, cart dumping is possible using the 3DS console
+hardware, there are also "sky3DS" flashcards that can run pirate copies on 3DS
+consoles without needing exploits, but that's kinda useless and works only for
+RSA signed official titles with region lock (the game selection is done via
+buttons on the cartridge instead of file menu).
 
 
 ```
@@ -19608,7 +21663,7 @@ These registers are same as the old NDS Cartridge registers, see
   10164014h 4  REG_NTRCARD_SEEDY_L ;40001B4h 4  Gamecard Encryption Seed 1 Low
   10164018h 1  REG_NTRCARD_SEEDX_H ;40001B8h 2  Gamecard Encryption Seed 0 High
   1016401Ah 1  REG_NTRCARD_SEEDY_H ;40001BAh 2  Gamecard Encryption Seed 1 High
-  1016401Ch 4  REG_NTRCARD_FIFO    ;4100010h 4  Gamecard bus 4-byte Data In (R)
+  1016401Ch 4  REG_NTRCARD_DATA    ;4100010h 4  Gamecard bus 4-byte Data
 ```
 
 These registers are usually used on ARM9 side. However, they are mapped to both
@@ -19905,8 +21960,11 @@ second per a few billions of years.
 
 
 ```
-  20h-23h -           Unused?
-  24h     spi?        SPI_BUS2 (unused)               (Port 10143000h)
+  20h     -           Unused?                                     ;\maybe
+  21h     -           Unused? But [17E01D00h].bit33 is set        ; related to
+  22h     -           Unused?                                     ; first two
+  23h     -           Unused? But [17E01D00h].bit35 is set        ;/CPU cores?
+  24h     spi?        SPI_BUS2 (unused)                    (Port 10143000h)
   25h-27h -           Unused?
   28h     gsp, TwlBg  PSC0 (GPU_MEMFILL 0)                 (Port 10400010h)
   29h     gsp, TwlBg  PSC1 (GPU_MEMFILL 1)                 (Port 10400020h)
@@ -19919,11 +21977,14 @@ second per a few billions of years.
   39h     Kernel      Old CDMA Faulting (eg. CCR=0, or event>15)
   3Ah     Kernel      New CDMA Event 0..31 (32 events sharing one IRQ) ;\New3DS
   3Bh     Kernel      New CDMA Faulting (eg. CCR=0)                    ;/
-  3Ch-3Fh -           Unused?
+  3Ch     -           Unused?                                     ;\maybe alike
+  3Dh     -           Unused? But New3DS [17E01D00h].bit61 is set ; IRQ 20h-23h
+  3Eh     -           Unused?                                     ; for extra
+  3Fh     -           Unused? But New3DS [17E01D00h].bit63 is set ;/CPU cores?
   40h     nwm         WIFI SDIO Controller            (Port 10122000h)
   41h     nwm         WIFI SDIO IRQ Pin
-  42h     nwm_dev?    Debug WIFI SDIO Controller      (Port 10100000h?)
-  43h     -           Unused? Or maybe Debug WIFI SDIO IRQ Pin for above?
+  42h     nwm_dev?    Alternate SD/MMC Slot controller (Port 10100000h?)
+  43h     -           Unused? Or maybe Card IRQ Pin for above?
   44h     -           NTRCARD                         (Port 10164000h)
   45h     mvd         L2B_0 (First RGB-to-RGBA Converter)  (10130000h) ;\New3DS
   46h     mvd         L2B_1 (Second RGB-to-RGBA Converter) (10131000h) ;/
@@ -19951,9 +22012,9 @@ second per a few billions of years.
   5Ch     i2c, TwlBg  I2C_BUS2 (3DS extra gimmicks)   (Port 10148000h)
   5Dh-5Eh -           Unused?
   5Fh     -           NDS-Wifi Registers (aka MP)     (Port 10170000h)
-  60h     gpio, TwlBg GPIO_DATA0.bit2?   Shell opened
+  60h     gpio, TwlBg GPIO_DATA0.bit2=0  Shell opened (GPIO falling edge)
   61h     -           Unused?
-  62h     gpio, TwlBg GPIO_DATA0.bit2?   Shell closed
+  62h     gpio, TwlBg GPIO_DATA0.bit2=1  Shell closed (GPIO rising edge)
   63h     gpio, TwlBg GPIO_DATA0.bit1    Touchscreen Pen Down (if enabled)
   64h     gpio, TwlBg GPIO_DATA1.bit0    Headphone jack plugged in/out
   65h     -           Unused?
@@ -19963,8 +22024,8 @@ second per a few billions of years.
   69h     gpio, TwlBg GPIO_DATA3.bit1    IrDA Interrupt
   6Ah     gpio, TwlBg GPIO_DATA3.bit2    Gyro Interrupt
   6Bh     gpio, TwlBg GPIO_DATA3.bit3    ?
-  6Ch     gpio, TwlBg GPIO_DATA3.bit4    ?
-  6Dh     gpio, TwlBg GPIO_DATA3.bit5    ?
+  6Ch     gpio, TwlBg GPIO_DATA3.bit4    IrDA TX-RC (manual out)
+  6Dh     gpio, TwlBg GPIO_DATA3.bit5    IrDA RXD   (manual in)
   6Eh     gpio, TwlBg GPIO_DATA3.bit6    ?
   6Fh     gpio, TwlBg GPIO_DATA3.bit7    ?
   70h     gpio, TwlBg GPIO_DATA3.bit8    TSC[67h:2Bh] (Headphone connect)
@@ -20221,8 +22282,8 @@ Distributor at 17E01000h-17E01FFFh (however, the MMU can disable the whole
 
 Cache size 16KB/32KB/64KB implies 64/128/256 indexes per tag RAM accordingly.
 
-On New3DS this is 00005013h (even in Old3DS mode). But changes to 00005003h
-when using fastboot...?
+On Old3DS this is 00000011h. On New3DS this is 00005013h (even in Old3DS mode).
+But changes to 00005003h when using fastboot...?
 
 
 
@@ -20381,7 +22442,8 @@ Event source number definitions:
   0-31  Counter (incrementing upon selected event)
 ```
 
-New3DS has eight counters (even in Old3DS mode).
+Old3DS has four counters, MN0-MN3. New3DS has eight counters, MN0-MN7 (even in
+Old3DS mode).
 
 
 
@@ -20423,7 +22485,7 @@ to refresh the watchdog, and to prevent it from resetting the CPU).
 
 
 
-## 17E00624h - MPCore Timer1/Watchdog Counter Value (R/W) (R in watchdog mode)
+## 17E00624h - MPCore Timer1/Watchdog Counter Value (R/W, R in watchdog mode)
 
 
 ```
@@ -20439,15 +22501,15 @@ decrement until the MP11 CPU returns to non debug state.
 
 
 
-## 17E00628h - MPCore Timer1/Watchdog Control Register (R/W)
+## 17E00628h - MPCore Timer1/Watchdog Control Register (R/W, R in watchdog mode)
 
 
 ```
   0     Timer Enable     (0=Stop, 1=Enable/Decrement)
   1     Auto-reload      (0=One-shot, stop at zero, 1=Auto-reload at zero)
-  2     Interrupt Enable (0=Disable, 1=Trigger Interrupt ID 29/30 at zero)
-  3     Timer0: Reserved      (0=Timer, fixed, always 0) (R)
-  3     Timer1: Watchdog mode (0=Timer, 1=Watchdog)      (R or R/W)
+  2     Interrupt Enable (0=Disable, 1=Trigger Interrupt ID 1Dh/1Eh at zero)
+  3     Timer0: Reserved      (0=Timer, fixed, always 0)
+  3     Timer1: Watchdog mode (0=Timer, 1=Watchdog)
           Note: Bit3 can be cleared via 17E00634h only
   4-7   Reserved (0)
   8-15  Prescaler (0..255 = CPU_CLK/2 divided by 1..256)
@@ -20468,8 +22530,8 @@ decrement until the MP11 CPU returns to non debug state.
   1-31  Reserved
 ```
 
-If the timer interrupt is enabled, Interrupt ID 29/30 is set as Pending in the
-Interrupt Distributor after the event flag is set.
+If the timer interrupt is enabled, Interrupt ID 1Dh/1Eh is set as Pending in
+the Interrupt Distributor after the event flag is set.
 
 
 
@@ -20477,7 +22539,7 @@ Interrupt Distributor after the event flag is set.
 
 
 ```
-  0     Reset flag  (0=Normal, 1=Reset caused by Watchdot)  ;write 1 to clear
+  0     Reset flag  (0=Normal, 1=Reset caused by Watchdog)  ;write 1 to clear
   1-31  Reserved
 ```
 
@@ -20490,7 +22552,8 @@ Interrupt Distributor after the event flag is set.
   0-31  Key (write 12345678h, then write 87654321h to disable watchdog)
 ```
 
-Switches the watchdog back to Timer mode (ie. clears bit3 in Control Register).
+Switches the watchdog back to Timer mode (ie. clears bit3 in Control Register,
+and thereby re-enables writing to 17E00624h/17E00628h).
 
 
 
@@ -20552,6 +22615,8 @@ If bit0=0, no interrupts at all are sent to the CPU interrupt interfaces.
 ```
 
 Note: Interrupt ID 00h-1Fh are internal IRQs, ID 20h-FFh are external IRQs.
+
+On Old3DS this 00000023h, 2 CPUs and 80h IRQs.
 
 On New3DS this 00000063h, 4 CPUs and 80h IRQs (even in Old3DS mode).
 
@@ -20634,7 +22699,7 @@ also disable interrupts with slightly higher priority).
 
 ```
   0-127     Interrupt 00h-0Fh Priority for local CPU (bit0-3=SBZ, bit4-7=Prio)
-  128-231   Interrupt 10h-1Ch Priority for what?     (bit0-3=SBZ, bit4-7=Prio)
+  128-231   Interrupt 10h-1Ch Priority for nothing?  (bit0-7=Unused/zero)
   232-255   Interrupt 1Dh-1Fh Priority for local CPU (bit0-3=SBZ, bit4-7=Prio)
   256-2047  Interrupt 20h-FFh Priority for all CPUs  (bit0-3=SBZ, bit4-7=Prio)
 ```
@@ -21635,7 +23700,8 @@ All FMxxxx opcodes are renamed to FMOV{LSW|MSW}.
 
 
 The weird {X} mode is same as {D}, but with offset.bit0=1 (ie. with offs=3..33
-instead of 2..32; and thereby actually transferring an unused dummy word).
+instead of 2..32; and thereby actually transferring an unused dummy word; that
+extra word might be intended to contain datatype flags).
 
 The weird {X} mode is/was intended for registers with unknown content (eg. when
 pushing/popping registers without knowing if they contain integer/single/double
@@ -22014,7 +24080,7 @@ Process9 function for gamecard savedata crypto init.
  Below says something about NTR cmd 90h or CTR cmd 90h or A2h, but that
  refers to getting the 32bit Chip ID, not to header data at 1200h and up.
   1200h  200h  CardDeviceReserved1
-  1400h  10h   TitleKey (whever that is... something alike as in tickets?)
+  1400h  10h   TitleKey (whatever that is... something alike as in tickets?)
   1410h  F0h   CardDeviceReserved2
 ```
 
@@ -22154,8 +24220,8 @@ memory:
 - - FIRM bootcode is stored in an encrypted partition (with the usual eMMC
     - encryption; using a different keyslot than FAT partitions though)
 - - FIRMs for GBA/DSi/SafeMode are stored in NCCHs files (with the eMMC
-    - filesystem encryption; and usually with NCCH[18Fh].bit2=1, ie. no further
-    - encryption in NCCH ExeFS)
+    - filesystem encryption; and usually with NCCH[18Fh].bit2=0, ie. with
+    - further encryption in NCCH ExeFS)
 
 Apart from that, FIRMs are having a RSA signature (which can be broken via
 sighax).
@@ -22479,16 +24545,15 @@ Note: it seems NATIVE\_FIRM ARM11-kernel didn't parse this during boot until
   450h 10h  Titleinfo Program Info. This might be used for returning
               to the specified title, once the above launched title
               terminates?
-  460h 4    Bit0: 0 = titleinfo structure isn't set,
-                  1 = titleinfo structure is set
+  460h 4    Titleinfo structure is set (bit0: 0=Not set, 1=Set)
   464h ..   unknown/unspecified
   480h 20h  Can be set via buf1 for APT:SendDeliverArg/APT:StartApplication
   4A0h 10h  Can be set by NSS:SetWirelessRebootInfo
-  4B0h 14h  SHA1-HMAC of the banner for TWL/NTR titles. This can be set
-              by NSS:SetTWLBannerHMAC
+  4B0h 14h  SHA1-HMAC across banner for TWL/NTR titles ;NSS:SetTWLBannerHMAC
   4C4h ..   unknown/unspecified
   500h 40h  This is used by APT:LoadSysMenuArg and APT:StoreSysMenuArg
   540h ..   unknown/unspecified
+  D50h 20h  WlFirm info (same as DSi 20005E0h)  ;nice, but lacks type1/4/5 info
   D70h 290h Config data struct for LGY FIRM
 ```
 
@@ -22511,35 +24576,29 @@ Flags from offset 0x400:
 Config struct for booting LGY FIRMs from offset 0xD70:
 
 ```
-  000h 1    Config block 0x30000
-  001h 1    Config block 0x70001
-  002h 1    System language (Config block 0xA0002)
-  003h 1    Region from SecureInfo ("pseudo-block" 0x140000 in LGY FIRM)
-  004h 0Fh  Serial number from SecureInfo ("pseudo-block" 140001h in LGY FIRM)
-  013h 1    Config block 0x100002
-  014h 10h  Config block 0x100003
-  024h 2    Config block 0x100000
-  026h 1    Cleared to zero
-  027h 1    Cleared to zero
-  028h 94h  Config block 0x100001
-  0BCh 2    Config block 0x50000
-  0BEh 2    Config block 0x50001
-  0C0h 38h  Config block 0x50002
-  0F8h 20h  Config block 0x50004
-  118h 134h Config block 0x20000
-  24Ch 10h  Config block 0x40000
-  25Ch 1Ch  Config block 0x40001
-  278h 4    Cleared to zero
-  27Ch 4    Cleared to zero
-  280h 8    Config block 0x30001
-  288h 2    CRC16 over the above fields from offset 0x0, size 0x288,
-              if not valid, LGY FIRM uses dummy data from .(ro)data
-  28Ah 2    If non-zero, the size (below) is hardcoded (currently) to
-              value 0x288, otherwise the size field below is used
-  28Ch 4    Value 0x288 (size used for verifying the CRC16)
+  000h 1    Config BlkID=00030000h RTC Correction value
+  001h 1    Config BlkID=00070001h Sound Output Mode
+  002h 1    Config BlkID=000A0002h User Language
+  003h 1    SecureInfo Region         (pseudo BlkID=00140000h in LGY FIRM)
+  004h 0Fh  SecureInfo Serial/Barcode (pseudo BlkID=00140001h in LGY FIRM)
+  013h 1    Config BlkID=00100002h DSi Country
+  014h 10h  Config BlkID=00100003h DSi User ID
+  024h 2    Config BlkID=00100000h DSi EULA
+  026h 2    Unused (0)
+  028h 94h  Config BlkID=00100001h DSi Parental Restrictions
+  0BCh 2    Config BlkID=00050000h LCD Screen flicker (VCOM)
+  0BEh 2    Config BlkID=00050001h LCD Backlight controls
+  0C0h 38h  Config BlkID=00050002h LCD Backlight PWM (BLPWM)
+  0F8h 20h  Config BlkID=00050004h LCD Power saving mode (ABL) (read by LGY)
+  118h 134h Config BlkID=00020000h Codec (CDC aka TSC)
+  24Ch 10h  Config BlkID=00040000h Input Touchscreen
+  25Ch 1Ch  Config BlkID=00040001h Input Circle Pad (left Analog Stick)
+  278h 8    Unused (0)
+  280h 8    Config BlkID=00030001h RTC Time offset
+  288h 2    CRC16 across [000h..287h] with still unknown initial value
+  28Ah 2    CRC16 size flag (0=VariableSize=[28Ch], Nonzero=FixedSize=288h)
+  28Ch 4    CRC16 size value (288h)
 ```
-
-"Cleared to zero" fields above are not read at all by LGY FIRM.
 
 
 
@@ -23296,9 +25355,9 @@ files ("icon" and "banner").
 ## AES-CTR Encryption SecondKeyX and SecondKeyY:
 
 
-The SecondKey is also used for the whole RomFS (header, all files, and
-SHA256's). And, for all ExeFS files (EXCEPT "icon" and "banner"), ie. it's used
-for ".code", ".firm", "logo", and any further ExeFS files.
+The SecondKey is used for the whole RomFS (header, all files, and SHA256's).
+And, for all ExeFS files (EXCEPT "icon" and "banner"), ie. it's used for
+".code", ".firm", "logo", and any further ExeFS files.
 
 ```
   if NCCH[18Bh]=00h then SecondKeyX = KeyX from keyslot 2Ch (original firmware)
@@ -23306,7 +25365,7 @@ for ".code", ".firm", "logo", and any further ExeFS files.
   if NCCH[18Bh]=0Ah then SecondKeyX = KeyX from keyslot 18h (firm9.3.0) ;\New
   if NCCH[18Bh]=0Bh then SecondKeyX = KeyX from keyslot 1Bh (firm9.6.0) ;/3DS
   if NCCH[18Fh].bit5=0 then SecondKeyY = NCCH[000h..00Fh]   (original firmware)
-  if NCCH[18Fh].bit5=0 then SecondKeyY = see SEEDDB below   (firm9.6.0)
+  if NCCH[18Fh].bit5=1 then SecondKeyY = see SEEDDB below   (firm9.6.0)
 ```
 
 With the original firmware, the SecondKey is just same as FirstKey (ie. there's
@@ -23393,22 +25452,22 @@ Licensed, Published, or Distributed). Additionally it could have no license
 (type None). System applications and applets that interact with the Home Menu
 are typically set to type 'none' as they don't display that information."
 
+```
+  Uh, what means "display that information"?
+  Is there any way to view any logo for any titles... how/where?
+```
+
 
 
 ## Logo Compression
 
 
-Reportedly "contains distribution licensing Binary data".
-
-"The size of this logo is always 2000h-bytes."
-
-The logo seems to be LZ11 compressed, see:
+The logo file is a LZ11 compressed DARC. The compressed data is always padded
+to 2000h-byte size.
 
 - [LZ Decompression Functions](#lzdecompressionfunctions)
-This file is a LZ11 compressed DARC. The last 20h bytes of the decompressed
-data is a HMAC SHA256 hash over the actual DARC.
-
-The HMAC key(s) used for the SHA256-HMAC is unknown.
+The last 20h bytes of the decompressed data is a SHA256-HMAC hash over the
+actual DARC (using a yet unknown HMAC key).
 
 
 
@@ -24550,7 +26609,7 @@ Or maybe below does describe .ctx file format rather than CTCert format?
 
 The console-unique CTCert is used for signing CTX files (uh, really signing
 them? with a public key??), the DeviceCert used by eShop, and for DSiWare
-exports. This ECDSA signature, the ECDSA private key for this cert, and the
+Exports. This ECDSA signature, the ECDSA private key for this cert, and the
 IssuerID is loaded from memory initialized by bootrom instead of NAND. This is
 the 3DS equivalent of the DSi TWCert (aka the "TW cert" in DSi "Tad" files?).
 
@@ -24783,8 +26842,7 @@ version in System Settings. Format of the system version:
   ...  ..    Zerofilled (padding to 800h-byte filesize)
 ```
 
-This list doesn't contain all system titles, though most are contained in this
-list.
+The list contains most (not all) system titles.
 
 This file was removed from the CDN CVer RomFS, starting with 8.0.0-18.
 
@@ -24797,16 +26855,19 @@ A similar "cup\_list" file is bundled with System Update CIA's:
 
 
 ```
-  000h 1     Region (00h=Japan, 01h=USA, 02h=EUR, etc.)
-  001h 1     Version (0Ah=v7.2, 0Bh=v8.0, etc.)
+  000h 1     Region (00h=Japan, 01h=USA, 02h=EUR, etc.)   ;\aka RVV in parental
+  001h 1     Version (0Ah=v7.2, 0Bh=v8.0, etc.)           ;/Enquiry Number
   002h 0Eh   Zerofilled
   010h 10h   AES IV value for decrypting below key
-  020h 20h   Encrypted HMAC key
+  020h 20h   Encrypted HMAC key for resetting Parental Controls
 ```
 
-This file is used by System Settings. The HMAC key is decrypted using AES-CTR
-using a key from "mset .rodata" and the above IV value.
+This file is used by System Settings, for resetting Parental Controls. The HMAC
+key is decrypted using AES-CTR using the above AES IV value and an AES key from
+"mset .rodata" (uh, what/where?) (there are different AES keys depending on the
+RVV region/version digits).
 
+- [Parental Controls Reset](#parentalcontrolsreset)
 
 
 ## CVer - RomFS:\titleversion.txt (ASCII 5-7 bytes) (exists in 9.6.0-X and up)
@@ -24887,11 +26948,14 @@ executable CRO0 hash-table.
 ```
 
 
-CRO with extension .cro is used for "DLLs". CRS with extension .crs is in the
-same format of CRO but storing the symbol information of the static module (the
-main application) (uh, aka the "ExeFS:\.code" file?) (uh, and, importantly,
-.crs files seem to contain only symbols and stuff (and empty code/data
-sections)).
+CRO with extension .cro is used for "DLLs" (unknown what that means... maybe
+the functions are obtained via function name strings, as opposed to function
+numbers used in normal System Modules?).
+
+CRS with extension .crs is in the same format of CRO but storing the symbol
+information of the static module (the main application) (uh, aka the
+"ExeFS:\.code" file?) (uh, and, importantly, .crs files seem to contain only
+symbols and stuff (and empty code/data sections)).
 
 
 
@@ -25418,82 +27482,67 @@ See
 
 
 
-The two HWCAL files contain (initial?) calibration values, the data is also
-stored in the system settings config file, unknown which of those three files
-contains the most up to date values for daily use.
+
+## 3ds:\ro\sys\HWCAL0.dat (9D0h bytes)
+
+
+
+## 3ds:\ro\sys\HWCAL1.dat (9D0h bytes)
+
+
+The two HWCAL files are factory provided (ie. the content and version are kept
+unchanged when installing firmware updates).
+
+The factory calibration seems to consist of several steps, with one of the
+HWCAL0/HWCAL1 files being updated after each step (with incrementing values in
+Header[00Dh], the newer file has that value one bigger than older file).
+
+
+System Settings allows to recalibrate some things (Touchscreen, Circle Pad,
+Outer Cameras, and maybe others), the changes are saved in the "config" file,
+without changing any HWCAL files (which can be used to restore the factory
+defaults).
 
 - [3DS Files - Config Savegame](#3dsfilesconfigsavegame)
-
-
-## Reading
-
-
-"If 0x1FF81006 (uh, what, where from?) is 3 or 4 or 7 or 8 or 9 then the
-calibration data is read from the EEPROM using the i2c:EEP service command
-0x001000C0, using offset 0x000 for HWCAL0, and offset 0x800 for HWCAL1.
-Otherwise attempt is made to read CTRNAND:/ro/sys/HWCAL(0|1).dat instead."
-
 
 
 ## Summary
 
 
-```
-  File Data  Size  ConfigInfoBlk Bit  Description
-  000h -     200h  -             -    Header
-  200h 000h  10h   00040000h     3    Touchscreen
-  214h 014h  08h?  ???                Circle Pad (part 1)
-  220h 020h  2     00050000h     1    Screen flicker
-  224h 024h  1     00010000h     7    RTC Compensation Value
-  228h 028h  1     ???                DSPRAM related
-  230h 030h  8Ah   ???           2?   Camera position
-  2BCh 0BCh  12h   00040002h     6    Gyroscope
-  2D0h 0D0h  0Ch   00040003h     8    Accelerometer
-  2E0h 0E0h  134h  00020000h     5    Codec (CDC)
-  418h 218h  04h?  ???         null?  Programmable Infrared Transmitter (PIT)
-  420h 220h  214h  00070000h     9?   3D filters ... maybe this is "Surround"?
-  640h 440h  20h   ???           10   Power saving mode (ABL)
-  670h 470h  20h   00050005h     11?  Stereo Display Settings
-  6A0h 4A0h  38h   00050002h     12   Backlight PWM (BLPWM)
-  6E0h 4E0h  18h   ???                Circle Pad extra (part 2)
-  700h 500h  0Ch   ???                ???
-  710h 510h  20h   ???                ???
-  740h 540h  08h   ???         not?   MCU
-  750h 550h  02h   00050006h   not11? 3D screen (ULCD) delay
-  760h 560h  08h   00070002h   not?   Microphone echo cancellation
-  770h 570h  10Ch  00050008h   not?   Power saving mode (ABL) extra
-  880h 680h  08h   ???         not?   CStick (Right stick)
-  890h 690h  18h   00180001h   null?  Quad Tracking Module (QTM)
-```
-
-
-
-## Aging flags (for Header entry [00Eh])
-
+Below shows the offset in file (and in raw data area), the size (excluding
+checksum and Value 0001h), the BlkID corresponding "config" file entries, and
+the Entry number (entry 00h..0Fh have flags in "Aging Flags" header[00Eh]
+bit0..15 accordingly, entry 10h and up have flags stored between data and
+checksum).
 
 ```
-  Bit     Description
-  0       FCRAM (unknown, bit0 is usually zero)
-  1       Screen flicker (always successful)
-  2       Camera
-  3       Touchscreen panel (always successful)
-  4       Circle Pad (analog stick)
-  5       Codec
-  6       Gyroscope
-  7       RTC Compensation Value
-  8       Accelerometer
-  9       Surround
-  10      Power saving mode (ABL)
-  11      3D screen (ULCD)
-  12      Backlight PWM (BLPWM)
-  13      Analog stick A (???)
-  14      Camera extensions (?)
-  15      Power saving mode (ABL) in legacy (DSi/GBA) mode
+  File Data  Size  BlkID       Entry  Description
+  000h -     200h  -           -      Header
+  200h 000h  10h   00040000h   03h    Input Touchscreen
+  214h 014h  08h   00040001h.1 04h    Input Circle Pad (part 1)
+  220h 020h  2     00050000h   01h    LCD Screen flicker (VCOM)
+  224h 024h  1     00010000h   00h    RTC Compensation value (WHAT is that???)
+  228h 028h  1     00030000h   07h    RTC Correction value
+  230h 030h  8Ah   00060000h.1 02h    Outer Cameras (part 1)
+  2BCh 0BCh  12h   00040002h   06h    Input Gyroscope
+  2D0h 0D0h  0Ch   00040003h   08h    Input Accelerometer
+  2E0h 0E0h  134h  00020000h   05h    Codec (CDC aka TSC)
+  418h 218h  04h   00050007h   16h    LCD or Programmable Infrared (PIT);New3DS
+  420h 220h  214h  00070000h   09h    Sound Surround 3D filters
+  640h 440h  20h   00050003h   0Ah    LCD Power saving mode (ABL) (read by GSP)
+  670h 470h  20h   00050005h   0Bh    LCD Stereoscopic Display Settings
+  6A0h 4A0h  38h   00050002h   0Ch    LCD Backlight PWM (BLPWM)
+  6E0h 4E0h  18h   00040001h.2 0Dh    Input Circle Pad (part 2)
+  700h 500h  0Ch   00060000h.2 0Eh    Outer Cameras (part 2)
+  710h 510h  20h   00050004h   0Fh    LCD Power saving mode (ABL) (read by LGY)
+  740h 540h  08h   00120000h   10h    Slider Calibration
+  750h 550h  02h   00050006h   11h    LCD 2D/3D Mode Switching Delay
+  760h 560h  08h   00070002h   12h    Sound Microphone echo cancellation
+  770h 570h  10Ch  00050008h   15h    LCD Power saving mode (ABL) extra ;New3DS
+  880h 680h  08h   00040004h   13h    Input CStick (Right analog stick) ;New3DS
+  890h 690h  18h   00180001h   17h    QTM (Quad Tracking Module)        ;New3DS
+  N/A  N/A   -     -           14h    Entry 14h doesn't exist (or was it used?)
 ```
-
-Unknown if these are actually test results, maybe they are just entry-present
-flags? With later entries instead indicated by "Value 0001h" in the newly added
-fields?
 
 
 
@@ -25502,146 +27551,161 @@ fields?
 
 ```
   000h 4    File ID "CCAL"
-  004h 4    Version (eg. Old3DS:0000000Dh, New3DS:00000012h)
+  004h 4    Version (eg. Old3DS:0Ch or 0Dh, New3DS:12h)
   008h 4    Data size (always 07D0h, for entry 200h..9CFh)
   00Ch 1    Model version (?) (usually 00h)
-  00Dh 1    CAL revision (incremented each time the CAL file is updated)
-  00Eh 2    Bitmask of successful Aging tests (Old3DS:73FEh, New3DS:77FEh)
-  010h 20h  SHA256HMAC (retail) or SHA256 (dev) of the data section
-  030h 1D0h Zero
+  00Dh 1    Factory HWCAL0/HWCAL1 revision counter (eg. 0Bh/0Ch or 0Fh/10h)
+  00Eh 2    Aging Flags for Entry 00h..0Fh   (Old3DS:71FEh, New3DS:77FEh)
+  010h 20h  SHA256-HMAC (retail) or SHA256 (dev) on 7D0h-byte data section
+  030h 1D0h Zerofilled
+  200h 7D0h Data
 ```
 
 
 
-## Touchscreen
+## Aging flags (for Header entry [00Eh])
+
+
+Unknown if these are actually test results, maybe they are just entry-present
+flags? With later entries instead indicated by "Value 0001h" in the newly added
+fields?
+
+
+
+## BlkID=00040000h - Input Touchscreen
 
 
 ```
-  200h 2    s16 RawX0
-  202h 2    s16 RawY0
-  204h 2    s16 PointX0
-  206h 2    s16 PointY0
-  208h 2    s16 RawX1
-  20Ah 2    s16 RawY1
-  20Ch 2    s16 PointX1
-  20Eh 2    s16 PointY1
-  210h 2    Checksum?
+  200h 2    s16 RawX0   (analog value, usually 02xxh)   ;\
+  202h 2    s16 RawY0   (analog value, usually 02xxh)   ; upper/left
+  204h 2    s16 PointX0 (pixel coordinate, 0+32)        ; calibration point
+  206h 2    s16 PointY0 (pixel coordinate, 0+24)        ;/
+  208h 2    s16 RawX1   (analog value, usually 0Exxh)   ;\
+  20Ah 2    s16 RawY1   (analog value, usually 0Exxh)   ; lower/right
+  20Ch 2    s16 PointX1 (pixel coordinate, 320-32)      ; calibration point
+  20Eh 2    s16 PointY1 (pixel coordinate, 240-24)      ;/
+  210h 2    Checksum
   212h 2    Zero
 ```
 
 
 
-## Circle Pad (part 1)
+## BlkID=00040001h.part1 - Input Circle Pad (left Analog Stick) (part 1)
 
 
 ```
   214h 2    s16 CenterX (usually 08xxh)
   216h 2    s16 CenterY (usually 08xxh)
-  218h 4    Zero (hmmm, uncommonly... not set to Value 0001h ?)
-  21Ch 2    Checksum?
+  218h 4    Zero
+  21Ch 2    Checksum
   21Eh 2    Zero
 ```
 
 
 
-## Screen flicker
+## BlkID=00050000h - LCD Screen flicker (VCOM)
 
 
 ```
-  220h 1    u8 FlickerTop                             (maybe for MCU[03h] ?)
-  221h 1    u8 FlickerBottom                          (maybe for MCU[04h] ?)
-  222h 1    Checksum ([220h] XOR FFh)
-  223h 1    Checksum ([221h] XOR FFh)    ;uh, reportedly without XOR FFh ???
+  220h 1    u8 LCD Top Screen VCOM "flicker"                 ;for MCU[03h]
+  221h 1    u8 LCD Bottom Screen VCOM "flicker"              ;for MCU[04h]
+  222h 2    Checksum ([220h] XOR FFFFh)
 ```
 
 
 
-## RTC Compensation Value
+## BlkID=00010000h - RTC Compensation value (WHAT is that???)
 
 
 ```
-  224h 1    u8 Compensation Value (???) (usually 80h) (maybe for MCU[37h] ?)
+  224h 1    u8 Compensation Value (???) (usually 80h)
   225h 1    Checksum ([224h] XOR FFh)
   226h 2    Zero
 ```
 
+Unknown what this is... and if it is RTC related at all (maybe somebody just
+confused it with the RTC Correction value below) (or if it's really RTC
+related, it might be old prototype stuff, or related to emulated RTCs for
+GBA/NDS?). Also, 3dbrew does randomly refer to it either as "FCRAM" or as "RTC
+Compensation value".
 
 
-## DSP-RAM related?
+
+## BlkID=00030000h - RTC Correction value
 
 
 ```
-  228h 1    DSPRAM related (spotted FEh on Old3DS, 86h on New3DS)
+  228h 1    RTC Correction (spotted values are 86h, 90h or FEh) ;for MCU[37h]
   229h 1    Checksum ([228h] XOR FFh)
   22Ah 6    Zero
 ```
 
 
 
-## Camera position ;uh, for which of the three camera(s)?
+## BlkID=00060000h.part1 - Outer Cameras (part 1)
 
 
 ```
-  230h 4    u32 flags
-  234h 4    float scale
-  238h 4    float RotationZ
-  23Ch 4    float TranslationX
-  240h 4    float TranslationY
-  244h 4    float RotationX
-  248h 4    float RotationY
-  24Ch 4    float ViewAngleRight
-  250h 4    float ViewAngleLeft
-  254h 4    float ChartDistance(???)
-  258h 4    float CameraDistance
-  25Ch 2    s16 ImageWidth
-  25Eh 2    s16 ImageHeight
-  260h 10h  u8 reserved[0x10]
-  270h 40h  u8 ???[0x40]
-  2B0h 2    s16 aeBaseTarget(???)
-  2B2h 2    s16 kRL
-  2B4h 2    s16 kGL
-  2B6h 2    s16 kBL
-  2B8h 2    s16 ccmPosition
-  2BAh 2    Checksum?
-```
-
-
-
-## Gyroscope
-
-
-```
-  2BCh 2    s16 ZeroX
-  2BEh 2    s16 PlusX
-  2C0h 2    s16 MinusX
-  2C2h 2    s16 ZeroY
-  2C4h 2    s16 PlusY
-  2C6h 2    s16 MinusY
-  2C8h 2    s16 ZeroZ
-  2CAh 2    s16 PlusZ
-  2CCh 2    s16 MinusZ
-  2CEh 2    Checksum?
+  230h 4    u32 flags             (usually 0)
+  234h 4    float scale           (near +1.0)
+  238h 4    float RotationZ       (near 0.0)
+  23Ch 4    float TranslationX    (-86.0..-102.0)
+  240h 4    float TranslationY    (-2.0..-4.4)    ;VAR
+  244h 4    float RotationX       (usually 0.0)
+  248h 4    float RotationY       (usually 0.0)
+  24Ch 4    float ViewAngleRight  (near +64.0)
+  250h 4    float ViewAngleLeft   (near +64.0)
+  254h 4    float ChartDistance(?)(usually +250.0)
+  258h 4    float CameraDistance  (usually +35.0)
+  25Ch 2    s16 ImageWidth        (280h aka 640 decimal)
+  25Eh 2    s16 ImageHeight       (1E0h aka 480 decimal)
+  260h 10h  reserved              (usually 0)
+  270h 40h  unknown               (usually 0)
+  2B0h 2    s16 aeBaseTarget(???) (usually 0)
+  2B2h 2    s16 kRL               (usually 0)
+  2B4h 2    s16 kGL               (usually 0)
+  2B6h 2    s16 kBL               (usually 0)
+  2B8h 2    s16 ccmPosition       (usually 0)
+  2BAh 2    Checksum
 ```
 
 
 
-## Accelerometer
+## BlkID=00040002h - Input Gyroscope
 
 
 ```
-  2D0h 2    s16 OffsetX
-  2D2h 2    s16 ScaleX
-  2D4h 2    s16 OffsetY
-  2D6h 2    s16 ScaleY
-  2D8h 2    s16 OffsetZ
-  2DAh 2    s16 ScaleZ
-  2DCh 2    Checksum?
+  2BCh 2    s16 ZeroX   (usually +/-00xxh)        ;\
+  2BEh 2    s16 PlusX   (usually +19xxh..+1Axxh)  ; X
+  2C0h 2    s16 MinusX  (usually -19xxh..-1Axxh)  ;/
+  2C2h 2    s16 ZeroY   (usually +/-00xxh)        ;\
+  2C4h 2    s16 PlusY   (usually +19xxh..+1Axxh)  ; Y
+  2C6h 2    s16 MinusY  (usually -19xxh..-1Axxh)  ;/
+  2C8h 2    s16 ZeroZ   (usually +/-00xxh)        ;\
+  2CAh 2    s16 PlusZ   (usually +19xxh..+1Axxh)  ; Z
+  2CCh 2    s16 MinusZ  (usually -19xxh..-1Axxh)  ;/
+  2CEh 2    Checksum
+```
+
+
+
+## BlkID=00040003h - Input Accelerometer
+
+
+```
+  2D0h 2    s16 OffsetX (usually +/-00xxh)        ;\X
+  2D2h 2    s16 ScaleX  (usually +03Fxh..+040xh)  ;/
+  2D4h 2    s16 OffsetY (usually +/-00xxh)        ;\Y
+  2D6h 2    s16 ScaleY  (usually +03Fxh..+040xh)  ;/
+  2D8h 2    s16 OffsetZ (usually +/-00xxh)        ;\Z
+  2DAh 2    s16 ScaleZ  (usually +03Fxh..+040xh)  ;/
+  2DCh 2    Checksum
   2DEh 2    Zero
 ```
 
 
 
-## Codec (CDC) (aka TSC)
+## BlkID=00020000h - Codec (CDC aka TSC)
 
 
 ```
@@ -25670,230 +27734,347 @@ fields?
   411h 1    u8 Analog_XP_Pullup   ;TSC[67h:19h].msbs ;
   412h 1    u8 YM_Driver          ;TSC[67h:1Bh].msb  ;/
   413h 1    u8 reserved
-  414h 2    Checksum?
+  414h 2    Checksum
   416h 2    Zero
 ```
 
+Caution: The various 16bit Filter values in the HWCAL and config files are
+stored in LITTLE-ENDIAN, but the TSC chip wants them in BIG-ENDIAN, so one must
+swap each 2 bytes.
 
 
-## Programmable Infrared Transmitter (PIT) -- New3DS only (zerofilled on Old3DS)
 
+## BlkID=00050007h - LCD or Programmable Infrared Transmitter? (PIT) ;New3DS
+
+
+-- New3DS only (zerofilled on Old3DS)
 
 ```
-  418h 2    u16 VisibleFactor
-  41Ah 2    u16 IRFactor
-  41Ch 2    Value Zero (hmmm, uncommonly... not set to Value 0001h ?)
-  41Eh 2    Checksum?
+  418h 2    u16 VisibleFactor (usually 4C2Bh)
+  41Ah 2    u16 IRFactor      (usually 4C2Bh)
+  41Ch 2    Aging Flag 17h    (0000h, hmmm, uncommonly... not set to 0001h ?)
+  41Eh 2    Checksum
 ```
 
+Unknown what that is, maybe the New3DS IR LED for internal camera?
 
 
-## 3D filters ;uh, is that 3d video? and/or 3d surround audio?
+
+## BlkID=00070000h - Sound Surround 3D filters
 
 
 ```
   420h 200h u16 SpecialFilter[0x100] <-- Old3DS: mostly zero, unlike New3DS
   620h 14h  u32 IIRSurroundFilter[5] <-- both Old3DS and New3DS
-  634h 2    Checksum?
+  634h 2    Checksum
   636h 0Ah  Zero
 ```
 
 
 
-## Power saving mode (ABL)
+## BlkID=00050003h - LCD Power saving mode (ABL) (read by GSP)
 
 
 ```
-  640h 4    u32 DitherPattern
-  644h 2    s16 StartX
-  646h 2    s16 StartY
-  648h 2    u16 SizeX
-  64Ah 2    u16 SizeY
-  64Ch 2    s16 GTH_Ratio
-  64Eh 1    u8 DitherMode
-  64Fh 1    u8 MinRS
-  650h 1    u8 MaxRS
-  651h 1    u8 MinGTH
-  652h 1    u8 MinMax (???)
-  653h 1    u8 ExMax (???)
-  654h 1    u8 inertia
-  655h 9    u8 LutListRS[9]
-  65Eh 2    u8 reserved[2]
-  660h 2    Checksum?
+  640h 4    u32 DitherPattern  (C66C9339h)
+  644h 2    s16 StartX         (0000h)
+  646h 2    s16 StartY         (0000h)
+  648h 2    u16 SizeX          (0400h)
+  64Ah 2    u16 SizeY          (0400h)
+  64Ch 2    s16 GTH_Ratio      (0080h)
+  64Eh 1    u8 DitherMode      (00h)
+  64Fh 1    u8 MinRS           (72h)
+  650h 1    u8 MaxRS           (FFh)
+  651h 1    u8 MinGTH          (69h)
+  652h 1    u8 MinMax (???)    (FFh)
+  653h 1    u8 ExMax (???)     (20h)
+  654h 1    u8 inertia         (02h or 06h) (unlike BlkID=00050004h)
+  655h 9    u8 LutListRS[9]    (14h,2Ch,46h,5Ch,72h,82h,8Eh,98h,A0h)
+  65Eh 2    u8 reserved[2]     (00h,00h)
+  660h 2    Checksum
   662h 0Eh  Zero
 ```
 
+Unknown what inertia means (timing delay, or accelerometer related, or
+whatever). Unknown what GTH and RS means. ABL is said to relate to backlight.
 
 
-## Stereo Display Settings
+
+## BlkID=00050005h - LCD Stereoscopic Display Settings
 
 
 ```
-  670h 20h  Float values? (see config file)
-  690h 2    Checksum?
+  670h 4    float32 Pupillary Distance in mm?                     (62.0)
+  674h 4    float32 Distance between eyes and upper screen in mm? (289.0)
+  678h 4    float32 Screen Width in mm  (76.80) ;\size of Old3DS upper screen
+  67Ch 4    float32 Screen Height in mm (46.08) ;/(New3DSXL uses same values)
+  680h 4    float32 Unknown (10.0)
+  684h 4    float32 Unknown (5.0)
+  688h 4    float32 Unknown (55.58)
+  68Ch 4    float32 Unknown (21.57)
+  690h 2    Checksum
   692h 0Eh  Zero
 ```
 
 
 
-## Backlight PWM (BLPWM) ;uh, which backlight/mode(s)? Upper2D, Upper3D, Lower?
+## BlkID=00050002h - LCD Backlight PWM (BLPWM)
 
 
 ```
-  6A0h 24h  float coefficient[3][3]
-  6C4h 1    u8 NumLevels
-  6C5h 1    u8 padding
-  6C6h 0Eh  u16 brightnesses[7]
-  6D4h 2    u16 BaseDivisor
-  6D6h 2    u16 MinimumBrightnessHw
-  6D8h 2    Checksum?
+  6A0h 4    float32 unknown (+0.0011 or +0.0003)  ;\
+  6A4h 4    float32 scale?  (+1.4141 or +1.4250)  ; lower screen?
+  6A8h 4    float32 unknown (+0.0717 or -0.0616)  ;/
+  6ACh 4    float32 unknown (+0.0004 or +0.0002)  ;\upper screen 2d mode?
+  6B0h 4    float32 scale?  (+0.6656 or +0.9951)  ; (when parallax off) ?
+  6B4h 4    float32 unknown (+0.0609 or +1.4314)  ;/
+  6B8h 4    float32 unknown (+0.0020 or +0.0008)  ;\upper screen 3d mode?
+  6BCh 4    float32 scale?  (+1.5563 or +1.8836)  ; (when parallax on)  ?
+  6C0h 4    float32 unknown (+0.0385 or +1.5579)  ;/
+  6C4h 1    u8 NumLevels            (05h)
+  6C5h 1    u8 Unknown              (00h on Old3DS, but 80h on New3DSXL)
+  6C6h 0Eh  u16 brightnesses[7]     (increasing values, in range 0010h..00ACh)
+  6D4h 2    u16 BaseDivisor         (0200h)    ;aka PWM interval maybe?
+  6D6h 2    u16 MinimumBrightnessHw (000Ah or 000Dh)
+  6D8h 2    Checksum
   6DAh 06h  Zero
 ```
 
 
 
-## Circle Pad (part 2)
+## BlkID=00040001h.part2 - Input Circle Pad (left Analog Stick) (part 2)
 
 
 ```
-  6E0h 4    float ScaleX
-  6E4h 4    float ScaleY
-  6E8h 2    s16 MaxX
-  6EAh 2    s16 MinX
-  6ECh 2    s16 MaxY
-  6EEh 2    s16 MinY
-  6F0h 2    s16 type
-  6F2h 6    u8 unknown_padding[6]
-  6F8h 2    Checksum?
+  6E0h 4    float ScaleX (near +0.83)  ;\unknown
+  6E4h 4    float ScaleY (near +0.82)  ;/purpose
+  6E8h 2    s16 MaxX     (usually 0Exxh)
+  6EAh 2    s16 MinX     (usually 02xxh)
+  6ECh 2    s16 MaxY     (usually 0Exxh)
+  6EEh 2    s16 MinY     (usually 02xxh)
+  6F0h 2    s16 type     (whatever, usually 0)
+  6F2h 6    Unknown      (zerofilled)
+  6F8h 2    Checksum
   6FAh 06h  Zero
 ```
 
 
 
-## Unknown ???
+## BlkID=00060000h.part2 - Outer Cameras (part 2)
 
 
 ```
-  700h 0Ch  ???
-  70Ch 2    Checksum?
+  700h 2    Unknown (can be 001Dh or 0016h)
+  700h 2    Unknown (can be 001Eh or 0016h)
+  700h 2    Unknown (can be 0047h or 0055h)
+  700h 2    Unknown (can be 0043h or 0055h)
+  700h 2    Unknown (can be 0000h)
+  700h 2    Unknown (can be 0000h)
+  70Ch 2    Checksum
   70Eh 2    Zero
 ```
 
 
 
-## Unknown ???
+## BlkID=00050004h - LCD Power saving mode (ABL) (read by LGY)
 
 
 ```
-  710h 20h  ???
-  730h 2    Checksum?
+  710h 4    u32 DitherPattern  (C66C9339h)
+  714h 2    s16 StartX         (0000h)
+  716h 2    s16 StartY         (0000h)
+  718h 2    u16 SizeX          (0400h)
+  71Ah 2    u16 SizeY          (0400h)
+  71Ch 2    s16 GTH_Ratio      (0080h)
+  71Eh 1    u8 DitherMode      (00h)
+  71Fh 1    u8 MinRS           (72h)
+  720h 1    u8 MaxRS           (FFh)
+  721h 1    u8 MinGTH          (69h)
+  722h 1    u8 MinMax (???)    (FFh)
+  723h 1    u8 ExMax (???)     (20h)
+  724h 1    u8 inertia         (always 02h) (unlike BlkID=00050003h)
+  725h 9    u8 LutListRS[9]    (14h,2Ch,46h,5Ch,72h,82h,8Eh,98h,A0h)
+  72Eh 2    u8 reserved[2]     (00h,00h)
+  730h 2    Checksum
   732h 0Eh  Zero
 ```
 
 
 
-## MCU
+## BlkID=00120000h - Slider Calibration
 
 
 ```
-  740h 2    s16 SVR2_Min (???)
-  742h 2    s16 SVR2_Max (???)
-  744h 2    s16 VolumeSliderMin      (maybe for MCU[58h] ?)
-  746h 2    s16 VolumeSliderMax      (maybe for MCU[59h] ?)
-  748h 2    Value 0001h (?)
-  74Ah 2    Checksum?
+  740h 2    s16 SVR2_Min (???)  (usually 0007h..001Bh) ;\maybe this is
+  742h 2    s16 SVR2_Max (???)  (usually 00F2h..00FDh) ;/3D Slider?
+  744h 2    s16 VolumeSliderMin (usually 0004h..003Ch) ;use Min+8 for MCU[58h]
+  746h 2    s16 VolumeSliderMax (usually 00F5h..00FFh) ;use Max-8 for MCU[59h]
+  748h 2    Aging Flag 10h      (0001h)
+  74Ah 2    Checksum
   74Ch 4    Zero
 ```
 
 
 
-## 3D screen (ULCD) delay
+## BlkID=00050006h - LCD 2D/3D Mode Switching Delay
 
 
 ```
-  750h 1    u8 To2D
-  751h 1    u8 To3D
-  752h 2    Value 0001h (?)
-  754h 2    Checksum?
+  750h 1    u8 To2D, delay for switching to 2D mode (in frames??) (0Dh or F1h)
+  751h 1    u8 To3D, delay for switching to 3D mode (in frames??) (00h or F1h)
+  752h 2    Aging Flag 11h      (0001h)
+  754h 2    Checksum
   756h 0Ah  Zero
 ```
 
+Delays for upper LCD screen mode switching. The upper screen has three modes:
+2D lores, 2D hires, 3D stereoscopic (the latter with parallax barrier and
+higher backlight intensity), unknown how exactly those two delays relate to
+those three modes (or to parallax/backlight changes).
 
 
-## Microphone echo cancel
+
+## BlkID=00070002h - Sound Microphone echo cancellation
 
 
 ```
-  760h 8    s8 params[8]
-  768h 2    Value 0001h (?)
-  76Ah 2    Checksum?
+  760h 1    s8 Unknown          (0Ch or 0Ah)
+  761h 1    s8 Unknown          (06h or 02h)
+  762h 1    s8 Unknown          (0Ch or 06h)
+  763h 1    s8 Unknown          (01h or 00h)
+  764h 1    s8 Unknown          (0Ch)
+  765h 1    s8 Unknown          (A3h)
+  766h 1    s8 Unknown          (00h)
+  767h 1    s8 Unknown          (08h)
+  768h 2    Aging Flag 12h      (0001h)
+  76Ah 2    Checksum
   76Ch 4    Zero
 ```
 
+This is all zerofilled in HWCAL files on my Old3DS (but "config" has nonzero
+values).
 
-
-## Power saving mode (ABL) extra -- New3DS only (zerofilled on Old3DS)
-
-
-```
-  770h 1    u8 MaxInertia
-  771h 1    u8 pad
-  772h 2    u16 PWM_CNT_EX
-  774h 4    u32 Histogram1
-  778h 4    u32 Histogram2
-  77Ch 100h u32 adjust[0x40]
-  87Ch 2    Value 0001h (?)
-  87Eh 2    Checksum?
-```
+Unknown if this is going to TSC registers or whatever. Also unknown what "echo"
+means, maybe classic sound reflection on walls, or feedback(-loops) from
+speaker to microphone?
 
 
 
-## CStick (Right stick) -- New3DS only (zerofilled on Old3DS)
+## BlkID=00050008h - LCD Power saving mode (ABL) extra
 
+
+-- New3DS only (zerofilled on Old3DS)
 
 ```
-  880h 1    u8 ThinningCountX(???)
-  881h 1    u8 ThinningCountY(???)
-  882h 6    u16 reserved[3]
-  888h 2    Value 0001h (?)
-  88Ah 2    Checksum?
+  770h 1    u8 MaxInertia  (12h)       ;guess: delay? pwm_interval?
+  771h 1    u8 pad         (00h)
+  772h 2    u16 PWM_CNT_EX (0001h)     ;guess: maybe Port 102022xxh/10202Axxh
+  774h 4    u32 Histogram1 (00000000h) ;guess: maybe Port 10202250h/10202A50h
+  778h 4    u32 Histogram2 (001E8E51h) ;guess: maybe Port 10202254h/10202A54h
+  77Ch 100h u32 adjust[0x40]         ;reportedly for Port 10202300h/10202B00h
+  87Ch 2    Aging Flag 15h (0001h)
+  87Eh 2    Checksum
+```
+
+Maybe something for maintaining the correct color hue at different backlight
+levels? The 64 adjust values seem to be RGB multipliers (usually near
+00808080h, or slightly off, like 00827D7Ch).
+
+Unknown if that same settings are used for BOTH screens (and how that could
+work, except by assuming that both screens are from same manufacturer with
+similar characteristics).
+
+
+
+## BlkID=00040004h.part - Input CStick (Right analog stick)
+
+
+-- New3DS only (zerofilled on Old3DS)
+
+```
+  880h 1    u8 ThinningCountX (whut?) (whatever, usually 25h)
+  881h 1    u8 ThinningCountY (whut?) (whatever, usually 25h)
+  882h 6    Reserved                  (zerofilled)
+  888h 2    Aging Flag 13h            (0001h)
+  88Ah 2    Checksum
   88Ch 4    Zero
 ```
 
+This is same as in config (except, config has more extra zeroes appended).
 
 
-## Quad Tracking Module (QTM) -- New3DS only (zerofilled on Old3DS)
 
+## BlkID=00180001h - QTM (Quad Tracking Module)
+
+
+-- New3DS only (zerofilled on Old3DS)
 
 ```
-  890h 4    float DivisorAtZero (???)
-  894h 4    float TranslationX
-  898h 4    float TranslationY
-  89Ch 4    float RotationZ
-  8A0h 4    float HorizontalAngle
-  8A4h 4    float OptimalDistance
-  8A8h 2    Value Zero (hmmm, uncommonly... not set to Value 0001h ?)
-  8AAh 2    Checksum?
+  890h 4    float DivisorAtZero (???) (eg. +5.787) (or def=+6.500)
+  894h 4    float TranslationX        (eg. -0.014) (or def=+0.000)
+  898h 4    float TranslationY        (eg. +0.001) (or def=+0.000)
+  89Ch 4    float RotationZ           (eg. -0.218) (or def=+0.000)
+  8A0h 4    float HorizontalAngle     (eg. +68.52) (or def=+66.40)
+  8A4h 4    float OptimalDistance     (eg. +319.2) (or def=+301.0)
+  8A8h 2    Aging Flag 17h            (eg. 0001h)  (or def=0000h)
+  8AAh 2    Checksum
   8ACh 124h Zero
 ```
 
+The QTM values are written in the last calibration step, resulting in different
+values in HWCAL0 vs HWCAL1 (the older HWCAL file does merely contain some
+default values, the newer HWCAL file and config file contain the actual
+calibration).
 
 
-## Unknown things
+
+## HWCAL Checksums
 
 
-The HMAC key for header signature is unknown.
+The SHA256-HMAC in the header is using the following 20h-byte HMAC key:
 
-The Checksum function is unknown (for 1-2 byte sections it's just the 1-2
-byte(s) XORed FFh).
+```
+  0D,36,F9,C8,EA,ED,15,A7,B9,22,E3,C7,70,E7,53,48
+  DA,2D,57,35,C2,59,9F,93,5D,E1,81,4D,E6,65,40,8B
+```
 
-The purpose of most entries is unknown.
+Checksums for data blocks depend on the length of the data part (including the
+"Aging Flag" entry between data and checksum, if any):
+
+```
+  len=1  --> chksum.byte     = data XOR FFh
+  len=2  --> chksum.halfword = data XOR FFFFh
+  len>=4 --> chksum.halfword = CRC16(data, initial=55AAh)
+```
+
+The chksum.byte can be located at unaligned locations, chksum.halfword is
+always used with even lengths and stored at 2-byte aligned locations.
+
+
+
+## EEPROM Reading (on dev consoles or so?)
+
+
+"If 0x1FF81006 (uh, what, where from?) is 3 or 4 or 7 or 8 or 9 then the
+calibration data is read from the EEPROM using the i2c:EEP service command
+0x001000C0, using offset 0x000 for HWCAL0, and offset 0x800 for HWCAL1.
+Otherwise attempt is made to read CTRNAND:/ro/sys/HWCAL(0|1).dat instead."
+
+
+
+## EEPROM Unknown things
+
 
 Unknown how to read the EEPROM data (maybe similar as for Wifi EEPROM?).
 
 Unknown what size EEPRM has (apparently at least 1000h bytes).
 
-Unknown if EEPROM has any header (maybe only 30h bytes instead 200h bytes?).
+Unknown if EEPROM has any header (maybe only 30h bytes instead 200h bytes?) (it
+should/must have header entry[00Dh]).
+
+
+Note: HWCAL and config are used by 3ds:\title\00040130\00001702 (cfg system
+module).
 
 
 
@@ -25902,8 +28083,8 @@ Unknown if EEPROM has any header (maybe only 30h bytes instead 200h bytes?).
 
 
 
-This page describes the format of the Cfg NAND savegame. These blocks can be
-accessed with the Cfg service commands.
+This page describes the format of the "Cfg NAND savegame" (whut?). These blocks
+can be accessed with the "Cfg service commands".
 
 
 The data is stored in "3ds:\data\\<ID0>\sysdata\00010017\00000000" (which
@@ -25912,32 +28093,31 @@ file described below).
 
 
 
-## Structure of save-file "/config"
+## Structure of save-file "/config" (8000h bytes)
 
 
 ```
   Offset Size   Description
   0000h  2      Total entries (N) (usually 32h..41h)
   0002h  2      End of unused space, begin of Data (455Ch..41E4h)
-  0004h  N*0Ch  Block entries
-  ...    ...    Unused space
-  455Ch         Data for the entries (used from top, starting at 7FFFh)
+  0004h  N*0Ch  Config Block entries (see below)
+  ...    ..     Unused space
+  ...    ..     Data for the entries (used from top, starting at 7FFFh)
 ```
 
-The filesize for this /config file is 0x8000-bytes.
-
-
-
-## Configuration block entry
-
+Config Block entry format:
 
 ```
   00h 4  BlkID (00xx000xh)
-  04h 4  Offset to the data for this block when size is >4, otherwise
-           this word is the data for this block
-  08h 2  Size
+  04h 4  Data (or, when Size>4, Offset to Data from begin of config file)
+  08h 2  Size in bytes
   0Ah 2  Flags (usually 000Ch or 000Eh, unknown meaning)
 ```
+
+In current firmware: The data is usually at 4-byte aligned locations, except
+Gyroscope and Accelerometer are only 2-byte aligned (these consist of 16bit
+entries, so that's no problem), unknown if other firmware versions have more
+unaligned entries.
 
 
 
@@ -25946,232 +28126,515 @@ The filesize for this /config file is 0x8000-bytes.
 
 ```
   BlkID   Flags Size Description
-  00000000h 0Ch 2    Config savegame version? (0015h or 0039h)
-  00010000h 0Ch 1    RTC Compensation Value (usually 80h)
-  00020000h 0Ch 134h Codec
-  00030000h 0Ch 1    Leap Year Counter (read By PTM)
-  00030001h 0Eh 08h  User time offset (read by CECD): displayed_time-rtc_time
-  00030002h 0Ch 08h  Settings time offset: newly_set_time-rtc_time
-  00040000h 0Ch 10h  Touch calibration (read by HID)
-  00040001h 0Ch 1Ch  Analog Stick Calibration Param? (read by HID)
-  00040002h 0Ch 12h  Gyroscope (read by HID)
-  00040003h 0Ch 0Ch  Accelerometer (read by HID)
-  00040004h 0Ch 1Ch  CStick calibration data
-  00050000h 0Ch 2    Screen flicker
-  00050001h 0Ch 2    Backlight controls (read by GSP)
-                       (u8 ABL_powersave_enable, u8 brightness_level)
-  00050002h 0Ch 38h  Backlight PWM (read by GSP)
-  00050003h 0Ch 20h  Power saving mode (ABL) calibration (read by GSP)
-  00050004h 0Ch 20h  Power saving mode (ABL) calibration
-  00050005h 0Eh 20h  Stereo Display Settings (HWCAL block 0x470)
-  00050006h 0Ch 2    3D switching delay (two bytes: To2D, To3D)
-  00050007h 0Ch 4    ?
-  00050008h 0Ch 10Ch Power saving mode (ABL) extra config
-  00050009h 0Ch 08h  new3DS only(?) backlight control
-                       (5th byte: auto-brightness enable)
-  00060000h 0Ch 96h  ??? (HWCAL block 0x500) (but, that HWCAL is smaller?)
-  00070000h 0Eh 214h 3D filters ... maybe this is "Surround"?
-  00070001h 0Eh 1    Sound output mode (mono=0, stereo=1, surround=2)
-  00070002h 0Eh 08h  Microphone echo cancellation params
-  00080000h 0Ch C00h WiFi configuration slot 0
-  00080001h 0Ch C00h WiFi configuration slot 1
-  00080002h 0Ch C00h WiFi configuration slot 2
-  00090000h 0Eh 08h  This contains a u64 ID, used by processes using
-                       NWMUDS:InitializeWithVersion. The first word is the
-                       same as LocalFriendCodeSeed, while the latter is a
-                       separate word.
-  00090001h 0Eh 08h  Same content as 0x0009000? This console-unique u64 is
-                       used by GenHashConsoleUnique. It is generated by
-                       ((3FFFFFFFFh) & LocalFriendCodeSeed) | (random16 << 48))
-                       where random16 is generated by GenerateRandomBytes
-  00090002h 0Eh 4    The first two bytes are the same random16 used in
-                       0x00090001. The second two bytes are zeros.
-  000A0000h 0Eh 1Ch  Username in UTF16
-  000A0001h 0Eh 2    Birthday (u8 month, u8 day)
-  000A0002h 0Eh 1    Language
-  000B0000h 0Eh 4    CountryInfo
-  000B0001h 0Eh 800h Country name in UTF-16, every 0x80-bytes is an entry for
-                       each language, in the order of the Language table below
-                       (not all entries are set)
-  000B0002h 0Eh 800h State name in UTF-16, every 0x80-bytes is an entry for
-                       each language
-  000B0003h 0Eh 4    Coordinates. A pair of s16 represents latitude and
-                       longitude, respectively. One need to multiply both
-                       value by 180/32768 to get coordinates in degrees
-  000C0000h 0Eh C0h  Restricted photo exchange data, and other info (includes
-                       a mirror of Parental Restrictions PIN/Secret Answer)
-  000C0001h 0Eh 14h  COPPACS restriction data
-  000C0002h 0Eh 200h ? Contains the email address set during Parental
-                        Restriction setup.
-  000D0000h 0Eh 4    u16 at offset 0x0: EULA Version which was agreed to.
-  000E0000h 0Eh 1    ?
-  000F0000h 0Ch 10h  Debug configuration, read by NS on dev-units: on startup,
-                       NS does svcKernelSetState(6, 1, (u64)debug_flags & 1);
-                       svcKernelSetState(6, 2, (u64)debug_flags & 2); (see
-                       here) where debug_flags is the u32 located at offset
-                       0xC in this struct. Then it compares the u32 from +8 in
-                       this config-block with the APPMEMTYPE. When those don't
-                       match NS starts a FIRM-launch (with the same FIRM
-                       titleID as the currently running one) to boot into a
-                       FIRM with the APPMEMTYPE value from this config-block.
-                       The byte at offset 0 is related to the memtype as well.
-  000F0001h 0Ch 8    ?
-  000F0003h 0Ch 1    ?
-  000F0004h 0Ch 4    System-Model value byte, followed by 3 unknown bytes
-  000F0005h 0Ch 4    The first u8 indicates whether network updates are
-                       enabled (however, NIM only checks this flag with
-                       developer ENVINFO).
-  000F0006h 0Ch 28h  In NIM, taken as a (hopefully null terminated) string
-                       used for the "X-Device-Token" http header field for
-                       NPNS url.
-  00100000h 0Ch 2    ?
-  00100001h 0Ch 94h  Parental Restrictions PIN/Secret Answer and other info
-  00100002h 0Ch 1    ?
-  00100003h 0Ch 10h  ?
-  00110000h 0Ch 4    The low u16 indicates whether the system setup is
-                       required, such as when the system is booted for the
-                       first time or after doing a System Format
-                       (0=Setup required, non-zero=No setup required)
-  00110001h 0Ch 8    TitleID of the menu to launch, used by NS on dev units
-                       (this block can be edited on dev units with Config)
-  00120000h 0Ch 8    Volume Slider Bounds (Read by HID and PTM)
-  00130000h 0Eh 4    If response is 0x100 then debug mode is enabled.
+  00000000h 0Ch 2    Config Version? (0015h or 0039h)
+  00010000h 0Ch 1    RTC Compensation value (usually 80h) (WHAT is that???)
+  00020000h 0Ch 134h Codec (CDC aka TSC)
+  00030000h 0Ch 1    RTC Correction value (read by PTM)
+  00030001h 0Eh 08h  RTC Time offset (read by CECD): displayed_time-rtc_time
+  00030002h 0Ch 08h  RTC Settings Time offset: newly_set_time-rtc_time
+  00040000h 0Ch 10h  Input Touchscreen
+  00040001h 0Ch 1Ch  Input Circle Pad (left Analog Stick)
+  00040002h 0Ch 12h  Input Gyroscope
+  00040003h 0Ch 0Ch  Input Accelerometer
+  00040004h 0Ch 1Ch  Input CStick (Right analog stick)
+  00050000h 0Ch 2    LCD Screen flicker (VCOM)
+  00050001h 0Ch 2    LCD Backlight controls (read by GSP)
+  00050002h 0Ch 38h  LCD Backlight PWM (read by GSP)
+  00050003h 0Ch 20h  LCD Power saving mode (ABL) calibration (read by GSP)
+  00050004h 0Ch 20h  LCD Power saving mode (ABL) calibration (read by LGY)
+  00050005h 0Eh 20h  LCD Stereoscopic Display Settings
+  00050006h 0Ch 2    LCD 2D/3D Mode Switching Delay
+  00050007h 0Ch 4    LCD or Programmable Infrared Transmitter? (PIT) ;New3DS
+  00050008h 0Ch 10Ch LCD Power saving mode (ABL) extra config        ;New3DS
+  00050009h 0Ch 08h  LCD new3DS only(?) backlight control            ;New3DS
+  00060000h 0Ch 96h  Outer Cameras
+  00070000h 0Eh 214h Sound Surround 3D filters
+  00070001h 0Eh 1    Sound Output Mode (mono=0, stereo=1, surround=2)
+  00070002h 0Eh 08h  Sound Microphone echo cancellation params
+  00080000h 0Ch C00h Wifi Internet Access Point 1
+  00080001h 0Ch C00h Wifi Internet Access Point 2
+  00080002h 0Ch C00h Wifi Internet Access Point 3
+  00090000h 0Eh 08h  User ID 1 (for NWMUDS:InitializeWithVersion)
+  00090001h 0Eh 08h  User ID 2 (for GenHashConsoleUnique)
+  00090002h 0Eh 4    User ID Random
+  000A0000h 0Eh 1Ch  User Name in UTF16 (and NGWord version)
+  000A0001h 0Eh 2    User Birthday (u8 month, u8 day)
+  000A0002h 0Eh 1    User Language
+  000B0000h 0Eh 4    Local Country/State Codes
+  000B0001h 0Eh 800h Local Country name in UTF-16 (in various languages)
+  000B0002h 0Eh 800h Local State name in UTF-16 (in various languages)
+  000B0003h 0Eh 4    Local Country/State Coordinates
+  000C0000h 0Eh C0h  Parental Restrictions
+  000C0001h 0Eh 14h  Parental Child Online Privacy Protection (COPPACS)
+  000C0002h 0Eh 200h Parental Email and Custom Secret Question
+  000D0000h 0Eh 4    EULA Version which was agreed to
+  000E0000h 0Eh 1    Wifi Internet Spotpass Flags
+  000F0000h 0Ch 10h  System Debug configuration
+  000F0001h 0Ch 8    System ?
+ ;000F0002h -   -    System N/A (or did this exist in some/older firmwares?)
+  000F0003h 0Ch 1    System ?
+  000F0004h 0Ch 4    System Model value byte, followed by 3 unknown bytes
+  000F0005h 0Ch 4    System Network Update Enable
+  000F0006h 0Ch 28h  System NPNS string for "X-Device-Token" http header field
+  00100000h 0Ch 2    DSi EULA
+  00100001h 0Ch 94h  DSi Parental Restrictions
+  00100002h 0Ch 1    DSi Country
+  00100003h 0Ch 10h  DSi User ID
+  00110000h 0Ch 4    Boot System Setup Request flag
+  00110001h 0Ch 8    Boot TitleID of Home Menu
+  00120000h 0Ch 8    Slider Calibration (Read by HID and PTM)
+  00130000h 0Eh 4    Debug mode enable
+ ;00140000h -   -    Reserved BlkID for SecureInfo Region         ;\not used in
+ ;00140001h -   -    Reserved BlkID for SecureInfo Serial/Barcode ;/config file
   00150000h 0Ch 4    ?
   00150001h 0Ch 8    ?
-  00150002h 0Eh 4    In NIM, taken as an u32, using the low u16, casted to a
-                       char, and turned lower case for the making of the url
-                       for NPNS.
-  00160000h 0Eh 4    Unknown, first byte is used by config service-cmd
-                       0x00070040. (Unknown whether the last 3-bytes are used)
+  00150002h 0Eh 4    NPNS: Character for making the URL for NPNS
+  00160000h 0Eh 4    Unknown, 1st byte is used by config service-cmd 00070040h
   00170000h 0Eh 4    Miiverse (OLV) access key
   00180000h 0Ch 4    QTM Infrared LED related, can be 0 or 1 ... maybe "PIT"?
   00180001h 0Ch 18h  QTM calibration data
-  00190000h 0Ch 1    Unknown. NFC-module checks for value1/non-value1.
+  00190000h 0Ch 1    NFC module (checks for value1/non-value1)
 ```
 
-The developer unit TID block (uh, what?) only exists on developer units.
+The Debug/New3DS specific entries do exist even in Retail/Old3DS config files
+(except, old firmware versions don't have New3DS entries, of course).
 
 
 
-## Stereo Display Settings
+## BlkID=00000000h - Config Version?
 
-
-All values are hard-coded in cfg module.
 
 ```
-  00h    4    62.0f   assumed pupillary distance in mm?
-  04h    4    289.0f  assumed distance in mm between player's eyes and
-                        upper screen?
-  08h    4    76.80f  width in mm    ;\size of Old3DS upper screen
-  0Ch    4    46.08f  height in mm   ;/(doesn't vary for different models?)
-  10h    4    10.0f
-  14h    4    5.0f
-  18h    4    55.58f
-  1Ch    4    21.57f
+  000h 2    Config Version (0015h or 0039h)
 ```
 
 
 
-## Languages
+## BlkID=00010000h - RTC Compensation value (WHAT is that???)
 
 
 ```
-  ID      Description (two letter code... and guessed meaning)
-  0  =    JP Japanese
-  1  =    EN English
-  2  =    FR French
-  3  =    DE German
-  4  =    IT Italian
-  5  =    ES Spanish
-  6  =    ZH ...maybe a widespread chinese dialect...?
-  7  =    KO Korean
-  8  =    NL Dutch
-  9  =    PT Portugese
-  10 =    RU Russian
-  11 =    TW ...maybe a taiwanese chinese dialect...?
+  000h 1    Whatever (usually 80h)
 ```
 
 
 
-## CountryInfo
+## BlkID=00020000h - Codec (CDC aka TSC)
 
 
 ```
-  00h 1   ?
-  01h 1   ?
-  02h 1   State/Province code
-  03h 1   Country code, same as DSi/Wii country codes. Value 0xFF is invalid.
+  000h 134h XXX see HWCAL
 ```
 
+Caution: The various 16bit Filter values in the HWCAL and config files are
+stored in LITTLE-ENDIAN, but the TSC chip wants them in BIG-ENDIAN, so one must
+swap each 2 bytes.
 
 
-## 0x000A0000 Block
+
+## BlkID=00030000h - RTC Correction value (read by PTM)
 
 
 ```
-  00h 14h  UTF-16 username, with no NULL-terminator (uh, what if shorter?)
-  14h 4    Usually zero?
-  18h 4    u32 NGWord version the username was last checked with. If this
-             value is less than the u32 stored in the NGWord CFA
-             "romfs:/version.dat", the system then checks the username
-             string with the bad-word list CFA again, then updates this field
-             with the value from the CFA
+  000h 1    RTC Correction (spotted values are 86h, 90h or FEh) ;for MCU[37h]
 ```
 
 
 
-## WiFi Slot Structure
+## BlkID=00030001h - RTC Time offset (read by CECD)
 
 
 ```
-  000h   2     Unknown? (can be 0001h)
-  002h   2     CRC-16 checksum of the next 410h bytes (unknown initial value)
-  004h   88h   First network structure. Only set if the network was set
-                 "normally", or was the last to be set using WPS during the
-                 session
-  08Ch   20h   Padding
-  0ACh   88h   Second network structure. Only set if the network was set
-                 using WPS, otherwise 0-filled
-  134h   20Ch  Padding
-  340h   1     Obtain IP, Gateway, Subnet (0=Manual, 1=Auto/DHCP)
-  341h   1     Obtain DNS Server address  (0=Manual, 1=Auto/DHCP)
-  342h   2     Padding ?
-  344h   4     IP address               ;\
-  348h   4     Gateway                  ; used only if [340h]=00h
-  34Ch   4     Subnet Mask              ;/
-  350h   4     Primary DNS Server       ;\used only if [341h]=00h
-  354h   4     Secondary DNS Server     ;/
-  358h   4     Always 0x01050000 ?      ;\     <-- rather 00000001h (!) or 501h
-  35Ch   4     IP address to use        ; Only set if the network was the
-  360h   6     MAC address of the AP    ; last to be set during the session.
-  366h   1     Channel (range ?..?)     ;      <-- can be 06h,0Bh
-  367h   1     Padding ?                ;/
-  368h   1     Proxy Enable         (00h=None, 01h=Yes)
-  369h   1     Proxy Authentication (00h=None, 01h=Yes)
-  36Ah   2     Proxy Port (16bit)
-  36Ch   30h   Proxy Name (ASCII string, max 47 chars, padded with 00's)
-  39Ch   34h   Padding
-  3D0h   20h   Proxy Authentication Username (ASCII string, padded with 00's)
-  3F0h   20h   Proxy Authentication Password (ASCII string, padded with 00's)
-  410h   2     Padding ?
-  412h   2     MTU Value (Max transmission unit) (576..1500, usually 1400)
-  414h   7ECh  Padding
+  000h 8    RTC displayed_time-rtc_time        ;in bizzare NANOSECONDS !!!
 ```
 
-Network structure (used twice in the above WiFi slot structure):
+Offset in nanoseconds between MCU[30h..36h] and actual time/date (if the MCU is
+set to the actual time/date, then this offset should be zero) (but normally,
+the MCU is just starting at 01 Jan 2001 00:00:00 when the battery was inserted,
+and this offset is used to convert the MCU time/date to actual time/date, see
+MCU chapter for details).
+
+
+
+## BlkID=00030002h - RTC Settings Time offset
+
 
 ```
-  00h   1     Whether the network was set or not?
-  01h   1     Whether to use this network structure to connect?
-  02h   1     Whether this structure is the first (0) or the second (1) in the
-                larger WiFi slot structure?
-  03h   1     Padding ?
-  04h   20h   SSID (ASCII string, padded with 00's) (see below for length)
-  24h   1     SSID Length in characters (01h..20h, or 00h=unused)
-  25h   1     AP crypto key type (maybe related to WEP/WPA bytes on NDS?)
-  26h   2     Padding ?
-  28h   40h   WPA/WPA2 password (ASCII string, padded with 00's)
-  68h   20h   Precomputed PSK (based on WPA/WPA2 password and SSID)
+  000h 8    RTC newly_set_time-rtc_time       ;uh, really???
+```
+
+Unknown. This is often 0000000000000000h, even after changing the time in
+system settings. But, it can change to something like FFFFFA400B6F8C00h
+after... playing a game? or connecting to internet? or battery loss? or so?
+
+
+
+## BlkID=00040000h - Input Touchscreen
+
+
+```
+  000h 2    s16 RawX0   (analog value, usually 02xxh)   ;\
+  002h 2    s16 RawY0   (analog value, usually 02xxh)   ; upper/left
+  004h 2    s16 PointX0 (pixel coordinate, 0+32)        ; calibration point
+  006h 2    s16 PointY0 (pixel coordinate, 0+24)        ;/
+  008h 2    s16 RawX1   (analog value, usually 0Exxh)   ;\
+  00Ah 2    s16 RawY1   (analog value, usually 0Exxh)   ; lower/right
+  00Ch 2    s16 PointX1 (pixel coordinate, 320-32)      ; calibration point
+  00Eh 2    s16 PointY1 (pixel coordinate, 240-24)      ;/
+```
+
+
+
+## BlkID=00040001h - Input Circle Pad (left Analog Stick)
+
+
+```
+  000h 4    float ScaleX (near +0.83)  ;\unknown        HWCAL[6E0h] ;\
+  004h 4    float ScaleY (near +0.82)  ;/purpose        HWCAL[6E4h] ;/
+  008h 2    s16 CenterX  (usually 08xxh)                HWCAL[214h] ;\
+  00Ah 2    s16 CenterY  (usually 08xxh)                HWCAL[216h] ;
+  -    -    Unknown      (zerofilled)                   HWCAL[218h] ;/
+  00Ch 2    s16 MaxX     (usually 0Exxh)                HWCAL[6E8h] ;\
+  00Eh 2    s16 MinX     (usually 02xxh)                HWCAL[6EAh] ;
+  010h 2    s16 MaxY     (usually 0Exxh)                HWCAL[6ECh] ;
+  012h 2    s16 MinY     (usually 02xxh)                HWCAL[6EEh] ;
+  014h 2    s16 type     (whatever, usually 0)          HWCAL[6F0h] ;
+  016h 6    Unknown      (zerofilled)                   HWCAL[6F2h] ;/
+```
+
+This is composed of two HWCAL entries (at 214h and 6E0h), unknown if older
+consoles did have only one of those HWCAL entries (and hence might have had a
+smaller config entry).
+
+Some consoles have slightly different values in HWCAL versus config.
+
+
+
+## BlkID=00040002h - Input Gyroscope
+
+
+```
+  000h 2    s16 ZeroX   (usually +/-00xxh)        ;\
+  002h 2    s16 PlusX   (usually +19xxh..+1Axxh)  ; X
+  004h 2    s16 MinusX  (usually -19xxh..-1Axxh)  ;/
+  006h 2    s16 ZeroY   (usually +/-00xxh)        ;\
+  008h 2    s16 PlusY   (usually +19xxh..+1Axxh)  ; Y
+  00Ah 2    s16 MinusY  (usually -19xxh..-1Axxh)  ;/
+  00Ch 2    s16 ZeroZ   (usually +/-00xxh)        ;\
+  00Eh 2    s16 PlusZ   (usually +19xxh..+1Axxh)  ; Z
+  010h 2    s16 MinusZ  (usually -19xxh..-1Axxh)  ;/
+```
+
+
+
+## BlkID=00040003h - Input Accelerometer (read by HID)
+
+
+```
+  000h 2    s16 OffsetX (usually +/-00xxh)        ;\X
+  002h 2    s16 ScaleX  (usually +03Fxh..+040xh)  ;/
+  004h 2    s16 OffsetY (usually +/-00xxh)        ;\Y
+  006h 2    s16 ScaleY  (usually +03Fxh..+040xh)  ;/
+  008h 2    s16 OffsetZ (usually +/-00xxh)        ;\Z
+  00Ah 2    s16 ScaleZ  (usually +03Fxh..+040xh)  ;/
+```
+
+
+
+## BlkID=00040004h - Input CStick (Right analog stick)
+
+
+```
+  000h 1    u8 ThinningCountX (whut?) (whatever, usually 25h)  ;\
+  001h 1    u8 ThinningCountY (whut?) (whatever, usually 25h)  ; HWCAL[880h]
+  002h 6    Reserved                  (zerofilled)             ;/
+  008h 14h  Reserved                  (zerofilled)             ;-EXTRA ZEROES
+```
+
+This is same as in HWCAL (except, config has more extra zeroes appended).
+
+Old3DS can use the Circle Pad Pro hardware add-on as Right analog stick,
+unknown if calibration data for that add-on is stored anywhere in HWCAL and/or
+config.
+
+
+
+## BlkID=00050000h - LCD Screen flicker (VCOM)
+
+
+```
+  000h 1    u8 LCD Top Screen VCOM "flicker"                 ;for MCU[03h]
+  001h 1    u8 LCD Bottom Screen VCOM "flicker"              ;for MCU[04h]
+```
+
+
+
+## BlkID=00050001h - LCD Backlight controls (read by GSP)
+
+
+```
+  000h 1    u8 ABL_powersave_enable   (00h=Off, 01h=On)
+  001h 1    u8 brightness_level       (01h..05h)
+```
+
+Backlight brightness and power save can be changed via small icon in upper-left
+of System Menu (rather than via System Settings).
+
+
+
+## BlkID=00050002h - LCD Backlight PWM (read by GSP)
+
+
+```
+  000h 4    float32 unknown (+0.0011 or +0.0003)  ;\
+  004h 4    float32 scale?  (+1.4141 or +1.4250)  ; lower screen?
+  008h 4    float32 unknown (+0.0717 or -0.0616)  ;/
+  00Ch 4    float32 unknown (+0.0004 or +0.0002)  ;\upper screen 2d mode?
+  010h 4    float32 scale?  (+0.6656 or +0.9951)  ; (when parallax off) ?
+  014h 4    float32 unknown (+0.0609 or +1.4314)  ;/
+  018h 4    float32 unknown (+0.0020 or +0.0008)  ;\upper screen 3d mode?
+  01Ch 4    float32 scale?  (+1.5563 or +1.8836)  ; (when parallax on)  ?
+  020h 4    float32 unknown (+0.0385 or +1.5579)  ;/
+  024h 1    u8 NumLevels            (05h)
+  025h 1    u8 Unknown              (00h on Old3DS, but 80h on New3DSXL)
+  026h 0Eh  u16 brightnesses[7]     (increasing values, in range 0010h..00ACh)
+  034h 2    u16 BaseDivisor         (0200h)    ;aka PWM interval maybe?
+  036h 2    u16 MinimumBrightnessHw (000Ah or 000Dh)
+```
+
+
+
+## BlkID=00050003h - LCD Power saving mode (ABL) (read by GSP)
+
+
+
+## BlkID=00050004h - LCD Power saving mode (ABL) (read by LGY)
+
+
+```
+  000h 4    u32 DitherPattern  (C66C9339h)
+  004h 2    s16 StartX         (0000h)
+  006h 2    s16 StartY         (0000h)
+  008h 2    u16 SizeX          (0400h)
+  00Ah 2    u16 SizeY          (0400h)
+  00Ch 2    s16 GTH_Ratio      (0080h)
+  00Eh 1    u8 DitherMode      (00h)
+  00Fh 1    u8 MinRS           (72h)
+  010h 1    u8 MaxRS           (FFh)
+  011h 1    u8 MinGTH          (69h)
+  012h 1    u8 MinMax (???)    (FFh)
+  013h 1    u8 ExMax (???)     (20h)
+  014h 1    u8 inertia         (02h or 06h) (always 02h for BlkID=00050004h)
+  015h 9    u8 LutListRS[9]    (14h,2Ch,46h,5Ch,72h,82h,8Eh,98h,A0h)
+  01Eh 2    u8 reserved[2]     (00h,00h)
+```
+
+
+
+## BlkID=00050005h - LCD Stereoscopic Display Settings (from HWCAL)
+
+
+```
+  000h 4    float32 Pupillary Distance in mm?                     (62.0)
+  004h 4    float32 Distance between eyes and upper screen in mm? (289.0)
+            float32 Screen Width in mm  (76.80) ;\size of Old3DS upper screen
+  008h 4    float32 Screen Height in mm (46.08) ;/(New3DSXL uses same values)
+  00Ch 4    float32 Unknown (10.0)
+  010h 4    float32 Unknown (5.0)
+  014h 4    float32 Unknown (55.58)
+  018h 4    float32 Unknown (21.57)
+  01Ch 4    21.57f
+```
+
+"All values are hard-coded in cfg module." Uh, shouldn't they come from HWCAL
+file?
+
+
+
+## BlkID=00050006h - LCD 2D/3D Mode Switching Delay
+
+
+```
+  000h 1    u8 To2D, delay for switching to 2D mode (in frames??) (0Dh or F1h)
+  001h 1    u8 To3D, delay for switching to 3D mode (in frames??) (00h or F1h)
+```
+
+
+
+## BlkID=00050007h - LCD or Programmable Infrared Transmitter? (PIT) ;New3DS
+
+
+```
+  000h 2    u16 VisibleFactor (Old3DS:4000h, or New3DSXL:4C2Bh)
+  002h 2    u16 IRFactor      (Old3DS:4000h, or New3DSXL:4C2Bh)
+```
+
+Unknown what that is, maybe the New3DS IR LED for internal camera?
+
+
+
+## BlkID=00050008h - LCD Power saving mode (ABL) extra config
+
+
+-- New3DS only (zerofilled on Old3DS)
+
+```
+  000h 1    u8 MaxInertia  (12h)       ;guess: delay? pwm_interval?
+  001h 1    u8 pad         (00h)
+  002h 2    u16 PWM_CNT_EX (0001h)     ;guess: maybe Port 102022xxh/10202Axxh
+  004h 4    u32 Histogram1 (00000000h) ;guess: maybe Port 10202250h/10202A50h
+  008h 4    u32 Histogram2 (001E8E51h) ;guess: maybe Port 10202254h/10202A54h
+  00Ch 100h u32 adjust[0x40]         ;reportedly for Port 10202300h/10202B00h
+```
+
+
+
+## BlkID=00050009h - LCD new3DS only(?) backlight control
+
+
+```
+  000h 4    Unknown (maybe... float32 value 1.0 ?)        (3F800000h)
+  004h 1    Reportedly "5th byte: auto-brightness enable" (01h)
+  005h 1    Unknown                                       (01h)
+  006h 1    Unknown                                       (00h)
+  007h 1    Unknown                                       (00h)
+```
+
+
+
+## BlkID=00060000h - Outer Cameras
+
+
+```
+  000h 4    u32 flags             (usually 0)            ;\
+  004h 4    float scale           (near +1.0)            ;
+  008h 4    float RotationZ       (near 0.0)             ;
+  00Ch 4    float TranslationX    (-86.0..-102.0)        ;
+  010h 4    float TranslationY    (-2.0..-4.4)    ;VAR   ; HWCAL[230h]
+  014h 4    float RotationX       (usually 0.0)          ;
+  018h 4    float RotationY       (usually 0.0)          ;
+  01Ch 4    float ViewAngleRight  (near +64.0)           ;
+  020h 4    float ViewAngleLeft   (near +64.0)           ;
+  024h 4    float ChartDistance(?)(usually +250.0)       ;
+  028h 4    float CameraDistance  (usually +35.0)        ;
+  02Ch 2    s16 ImageWidth        (280h aka 640 decimal) ;
+  02Eh 2    s16 ImageHeight       (1E0h aka 480 decimal) ;
+  030h 10h  Reserved              (usually 0)            ;
+  040h 40h  Unknown               (usually 0)            ;
+  080h 2    s16 aeBaseTarget(???) (usually 0)            ;
+  082h 2    s16 kRL               (usually 0)            ;
+  084h 2    s16 kGL               (usually 0)            ;
+  086h 2    s16 kBL               (usually 0)            ;
+  088h 2    s16 ccmPosition       (usually 0)            ;/
+  08Ah 2    Unknown (can be 001Dh or 0016h)              ;\
+  08Ch 2    Unknown (can be 001Eh or 0016h)              ;
+  08Eh 2    Unknown (can be 0047h or 0055h)              ; HWCAL[700h]
+  090h 2    Unknown (can be 0043h or 0055h)              ;
+  092h 2    Unknown (can be 0000h)                       ;
+  094h 2    Unknown (can be 0000h)                       ;/
+```
+
+The TranslationY entry [010h] can be calibrated in System Settings (to align
+the vertical position/direction? of Left+Right cameras with each other).
+
+
+
+## BlkID=00070000h - Sound Surround 3D filters
+
+
+```
+  000h 200h u16 SpecialFilter[0x100] <-- Old3DS: mostly zero, unlike New3DS
+  200h 14h  u32 IIRSurroundFilter[5] <-- both Old3DS and New3DS
+```
+
+
+
+## BlkID=00070001h - Sound Output Mode (mono=0, stereo=1, surround=2)
+
+
+```
+  000h 1    Sound output mode (mono=0, stereo=1, surround=2)
+```
+
+
+
+## BlkID=00070002h - Sound Microphone echo cancellation params
+
+
+```
+  760h 1    s8 Unknown (0Ch or 0Ah)
+  761h 1    s8 Unknown (06h or 02h)
+  762h 1    s8 Unknown (0Ch or 06h)
+  763h 1    s8 Unknown (01h or 00h)
+  764h 1    s8 Unknown (0Ch)
+  765h 1    s8 Unknown (A3h)
+  766h 1    s8 Unknown (00h)
+  767h 1    s8 Unknown (08h)
+```
+
+
+
+## BlkID=00080000h - Wifi Internet Access Point 1
+
+
+
+## BlkID=00080001h - Wifi Internet Access Point 2
+
+
+
+## BlkID=00080002h - Wifi Internet Access Point 3
+
+
+```
+  000h 2    Entry in Use (0000h=Unused/Deleted, 0001h=Used)
+  002h 2    CRC16 across 410h bytes at [004h..413h] (with initial value 0000h)
+  004h 88h  1st network structure. Only set if the network was set
+              "normally", or was the last to be set using WPS during the
+              session
+  08Ch 20h  Padding
+  0ACh 88h  2nd network structure (if network was set using WPS, otherwise 0's)
+  134h 20Ch Padding
+  340h 1    Obtain IP, Gateway, Subnet (0=Manual, 1=Auto/DHCP)
+  341h 1    Obtain DNS Server address  (0=Manual, 1=Auto/DHCP)
+  342h 2    Padding ?
+  344h 4    IP address               ;\
+  348h 4    Gateway                  ; used only if [340h]=00h
+  34Ch 4    Subnet Mask              ;/
+  350h 4    Primary DNS Server       ;\used only if [341h]=00h
+  354h 4    Secondary DNS Server     ;/
+  358h 1    Recent Connect (0=No, 1=Yes)     ;\
+  359h 1    Recent Type (Open,WEP,WPA,etc.)  ;
+  36Ah 2    Padding ?                        ; Recent Connection status
+  35Ch 4    Recent Local IP address (of 3DS) ; (can be zerofilled if none such)
+  360h 6    Recent Remote MAC address (or AP);
+  366h 1    Recent Channel (01h..0xh)        ;
+  367h 1    Padding ?                        ;/
+  368h 1    Proxy Enable         (00h=None, 01h=Yes)
+  369h 1    Proxy Authentication (00h=None, 01h=Yes)
+  36Ah 2    Proxy Port (16bit)
+  36Ch 30h  Proxy Name (ASCII string, max 47 chars, padded with 00's)
+  39Ch 34h  Padding
+  3D0h 20h  Proxy Authentication Username (ASCII string, padded with 00's)
+  3F0h 20h  Proxy Authentication Password (ASCII string, padded with 00's)
+  410h 2    Padding ?
+  412h 2    MTU Value (Max transmission unit) (576..1500, usually 1400)
+  414h 7ECh Padding (to C00h byte size)
+```
+
+Network structure (used twice in the above Wifi slot structure):
+
+```
+  00h 1     Whether the network was set or not?
+  01h 1     Whether to use this network structure to connect?
+  02h 1     Whether this structure is the first (0) or the second (1) in the
+              larger Wifi slot structure?
+  03h 1     Padding ?
+  04h 20h   SSID (ASCII string, padded with 00's) (see below for length)
+  24h 1     SSID Length in characters (01h..20h, or 00h=unused)
+  25h 1     AP crypto key type (maybe related to WEP/WPA bytes on NDS?)
+  26h 2     Padding ?
+  28h 40h   WPA/WPA2 password (ASCII string, padded with 00's)
+  68h 20h   Precomputed PSK (based on WPA/WPA2 password and SSID)
 ```
 
 The above data is (slightly reordered) also stored in Wifi FLASH:
@@ -26181,55 +28644,513 @@ The DSi did have support for six access points (3xWEP and 3xWEP/WPA), unknown
 if the old 3xWEP ones are still supported on 3DS, and if so, if they are also
 stored in the Config Samegame file.
 
-
-
-## LCD display config
-
-
-There seems to be some sort of LCD display configuration stored in this cfg.
-When using the cfg-save from an Old3DS on a New3DS without formatting the cfg
-first, the bottom-screen display is somewhat off (which is fixed by formatting
-the cfg-save).
+Note: The Wifi Disable flag is stored in MCU memory at MCU[61h:00h].bit0, the
+ARM code should toggle that bit upon Wifi button presses (for whatever reason,
+the flag is stored in battery backed MCU memory instead of config file).
 
 
 
-## Parental control Block 0x00100001
+## BlkID=00090000h - User ID 1 (for NWMUDS:InitializeWithVersion)
+
+
+
+## BlkID=00090001h - User ID 2 (for GenHashConsoleUnique)
 
 
 ```
-  00h   0Dh  Unknown
-  0Dh   4    PIN
-  11h   20h  Secret answer in UTF-16
+  000h 6    LocalFriendCodeSeed, aka Decrypted OTP[08h..0Dh]  ;mask 34bit?
+  006h 2    Random 16bit (same value as in BlkID=00090002h)
 ```
 
 
 
-## Parental Control setting block 0xC0000
+## BlkID=00090002h - User ID Random (same value as in BlkID=00090000h/00090001h)
 
 
 ```
-  00h   4    Parental Control restriction bitmask
-  04h   ...     ?
-  0Ch   4    Parental Controls PIN code
+  000h 2    Random 16bit (generated by GenerateRandomBytes)
+  002h 2    Zero
 ```
 
 
 
-## Parental Control restriction bitmask (?=Allow, ?=Disallow)
+## BlkID=000A0000h - User Name in UTF16 (and NGWord version)
 
 
 ```
-  Bit     Restriction name
-  0       Global Parental Controls enable
-  3       Sharing Images/Audio/Video/Long Text Data
-  4       Internet Browser
-  5       StreetPass
-  6       Friend Registration
-  8       eShop
-  10      Miiverse (view)
-  11      Miiverse (post)
-  31      "Child Online Privacy Protection" (see CFG:IsCoppacsSupported)
+  000h 14h  UTF-16 username, with no NULL-terminator (uh, what if shorter?)
+  014h 4    Usually zero?
+  018h 4    u32 Last checked NGWord version for username (eg. 0Eh or 12h)
 ```
+
+If NGWord version is less than the u32 stored in the NGWord CFA
+"romfs:/version.dat", the system then checks the username string with the
+bad-word list CFA again, then updates this field with the value from the CFA.
+
+Note: NGWord means "N-o-t-g-o-o-d" words, also known as "N\*\*good shit".
+
+
+
+## BlkID=000A0001h - User Birthday
+
+
+```
+  000h 1    Month (01h..0Ch)
+  001h 1    Day   (01h..1Fh)
+```
+
+
+
+## BlkID=000A0002h - User Language
+
+
+```
+  000h 1    Language (00h..0Bh)
+```
+
+Languages:
+
+```
+  ID   Description (two letter code... and guessed meaning)
+  0  = JP Japanese
+  1  = EN English
+  2  = FR French
+  3  = DE German
+  4  = IT Italian
+  5  = ES Spanish
+  6  = ZH ...maybe a widespread chinese dialect...?
+  7  = KO Korean
+  8  = NL Dutch
+  9  = PT Portuguese
+  10 = RU Russian
+  11 = TW ...maybe a taiwanese chinese dialect...?
+```
+
+
+
+## BlkID=000B0000h - Local Country/State Codes
+
+
+```
+  000h 1    Unknown (0)
+  001h 1    Unknown (0)
+  002h 1    State/Province code (optional, 0=Not set, 8=Hamburg)
+  003h 1    Country code, same as for DSi/Wii (eg. 4Eh=Germany, FFh=Invalid)
+```
+
+- [DSi Regions](ds.html#dsiregions)
+States can be selected only in some countries (eg. Germany, India).
+
+
+
+## BlkID=000B0001h - Local Country name in UTF-16 (in various languages)
+
+
+
+## BlkID=000B0002h - Local State name in UTF-16 (in various languages)
+
+
+```
+  000h 800h Names in UTF-16
+```
+
+Every 80h-bytes is an entry for each language, in the order of the Language
+table above (not all entries are set).
+
+
+
+## BlkID=000B0003h - Local Country/State Coordinates
+
+
+```
+  000h 2    s16 Latitude in 180/32768 degrees (eg. 2614h=Germany/Hamburg, 53'N)
+  002h 2    s16 Longitude in 180/32768 degrees (eg. 071Ah=Germany/Hamburg, 9'E)
+```
+
+
+
+## BlkID=000C0000h - Parental Restrictions
+
+
+```
+  000h 4    Parental Control Flags (see below, eg. 00000FFFh=Restrict all)
+  004h 4    Unknown (0)
+  008h 1    Parental Controls Region (0=Off, 3=German/USK, 4=French?)
+  009h 1    Parental Controls Years of Age Rating (00h..14h)  ;cart[2F0h]
+  00Ah 1    Parental Controls Secret Question (00h..05h or 06h=Custom)
+  00Bh 1    Unknown (0)
+  00Ch 4+1  Parental Controls PIN (ASCII digits) 4 digits+EOL
+  011h 3    Unknown (0)
+  014h 42h  Parental Controls Secret Answer (UCS-2), max 32 chars+EOL  ?
+  056h 6Ah  Unknown (0)            ;note: answer is max 32 chars (unlike DSi)
+```
+
+Parental Control Flags:
+
+```
+  0     Global Parental Controls enable            (1=Enable Restrictions)
+  1     Internet Browser                           (1=Restrict)
+  2     Display of 3D Images (parallax barrier)    (1=Restrict)
+  3     Sharing Images/Audio/Video/Long Text Data  (1=Restrict)
+  4     Online Interaction                         (1=Restrict)
+  5     StreetPass                                 (1=Restrict)
+  6     Friend Registration                        (1=Restrict)
+  7     DS Download Play                           (1=Restrict)
+  8     Nintendo 3DS Shopping Services (eShop)     (1=Restrict)
+  9     Viewing Distributed Videos                 (1=Restrict)
+  10    Miiverse (view)                            (1=Restrict)
+  11    Miiverse (post)                            (1=Restrict)
+  12-30 Unknown (zero)
+  31    Child Online Privacy Protection (see CFG:IsCoppacsSupported) (?)
+```
+
+
+
+## BlkID=000C0001h - Parental Child Online Privacy Protection (COPPACS)
+
+
+```
+  000h 1    Unknown (can be 01h)
+  001h 13h  Unknown (0)
+```
+
+
+
+## BlkID=000C0002h - Parental Email and Custom Secret Question
+
+
+```
+  000h 1    Parent's Email was set (00h=No, 01h=Yes) (optional)
+  001h 101h Parent's Email String  (in ASCII, max 256 chars?, plus EOL)
+  102h 68h  Custom Secret Question (in UCS-2, max 51 chars, plus EOL)
+  16Ah 96h  Unknown (0)
+```
+
+Note: The email can be actually VERY long (although one must enter it twice,
+which is almost impossible for long strings).
+
+
+
+## BlkID=000D0000h - EULA Version which was agreed to
+
+
+```
+  000h 2    u16 EULA Version which was agreed to (eg. 0100h or 0101h)
+  002h 2    Unknown (0)
+```
+
+This gets reset to 0000h=None when changing the Country setting, requiring to
+reagree.
+
+
+
+## BlkID=000E0000h - Wifi Internet Spotpass Flags
+
+
+```
+  000h 1    Enable Flags (bit0=SendUsageInfo, bit1:AutomaticSoftwareDownload)
+```
+
+
+
+## BlkID=000F0000h - System Debug configuration
+
+
+```
+  000h 8    Unknown (0)
+  008h 4    Unknown (0 or 6)
+  00Ch 4    Unknown (3)
+```
+
+Read by NS on dev-units: On startup, NS does svcKernelSetState(6, 1,
+(u64)debug\_flags & 1); svcKernelSetState(6, 2, (u64)debug\_flags & 2);
+(see here) where debug\_flags is the u32 located at offset 0xC in this struct.
+Then it compares the u32 from +8 in this config-block with the APPMEMTYPE. When
+those don't match NS starts a FIRM-launch (with the same FIRM titleID as the
+currently running one) to boot into a FIRM with the APPMEMTYPE value from this
+config-block.
+
+The byte at offset 0 is related to the memtype as well.
+
+
+
+## BlkID=000F0001h - System ?
+
+
+```
+  000h 8    Unknown (0)
+```
+
+
+
+## BlkID=000F0003h - System ?
+
+
+```
+  000h 1    Unknown (0)
+```
+
+
+
+## BlkID=000F0004h - System Model value byte, followed by 3 unknown bytes
+
+
+```
+  000h 1    System Model value byte (0=Old3DS, 4=New3DSXL)  ;as MCU[7Fh:09h]
+  001h 3    Unknown (0)
+```
+
+
+
+## BlkID=000F0005h - System Network Update Enable
+
+
+```
+  000h 1    Network updates enabled (WHAT=Yes, WHAT=No?) (usually 1)
+            ("however, NIM only checks this flag with developer ENVINFO")
+  001h 3    Unknown (0)
+```
+
+
+
+## BlkID=000F0006h - System NPNS string for "X-Device-Token" http header field
+
+
+```
+  000h 28h  Whatever string in ASCII, UTF or whatever? (usually zerofilled)
+```
+
+In NIM, taken as a (hopefully null terminated) string used for the
+"X-Device-Token" http header field for NPNS url.
+
+
+
+## BlkID=00100000h - DSi EULA (flag/version?)
+
+
+```
+  000h 1    Unknown     (FFh)
+  001h 1    EULA Agreed (00h=No/CountryChanged, 01h=Yes/Agreed)
+```
+
+Same as BlkID=000D0000h, but with fewer bytes.
+
+
+
+## BlkID=00100001h - DSi Parental Restrictions
+
+
+```
+  000h 1    Parental Controls Flags (bit0=Parental, bit1-6=Pictochat,etc)
+  001h 6    Zero
+  007h 1    Parental Controls Region (0=Off, 3=German/USK, 4=French?)
+  008h 1    Parental Controls Years of Age Rating (00h..14h)  ;cart[2F0h]
+  009h 1    Parental Controls Secret Question (00h..05h or 06h=Custom)
+  00Ah 1    Parental Controls Unknown (can be 00h, 06h, or 07h)
+  00Bh 2    Zero
+  00Dh 4+1  Parental Controls PIN (ASCII digits) 4 digits+EOL
+  012h 82h  Parental Controls Secret Answer (UCS-2), max 64 chars+EOL
+```
+
+Same as BlkID=000C0000h, but slightly reformatted to match DSi TWLCFGn format.
+
+
+
+## BlkID=00100002h - DSi Country
+
+
+```
+  000h 1    Country (eg. 4Eh=Germany)
+```
+
+Same as BlkID=000B0000h, including non-DSi countries like 71h=Azerbaijan, but
+containing only the Country byte, without State/Province.
+
+
+
+## BlkID=00100003h - DSi User ID
+
+
+Reportedly: TWL "movable" UID, used for DSiWare exports
+
+Maybe equivalent to DSi's HWINFO\_N values at 2000600h, or 2000600h+4?
+
+```
+  000h 10h  User ID (DD,E8,51,xx,xx,xx,xx,xx,xx,xx,xx,xx,xx,xx,xx,xx)
+```
+
+This is created as follows:
+
+```
+  ID[00h..07h] = Random (from ps:ps GenerateRandomBytes)
+  ID[08h..0Fh] = Last 8 bytes of SHA256(BlkID=90001h, plus 4-byte zeropadding)
+  ID[00h..02h] = 5F,5F,5F (overwrite first 3 random bytes by fixed value)
+  ID = ID XOR 82,B7,0E,F3,AD,0A,35,85,AA,84,AE,14,E7,06,D5,00
+  (that is, after XORing, the fixed 5F,5F,5F bytes will be DD,E8,51)
+```
+
+Note that the 16bit random value in BlkID=90001h doesn't neccessarily match up
+(maybe System Format can change BlkID=90001h, but without changing
+BlkID=100003h?).
+
+
+First 3 bytes seem to be fixed, the other bytes are console unique ID or Key.
+
+
+
+## BlkID=00110000h - Boot System Setup Request flag (usually 00010001h)
+
+
+Indicates whether the system setup is required, such as when the system is
+booted for the first time or after doing a System Format.
+
+```
+  000h 2    System Setup Request flag (0=Setup required, non-zero=Not required)
+  002h 2    Unknown
+```
+
+
+
+## BlkID=00110001h - Boot TitleID of Home Menu
+
+
+```
+  000h 8    TitleID (eg. EUR=0004004000009802h or JPN=0004004000008202h)
+```
+
+This ID can be edited on dev units (allowing to launch other menues/titles).
+
+
+
+## BlkID=00120000h - Slider Calibration (Read by HID and PTM)
+
+
+```
+  000h 2    s16 SVR2_Min (???)  (usually 0007h..001Bh) ;\maybe this is
+  002h 2    s16 SVR2_Max (???)  (usually 00F2h..00FDh) ;/3D Slider?
+  004h 2    s16 VolumeSliderMin (usually 0004h..003Ch) ;use Min+8 for MCU[58h]
+  006h 2    s16 VolumeSliderMax (usually 00F5h..00FFh) ;use Max-8 for MCU[59h]
+```
+
+The sliders are factory calibrated and cannot be changed in System Settings
+(the "3D calibration" in System Settings seems to be merely a tutorial for
+moving the slider, not for changing the calibration values).
+
+
+
+## BlkID=00130000h - Debug mode enable
+
+
+```
+  000h 4    Unknown (0)
+```
+
+"If response is 0x100 then debug mode is enabled." Umph, which response, where
+from? Maybe wants to say that [000h]=00000100h is debug enable??
+
+
+
+## BlkID=00140000h - Reserved BlkID for SecureInfo Region
+
+
+
+## BlkID=00140001h - Reserved BlkID for SecureInfo Serial/Barcode
+
+
+These BlkIDs don't exist in the config file (the LGY FIRM does reportedly use
+that BlkIDs for entries that are to be read from the SecureInfo file, instead
+of from config file).
+
+
+
+## BlkID=00150000h - ?
+
+
+```
+  000h 4    Unknown (24F0h or 9D0h) (aka 9456 and 2512)
+```
+
+
+
+## BlkID=00150001h - ?
+
+
+```
+  000h 8    Unknown (0)
+```
+
+
+
+## BlkID=00150002h - NPNS: Character for making the URL for NPNS
+
+
+```
+  000h 4    Unknown (0000314Ch)
+```
+
+"In NIM, taken as an u32 using the low u16, casted to a char, and turned lower
+case for the making of the url for NPNS (unknown what that means)." Uh, how
+does 314Ch cast to a char?
+
+
+
+## BlkID=00160000h - Unknown, 1st byte is used by config service-cmd 00070040h
+
+
+```
+  000h 1    Unknown (0) ;Whatever, used by config service-cmd 0x00070040
+  001h 3    Unknown (0)
+```
+
+
+
+## BlkID=00170000h - Miiverse (OLV) access key
+
+
+```
+  000h 4    Unknown (0)
+```
+
+
+
+## BlkID=00180000h - QTM Infrared LED related, can be 0 or 1
+
+
+```
+  000h 4    Unknown (0)
+```
+
+
+
+## BlkID=00180001h - QTM calibration data
+
+
+```
+  000h 4    float DivisorAtZero (???) (eg. +5.787) (or def=+6.500)
+  004h 4    float TranslationX        (eg. -0.014) (or def=+0.000)
+  008h 4    float TranslationY        (eg. +0.001) (or def=+0.000)
+  00Ch 4    float RotationZ           (eg. -0.218) (or def=+0.000)
+  010h 4    float HorizontalAngle     (eg. +68.52) (or def=+66.40)
+  014h 4    float OptimalDistance     (eg. +319.2) (or def=+301.0)
+```
+
+
+
+## BlkID=00190000h - NFC module (checks for value1/non-value1)
+
+
+```
+  000h 1    Unknown (0)  (01h=What, Other=Whut)
+```
+
+
+
+## NDS/DSi Mode
+
+
+The Favorite color and User message for NDS/DSi titles can be changed in 3DS
+System Settings, however, those two settings are only stored in NDS User
+Settings (in Wifi FLASH), not in the config file.
 
 
 
@@ -26864,7 +29785,7 @@ Whatever, patches/updates for titles in 3ds:\title\00040000 or so?
 
 
 - System Module Savegames (0001xxxx)...
-  - 0001000f reportedly SEEDDB or so
+  - 0001000f SEEDDB (and TITLETAG, whatever that is)
   - 00010011 FS module savedata  ;used for Anti Savegame Restore
   - 00010015 AM module savedata
   - 00010017 Config savegame      ;aka System Settings (user name, etc.)
@@ -27393,12 +30314,10 @@ Empty space is filled with 0Ch-long sequences of 00 00 ... 07
 ```
 
 When partition B doesn't exist, directory & file entry tables are allocated
-in the data region, and while (uh?) be marked allocated in file allocation
-table as if they are two normal files.
-
-However, only continuous allocation has been observed, so directly reading
-block\_count \* block\_size bytes from data\_region + starting\_block\_index \*
-block\_size should be safe.
+in the data region, and will be marked as allocated in file allocation table as
+if they are two normal files (only continuous allocation has been observed for
+these tables, so directly reading "block\_count \* block\_size" bytes from
+"data\_region + starting\_block\_index \* block\_size" should be safe).
 
 
 
@@ -28736,7 +31655,8 @@ generated from. The source files have the .mstxt extension.
 This page describes the format of the icon stored at CXI ExeFS:/icon and CIA
 icons. The CXI icon is displayed by Home Menu and System Settings (3DS Software
 Management), while CIA icons are dummies and not yet utilised by Dev 3DS' (as
-of rev 47586).
+of rev 47586). The title strings are used in home menu (but are only displayed
+when selecting the largest icon size via buttons in upper-right).
 
 
 
@@ -28745,7 +31665,7 @@ of rev 47586).
 
 ```
   0000h 4     ID "SMDH"
-  0004h 2     Version (unknown/unspecified) (value 0000h exists)
+  0004h 2     Version  (0) (unknown/unspecified) (value 0000h exists)
   0006h 2     Reserved (0)
   0008h 200h  Title Japanese             ;\
   0208h 200h  Title English              ;
@@ -28786,13 +31706,13 @@ of rev 47586).
   2028h 4     Flags
   202Ch 1     EULA Version Minor  ;\
   202Dh 1     EULA Version Major  ;/
-  202Eh 2     Reserved
+  202Eh 2     Reserved (0)
   2030h 4     'Optimal Animation Default Frame' (for BNR) (uh, maybe preview?)
   2034h 4     CEC (StreetPass) ID (So the Home Menu knows which application
                 icon to show the 'Green' CEC notification for)
-  2038h 8     Reserved
-  2040h 480h  Small Icon (24x24pix, shown on top screen when pausing the app)
-  24C0h 1200h Large Icon (48x48pix, the general icon)
+  2038h 8     Reserved (0)
+  2040h 480h  Small Icon (24x24pix, used on top screen when pausing the app)
+  24C0h 1200h Large Icon (48x48pix, used on lower screen when selecting titles)
 ```
 
 
@@ -28813,13 +31733,44 @@ of rev 47586).
   8     Application usage is to be recorded. If this is zero, it causes
           the application's usage to be omitted from the Home Menu's icon
           cache, as well as in other places.
-  9     unknown/unspecified
+  9     unknown/unspecified (0)
   10    Disables SD Savedata Backups for this title. This is in addition to
          the blacklist.
-  11    unknown/unspecified
+  11    unknown/unspecified (0)
   12    New 3DS exclusive title. Shows an error if used on Old 3DS.
-  13-31 unknown/unspecified
+  13-31 unknown/unspecified (0)
 ```
+
+
+
+## Icon Bitmaps
+
+
+The 24x24pix and 48x48pix icons consist of 8x8pix tiles with 16bpp (RGB565),
+the pixels (within the 8x8pix tiles) have Z-order swizzling:
+
+- [3DS Video Texture Swizzling](#3dsvideotextureswizzling)
+However, the tiles are arranged in linear order without swizzling (eg. for
+48x48pix: Tile 00h..05h for upper two, Tile 06h..0Bh for next row, etc).
+
+There is no power-of-2 padding for the width/height values (unlike CLIM/FLIM
+files, which would pad 48x48pix to 64x64pix).
+
+
+## \*\*\* Unknown if (or how) Transparency is supported \*\*\*
+
+
+Most or all 3DS icons seem to have square shapes without transparent pixels.
+The RGB565 format doesn't include alpha bits.
+
+Unknown if there is a way to assign a transpaent color (eg. Magenta). Nintendo
+is reportedly having a tool that can create SMDH files in formats other than
+RGB565 (unfortunately without saying if such files contain some kind of Texture
+Format entries).
+
+
+
+## Misc
 
 
 Age Rating: Active ratings have a bitmask of 80h, and inactive ratings have no
@@ -28874,58 +31825,6 @@ the banner animation.
 
 This u32 represents the application CEC ID. This is likely loaded by
 applications for use with the CEC services as well.
-
-
-
-## Icon graphics
-
-
-Both of the icons are encoded in RGB565 meaning 16bpp.
-
-The data is encoded in tiles (starting from size 8x8, continuing recursively).
-
-- If the buffer is like this:
-  - 0       1       2       3       4       5       6       7       8       9
-  - 10      11      12      13      14      15      16
-- Then the image would look like this:
-  - x=0     x=1     x=2     x=3     x=4
-  - 0       1       4       5       16
-  - 2       3       6       7       ...
-  - 8       9       12      13
-  - 10      11      14      15
-- Uh, are that pixels or 8x8pix tiles?
-- Either way, how would that translate to actual 24x24pix or 48x48pix icons??
-
-Although both icons are known to be RGB565, developers have the option of
-encoding icons (and banners) with the following encodings:
-
-```
-  RGBA8
-  RGB8
-  RGBA5551
-  RGB565     (used)
-  RGBA4
-  LA8
-  HILO8
-  L8
-  A8
-  LA4
-  L4
-  ETC1
-  ETC1A4
-```
-
-This does not necessarily mean the other encodings will be used, it is just
-that those are the options when compiling. Like we've seen with Super Mario 3D
-Land Nintendo has changed save file encryption, and "likewise" they can encode
-icons and banners differently should they choose to. Currently we've seen just
-RGB565 so don't be fooled if an icon doesn't show up right! It is probably one
-of these formats above. Although we will probably not see other formats used
-for a while it's nice to know they have an opportunity to change.
-
-Also note that it seems Nintendo stores "each pixel in word-order", so the
-actual "order of order" of "each color channel" in memory will depend on the
-endianness. uh, what?
 
 
 
@@ -29093,6 +31992,7 @@ extdata-exbanners.
   0Dh = ETC1A4
 ```
 
+- [3DS GPU Texture Formats](#3dsgputextureformats)
 
 
 ## SpotPass
@@ -29489,36 +32389,73 @@ Browser applet (RomFS:\lyt\).
 
 
 
-
 # <a name="3dsfilesvideolayoutimagesclimflim"></a>3DS Files - Video Layout Images (CLIM/FLIM)
 
 
 
-Unknown purpose, maybe some kind of images, ie. texture/bitmaps?
+CLIM/FLIM files contain texture bitmaps, commonly used for GUI layout (rather
+than for 3D game engines). CLIM is the standard format for 3DS, FLIM appears to
+be more common on Wii-U (but is also used on 3DS).
 
-FLIM is something similar (used in 3DS eShop applet RomFS:\layout\).
+```
+  CLIM is used in Manual NCCH.RomFS textures *.bclim
+  CLIM is used in Exe NCCH.header logos *.bclim
+  CLIM is used in Exe NCCH.RomFS layout\*.bclim
+  FLIM is used in 3DS eShop applet NCCH.RomFS:\layout\*.bflim
+```
 
 
 
-## Footer
+## File Format with Footer
 
 
 ```
- 00000000h  ..  Images...
- Footer+00h 4   ID "CLIM"               ;or "FLIM"
- Footer+04h 2   Byte Order (FEFFh)
- Footer+06h 2   Footer Size (14h)
- Footer+08h 4   Version? (02020000h)
- Footer+0Ch 4   Total Filesize
- Footer+10h 4?  Maybe number of images? (00000001h)
- Footer+14h 4   Chunk ID "imag"     ;\
- Footer+18h 4   Chunk Size (10h)    ; image data is at offset 0
- Footer+1Ch 2   Width?              ; (if multiple images should be allowed...
- Footer+1Eh 2   Height?             ; next image is at WHICH offset?)
- Footer+20h 4?  Type? (0Dh = 4bpp?) ;/   ;<-- ETC1A4 ?
- Footer+24h 4   Footer Offset (from begin of file to "CLIM") ;<--at end of file
+  00000000h  ..  Texture data (with width/height padded to power-of-2, min 8x8)
+  Footer+00h 4   ID "CLIM"                 ;FLIM: ID "FLIM"
+  Footer+04h 2   Byte Order (FEFFh)
+  Footer+06h 2   Footer Size (14h)
+  Footer+08h 4   Version? (02020000h)      ;FLIM: Version (07020000h)
+  Footer+0Ch 4   Total Filesize
+  Footer+10h 4   Number of Blocks (usually 1 = imag)
+  Footer+14h 4   Chunk ID "imag"
+  Footer+18h 4   Chunk Size (10h)
+  Footer+1Ch 2   Texture Width, can be odd ;FLIM: Height (after rotate: Width)
+  Footer+1Eh 2   Texture Height, can be odd;FLIM: Width  (after rotate: Height)
+  Footer+20h 1   Texture Format (00h..0Dh) ;FLIM: Reportedly Align? (80h)
+  Footer+21h 1   Zero                      ;FLIM: MSB of above?     (00h)
+  Footer+22h 1   Zero                      ;FLIM: Texture Format (00h..0Dh)
+  Footer+23h 1   Zero                      ;FLIM: Unknown (04h or 08h?)
+  Footer+24h 4   Footer Offset (Filesize-28h)    ;<--stored at end of file
 ```
 
+The Texture Format values don't use the same numbering as the GPU. The
+following table can be used to translate CLIM and FLIM numbers to GPU numbers:
+
+```
+  clim_to_gpu_table: 07h,08h,09h,05h,06h,03h,01h,02h,04h,00h,0Ch,0Dh,0Ah,0Bh
+```
+
+- [3DS GPU Texture Formats](#3dsgputextureformats)
+The CLIM/FLIM width/height entries can be odd, the actual sizes are rounded to
+powers of two, with at least 8 pixels (for example, 33x4 would become 64x8,
+that includes several completely unused 8x8 tiles which are nethertheless
+stored in the CLIM/FLIM file).
+
+
+
+## FLIM
+
+
+3DS eShop FLIM files are somewhat mirrored and rotated (they can be decoded
+using pixel order for the height/width entries; but they must be mirrored
+and/or rotated left or right after decoding (which will swap height/width to
+width/height).
+
+3DS eShop FLIM is using the same Texture Format numbers as CLIM (up to
+including 0Ch=L4 and 0Dh=A4). However, there is a webpage claiming other
+numbers to be used (which might be nonsense, or maybe there is "another FLIM
+format for Wii-U"): 
+- [https://mk8.tockdom.com/wiki/BFLIM\_(File\_Format)](https://mk8.tockdom.com/wiki/BFLIM_(File_Format))
 
 
 
@@ -29715,8 +32652,8 @@ newer CGFX files?
   000h 4     ID "DICT"
   004h 4     DICT size (1Ch+N*10h)
   008h 4     Number of entries (same as NumEntries in DATA's DICT list)
-  00Ch 10h   DICT entry 0    (Patricia Tree Root entry)
-  01Ch 10h*N DICT entry 1..N (Patricia Tree and actual Symbols/Offsets)
+  00Ch 10h   Tree entry 0    (Patricia Tree Root entry)
+  01Ch 10h*N Tree entry 1..N (Patricia Tree and actual Symbols/Offsets)
 ```
 
 Patricia Tree Root entry:
@@ -29727,7 +32664,7 @@ Patricia Tree Root entry:
   004h 0Ah   Patricia Tree Unused (zerofilled)
 ```
 
-DICT entry 1..N format:
+Patricia Tree entry 1..N format:
 
 ```
   000h 4     Patricia Tree Bit-number to be tested (0=Bit0 of 1st char) ?
@@ -29765,7 +32702,7 @@ CMDL is found in most CGFX files.
 ```
   000h 4     Flags (bit7: hasSkeletonSobj) (eg. 40000092h)
   004h 4     ID "CMDL"
-  008h 4     Revision? (07000000h)
+  008h 4     Revision (07000000h)
   00Ch 4     Name Offset (self-relative, same name as in parent DICT)
   010h 4     Unknown (0)
   014h 4     Unknown (0)
@@ -29799,7 +32736,7 @@ to MTOB objects.
 
 
 ```
-  00h 4*N   Vertex Info SOBJ self-relative offset list
+  000h 4*N   Vertex Info SOBJ self-relative offset list
 ```
 
 
@@ -29823,7 +32760,9 @@ to MTOB objects.
   0F8h ..    Unknown (FF000000h, FF000000h, 00000000h, 00000000h)
   108h 4     Unknown (3)
   ...  ...   ?
-  ..   ..
+  ..   ..    ?
+  324h 40h   TXOB (Flags,"TXOB",etc.) (40h bytes)
+  364h ..    SHDR (Flags,"SHDR",etc.) (12Ch bytes? or less?)
 ```
 
 Then somewhere inside/after MTOB comes something called TXOB with 40h-byte size
@@ -29844,9 +32783,8 @@ root entries).
   02Ch 4+4+4 Unknown (0,0,0)
   038h 4     Unknown (3F800000h) (float32)
   03Ch 4     Unknown (0)
-  -------------------------                                 ;\somehere is
-  040h 4     Unknown (1)  or Flags for below shader stuff?  ; probably begin
-  - - - - - - - -----------                                 ;/of shader struct?
+  -------------------------
+  040h 4     Flags (00000001h) for below shader stuff?
   044h 4     ID "SHDR"
   048h 4     Revision (05000000h)
   04Ch 4     Name Offset (self-relative) (eg. points to ... what?)
@@ -30004,56 +32942,54 @@ case, then their structure is as follows:
 - 3dbrew messed blurb claims 4Ch-bytes (with overlapping entries)?
 - Or are the 40h-byte ones sub-items in MTOB?
 - And only the 5Ch-byte ones are actually DICT 01h entries?
-  - 000h 4     Flags (eg. 20000004h=40h-byte, or 20000011h=5Ch-byte)
+  - 000h 4     Flags (20000011h=Normal/5Ch-byte. 20000009h=Cubemap/110h-byte)
   - 004h 4     ID "TXOB"
   - 008h 4     Revision? (05000000h)
   - 00Ch 4     Offset (self-relative) to symbol
   - 010h 4     Unknown (0)
   - 014h 4     Unknown (0)
-  - 018h 4     Texture height (eg. 40h)
-  - 01Ch 4     Texture width  (eg. 10h)
-  - 020h 4     Unknown (?)    (eg. 6758h, 6756h, 6758h)  ;\flags maybe?
-  - 024h 4     Unknown (?)    (eg. 6760h, 6761h, 1401h)  ;/or handle/ID/index?
+  - 018h 4     OpenTK Texture height (eg. 40h) rounded up             ;\
+  - 01Ch 4     OpenTK Texture width  (eg. 10h) rounded up             ; info #1
+  - 020h 4     OpenTK Texture Format (67xxh)                          ;
+  - 024h 4     OpenTK Data Type      (0000h,1401h,67xxh,80xxh)        ;/
   - 028h 4     Mipmap levels  (eg. 1)
   - 02Ch 4     Unknown (0)
   - 030h 4     Unknown (0)
-  - 034h 4     Texture format (eg. 5) (see below)
-  - 038h 4     Unknown (?)    (eg. 4)
-  - 03Ch 4     Texture height (eg. 40h)  ;\same as in [18h,1Ch] ?
-  - 040h 4     Texture width  (eg. 10h)  ;/
-  - 044h 4     Texture data size (eg. 800h) (width\*height\*bytes\_per\_pixel)
-  - 048h 4     Texture data offset (self-relative) (eg. 1A070h) (that's in IMAG)
-  - 04Ch 4     Unknown (0)
-  - 050h 4     Unknown (?)       (eg. 10h)
-  - 054h 4     Unknown (0)
-  - 058h 4?    Unknown (0)
+  - 034h 4     GPU Texture format (00h..0Dh, GPU format number)
+  - 038h 4     Offset TexSide0    (04h) (self-relative)       ;\normal texture
+  - 03Ch 20h   TexSide0                                       ;/(flags=20000011h)
+  - 038h 6\*4   Offset TexSide0..5 (18h,34h,50h,6Ch,88h,A4h)   ;\cubemap
+  - 050h 6\*20h TexSide0..5                                    ;/(flags=20000009h)
+- TexSide(s):
+  - 000h 4     GPU Texture height (eg. 40h) ;\same as in [18h,1Ch] ?
+  - 004h 4     GPU Texture width  (eg. 10h) ;/
+  - 008h 4     Texture data size (eg. 800h) (width\*height\*bpp/8)  ;\
+  - 00Ch 4     Texture data offset (self-relative) (in IMAG area) ;/
+  - 010h 4     Unknown (0)
+  - 014h 4     Unknown (?)       (eg. 10h)
+  - 018h 4     Unknown (0)
+  - 01Ch 4?    Unknown (0)
 
 Texture format:
 
 ```
-  00h=RGBA8
-  01h=RGB8
-  02h=RGBA5551
-  03h=RGB565
-  04h=RGBA4
-  05h=LA8
-  06h=HILO8
-  07h=L8
-  08h=A8
-  09h=LA4
-  0Ah=L4
-  0Bh=A4 ?
-  0Ch=ETC1 (see notes below)
-  0Dh=ETC1A4 ?
+  00h = RGBA8
+  01h = RGB8
+  02h = RGBA5551
+  03h = RGB565
+  04h = RGBA4
+  05h = LA8
+  06h = HILO8
+  07h = L8
+  08h = A8
+  09h = LA4
+  0Ah = L4
+  0Bh = A4
+  0Ch = ETC1
+  0Dh = ETC1A4
 ```
 
-Every texture format has its texture data divided into 8x8 tiles. See SMDH for
-more information. ETC1 is a compressed texture format which compresses blocks
-of 4x4 pixels into u64s. These u64 are traditionally stored in big endian;
-however, nintendo's implementation stores them in little endian. ETC1 textures
-are stored in 8x8 tiles; decompressed 4x4 therefore have to be organized
-accordingly. See [1] for implementation example.
-
+- [3DS GPU Texture Formats](#3dsgputextureformats)
 
 
 
@@ -30540,7 +33476,7 @@ Shaders are usually stored in folder RomFS:\shaders, with extensions
   .shbin  Shader Binary in DVLB format (most common)
   .??     Shader Binary in DVOB format (unknown if/where that's used?)
   .bcsdr  Shader Binary in DVLB format stored inside of a CGFX container
-  .csdr   ASCII, with shader binary(ies?) encoded in BASE64  (eg. in AR Games)
+  .csdr   ASCII, with shader binary(ies?) encoded in BASE64 (eg. in AR Games)
 ```
 
 
@@ -30859,6 +33795,7 @@ The format is based on the Nitro Font format for DS/DSi:
   01Ch 01Ch 4   Sheet Data Offset
 ```
 
+- [3DS GPU Texture Formats](#3dsgputextureformats)
 
 
 ## Character Map(s) - Translation Tables for ASCII/JIS/etc to Tile Numbers?
@@ -30939,8 +33876,10 @@ Fileformat specs can be found at:
 
 
 CTPK archives can contain one or more texture files. The archive does usually
-contain filenames with .tga extension (although the bitmaps are raw data,
-unrelated to the Targa .tga format).
+contain filenames with .tga extension (although the CTPK bitmaps are raw data,
+unrelated to the Targa .tga format) (confusingly, games that use CTPK files do
+also have other LZss-compressed texture .lz77 files in the same folder, and
+THOSE files are actually having Targa .tga headers/footers).
 
 
 CTPK is used in "3DS AR Games" (RomFS:\i\_ar\tex\Tx\_fishing.ctpk), and
@@ -30955,7 +33894,7 @@ texture formats seem to be CLIM files, and TXOB's inside of CFGX files.
 ```
   000h 4     ID "CTPK"                                              ;\
   004h 2     Version (0001h)                                        ;
-  006h 2     Number of Texture Info Entries                         ;
+  006h 2     Number of Texture Info Entries (N)                     ;
   008h 4     Texture Data section offset (aka size of header+info)  ; Header
   00Ch 4     Texture Data section size                              ;
   010h 4     Texture Filename CRC32 Table                           ;
@@ -30985,11 +33924,11 @@ Contains Filename, Size, Type, etc. (sorted aphabetically by filename).
   00Ch 4     Texture Format (is that same/other as in "Conversion Info"?)
   010h 2     Width
   012h 2     Height
-  014h 1     Mip Level
-  015h 1     Type (0=Cube Map, 1=1D, 2=2D)
-  016h 2     Cube Map Related
-  018h 4     Bitmap Size Array Offset (relative to this block) (what for??)
-  01Ch 4     Unix Timestamp
+  014h 1     Mip Level (eg. 01h)          (usually 1)
+  015h 1     Type (0=Cubemap, 1=1D, 2=2D) (usually 2)
+  016h 2     Cubemap Related ... ?        (usually 0)
+  018h 4     Bitmap Size Array Offset/4 (what for??)
+  01Ch 4     Unix Timestamp (4Cxxxxxxh)
 ```
 
 
@@ -31020,16 +33959,77 @@ CRC32s on the filenames (sorted by CRC32 values, starting with smallest value).
 Texture Formats:
 
 ```
-  00h=RGBA8888
-  01h=RGB888
-  02h=RGBA5551
-  03h=RGB565
-  04h=RGBA4444
-  09h=?
-  0Ch=ETC1
-  0Dh=ETC1 + Alpha
+  00h = RGBA8888
+  01h = RGB888
+  02h = RGBA5551
+  03h = RGB565
+  04h = RGBA4444
+  09h = ?
+  0Ch = ETC1
+  0Dh = ETC1 + Alpha
 ```
 
+- [3DS GPU Texture Formats](#3dsgputextureformats)
+
+
+
+# <a name="3dsfilesvideotexturebinaryctxb"></a>3DS Files - Video Texture Binary (CTXB)
+
+
+
+
+## CTXB (CTR Texture Binary) (.ctxb files)
+
+
+CTXB format is used by Zelda Ocarina of Time 3D, Majora's Mask 3D, Luigi's
+Mansion 3D, and Ever Oasis.
+
+The files in Ocarina of Time seem to contain only one texture per file (the
+format can reportedly contain some extra features: More than one texture,
+Texture names, Cubemaps, Mipmaps - but unknown if/which games are using those
+features).
+
+```
+  000h 4     Chunk ID "ctxb"                                         ;\
+  004h 4     Total Filesize                                          ;
+  008h 1     Value 01h (version, or number of texture chunks or so)  ; file
+  009h 7     Zero                                                    ; header
+  010h 4     Chunk Size                            (usually 18h)     ;
+  014h 4     Texture Base Offset                   (usually 48h)     ;/
+  018h 4     Chunk ID "tex "                                         ;\tex
+  01Ch 4     Chunk Size (0Ch+N*24h?)               (usually 30h)     ; header
+  020h 4     Number of textures (1)                (usually 1)       ;/
+  024h 4     Texture bitmap size in bytes          (filesize-48h)    ;\
+  028h 2     Mipmap Count (1)                      (usually 0)       ;
+  02Ah 1     Compression (0=None, 1=ETC1/ETC1A4)   (usually 0 or 1)  ; texture
+  02Bh 1     Cubemap     (0=Normal, 1=Cubemap)     (usually 0)       ;
+  02Ch 2     Width  (in pixels, power of two)                        ;
+  02Eh 2     Height (in pixels, power of two)                        ;
+  030h 2     OpenTK Texture Format (67xxh)                           ;
+  032h 2     OpenTK Data Type      (0000h,1401h,67xxh,80xxh)         ;
+  034h 4     Texture offset (from Texture Base Offset)   (usually 0) ;
+  038h 10h   Texture name (if any)              (usually zerofilled) ;/
+  ..   ..    Cubemap entries (if any?)          (usually none)
+  048h ...   Texture bitmap (width*height*bpp/8)
+```
+
+CubemapData (exists only if Cubemap flag is set):
+
+```
+  000h 4     Data Offset Right  (+X)
+  004h 4     Data Offset Left   (-X)
+  008h 4     Data Offset Bottom (-Y)
+  00Ch 4     Data Offset Top    (+Y)
+  010h 4     Data Offset Front  (-Z)
+  014h 4     Data Offset Back   (+Z)
+```
+
+Unknown how/where that Cubemap stuff is stored exactly, probably in the Data
+area, at the "begin of the bitmap"? Cubemaps must probably have Width=Height?
+
+The Texture Format is defined as pair of OpenTK constants. For details, see
+
+- [3DS GPU Texture Formats](#3dsgputextureformats)
 
 
 
@@ -31058,12 +34058,15 @@ Adobe variant used in 3DS AR Games (RomFS:\i\_ar\tex\stamp\*.lz77)
   01Eh 4   Compression Type (usually 0=Uncompressed) (3=custom RGB bitmasks?)
   022h 4   Compressed Bitmap Size (can be Dummy=0 if uncompressed?)
   026h 4   Horizontal resolution (pixels per metre)  ;\eg. 0B12h or 03E8h
-  02Ah 4   Vertical resolution (pixels per metre)    ;/
+  02Ah 4   Vertical resolution   (pixels per metre)  ;/
   02Eh 4   Number of colors in palette (or 0=Default 2^bpp) (or 0=None?)
   032h 4   Number of important colors  (or 0=All)
-  036h ..  Extra Adobe stuff (if any)
-  ...  ..  Palette (if any)
-  ...  ..  Bitmap Pixels
+  036h (4)  Birmask Red    ;\Custom color masks for 16bpp..32bpp bitmaps
+  036h (4)  Birmask Green  ; only if [01Eh]=3 or 6
+  036h (4)  Birmask Blue   ;/
+  036h (4)  Birmask Alpha  ;-only if [01Eh]=6, or [01Eh]=3 and [00Eh]=38h
+  ...  (..) Palette (if any, if bpp<=8)
+  ...  ..   Bitmap Pixels
 ```
 
 
@@ -31123,7 +34126,7 @@ Found in 3DS Nintendo Zone, 3DS AR Games, 3DS Face Raiders
 ```
 
 The .CSDR files uses 0Dh,0Ah for linebreaks, and 09h TAB's to indent lines. The
-binary data is stored in a single long line without linebreaks, terminated
+binary data is stored in a single long line without linebreaks, terminated by
 "\<". The decoded BASE64 data contains a standard "DVLB" 3DS shader file.
 
 - [3DS Files - Video Shaders (DVLB and DVOB Format)](#3dsfilesvideoshadersdvlbanddvobformat)
@@ -31162,9 +34165,10 @@ Then followed by several certificates, each in following format:
   -----END CERTIFICATE-----
 ```
 
-The 3DS Browser .pem file uses 0Ah for linebreaks, and 64 chars per binary
-line, terminated by "-" in the END CERTIFICATE string. The decoded BASE64
-blocks contain standard .DER files.
+The Old3DS Browser .pem file uses 0Dh,0Ah for linebreaks, the New3DS Browser
+.pem file uses 0Ah for linebreaks. Both browser versions have 64 chars per
+binary line, terminated by "-" in the END CERTIFICATE string. The decoded
+BASE64 blocks contain standard .DER files.
 
 - [DSi SD/MMC Firmware Certificate/Keys (DER)](ds.html#dsisdmmcfirmwarecertificatekeysder)
 The comments contain a summary of the DER entries (eg. O=OrganizationName).
@@ -31215,14 +34219,13 @@ specs can be found here:
 
 ```
   <a href="http://www.cipa.jp/std/documents/e/DC-X007_E.pdf"><font color="#808080">http://www.cipa.jp/std/documents/e/DC-X007_E.pdf</font></a>
-
 ```
 
 The 3DS Camera files are using MPOs with Exif headers, including some Nintendo
 specific information in the Exif header.
 
-There also some other MPOs found in 3DS titles (eg. 3DS Nintendo Zone has a MPO
-with JFIF header, and without Nintendo specific Exif data in
+There are also some other MPOs found in 3DS titles (eg. 3DS Nintendo Zone has a
+MPO with JFIF header, and without Nintendo specific Exif data in
 RomFS:\www\included\_html\boss\_page\BOSS\_JP\shared\_images\top\_screen.mpo or 3DS
 Camera has non-Nintendo Exif header in RomFS:\depug\_mpo\_\resizable.mpo).
 
@@ -32124,7 +35127,7 @@ CSTM files are very similar to CWAV files, with slightly differently arranged
 data, and with an additional SEEK block.
 
 Unknown if/which games or system titles are using CSTM files. They can be
-reporedly found in following locations:
+reportedly found in following locations:
 
 ```
   - RomFS:\sound\stream\*.bcstm (eg. in Zelda Ocarina of Time)
@@ -32541,6 +35544,9 @@ ARM11 code uses "CMP r0,1/4/5" opcodes to determine which one to use).
 ## Type1 = Standard functions for normal internet access
 
   - Type1 supports the same commands/events as on DSi
+  - Type1 from newer NWM versions seems to hang (unknown if that can be fixed
+  - with extra initialization steps; otherwise better stick with an older Type1
+  - copy, or use Type4, which doesn't have that issue).
 
 ## Type4 = Special AP Mode and whatever:
 
@@ -32548,6 +35554,7 @@ ARM11 code uses "CMP r0,1/4/5" opcodes to determine which one to use).
   - WMIcmd(0053h,0055h..005Fh) unknown
   - WMIevent(101Dh,101Fh,1020h,1022h,1024h,1025h) unknown
   - Type4 can be used for normal internet access (when ignoring event 1025h)
+  - Type4 requires heartbeat handling (or to disable it via heartbeat timeout=0)
 
 ## Type5 = Special MacFilter, GameID, and built-in SHA1 function
 
@@ -32664,6 +35671,225 @@ There is at least one older file using this pool structure:
 
 Moreover, there are dozens of unknown files, which may (or may not) use yet
 different pool structures.
+
+
+
+
+# <a name="3dsfilesdsiwareexports"></a>3DS Files - DSiWare Exports
+
+
+
+DSiware titles can be exported to SD card. There are many changed details about
+headers and encryption, but the overall file format quite similar as on real
+DSi:
+
+- [DSi SD/MMC DSiware Files on External SD Card (.bin aka Tad Files)](ds.html#dsisdmmcdsiwarefilesonexternalsdcardbinakatadfiles)
+As on DSi, the weird encryption makes it impossible to execute the file from SD
+card (so it must be imported back to eMMC before execution).
+
+Unlike DSi, the 3DS files have all (?) blocks encrypted with console unique
+keys (making it impossible to decrypt them without having the console's
+movable.sed file).
+
+
+The 3DS has no (exportable) DSi titles pre-installed, so one would need to
+register a 3DS shop account before examining the file format.
+
+Below is based on descriptions from 3dbrew (most of it being a bit nebulous).
+
+
+
+## DSiWare Export Types (uh, who or what selects which type to use?)
+
+
+```
+  Type    Format  Description
+  0-6     v2?     Same as value 14    (with type 1 being the default?)
+  7-11    v2      12 content sections (uh, can header have 12 contents?)
+  12      v2      4 content sections  (uh, but v2 header has 11 contents?)
+  13      v1 (!)  4 content sections  (what is using this v1 version?)
+  14      v2      11 content sections (same as type 1, which is the default?)
+```
+
+For NATIVE\_FIRM versions where this DSiWare export type field (in
+AM:ExportTwlBackup) is unused, format version v1 is used with 4 content
+sections. Otherwise when this field is used, see the above table.
+
+System Settings uses type 1 for exporting DSiWare, regardless of the System
+Settings title-version (uh, who or what uses other types?) (uh, is the
+"title-version" relevant for anything else at all?).
+
+
+
+## SD:\Nintendo 3DS\\<ID0>\\<ID1>\Nintendo DSiWare\4GGGGGGG.bin
+
+
+```
+  000000h 4000h+20h    Banner section
+  004020h A0h/F0h+20h  Header section (A0h+20h bytes or F0h+20h bytes)
+  004xx0h X+340h+20h   Cert section (N*20h+340h+20h bytes)
+  004xx0h ???h+20h     000000xx.tmd (usually B34h+20h bytes? padded?)
+  004xxxh size+1?*20h  000000vv.app (the NDS/DSi ROM-image)
+  ...     0 (?)        seven N/A parts (unknown if/when they are used)
+  ...     size+1?*20h  public.sav   (if any)
+  ...     ?            banner.sav   (if any)
+  ...     size+1?*20h  private.sav  (if any, type 7-11 only?)
+```
+
+Each of the above section contails encrypted data with 20h-byte footers:
+
+DSiWare exported from 3DS use console-unique keyslot(s???) initialized by
+movable.sed. Each section is encrypted with AES-CBC.
+
+```
+  000h  N     Encrypted Data (AES-CBC, (IV=what?, keyslot=what?)
+  N+00h 10h   AES MAC across SHA256(Decrypted Data) (CBC-MAC? or CMAC?)
+  N+10h 10h   AES IV, generated by the RNG (for decrypt? or for AES MAC?)
+```
+
+The encryption with 20h-byte footers is somewhat similar to "DSi ES Block
+Encryption", but CBC/MAC/SHA/IV are all different (and without splitting larger
+blocks into 128Kbyte blocks?).
+
+Empty blocks with 0-byte size are probably(?) completely omitted (without
+storing any 20h-byte footers.
+
+
+
+## Decrypted Banner (at 0000h, size 4000h)
+
+
+This is reportedly the "banner section", unknown what that means, probably the
+DSi Icon/Title(?), which would be as so...
+
+```
+  0000h 23C0h  Icon/Title (usually 23C0h bytes) ;see carthdr[068h,208h]
+  23C0h 1C40h  Zerofilled (padding to get 4000h byte size)
+```
+
+
+
+## Decrypted Header block (at 4020h, size A0h or F0h)
+
+
+There seem to be at least two versions, depending on the Export Type (whatever
+that is).
+
+```
+  v1   v2   Siz Description
+  000h 000h 4   ID "3FDT"
+  004h 004h 2   Byte-swapped groupID from the TWL TMD
+  006h 006h 2   Byte-swapped title version from the TWL TMD
+  008h 008h 20h SHA256 across encrypted "movable.sed" file
+  028h 028h 10h AES-CBC encrypted zeroes with IV=zero using keyslot 0Ah
+  038h 038h 8   Byte-swapped titleID from the TWL TMD
+  040h 040h 8   ?
+  048h 048h 4   Size of TMD   (+20h?)            ?
+  04Ch 04Ch 4   Size of Content 0 ,app ROM-image ?
+  -    050h 4   Size of Content 1 if any         ?
+  -    054h 4   Size of Content 2 if any         ?
+  -    058h 4   Size of Content 3 if any         ?
+  -    05Ch 4   Size of Content 4 if any         ?
+  -    060h 4   Size of Content 5 if any         ?
+  -    064h 4   Size of Content 6 if any         ?
+  -    068h 4   Size of Content 7 if any         ?
+  050h 06Ch 4   Size of public.sav               ?
+  054h 070h 4   Size of banner.sav               ?
+  -    ?    ?   Size of private.sav             ??
+  -    074h 30h ?
+  058h -    4   ?
+  05Ch 0A4h 3Eh Data from the TWL TMD reserved section. Only the first
+                 0x20-bytes from the TWL TMD is written here, the rest
+                 is uninitialized.
+                 Uh, what is a "TWL TMD reserved section"?
+  09Ah 0E2h ..  Padding to 10h-byte size
+```
+
+
+
+## Decrypted Cert
+
+
+There seem to be at least two versions, depending on the Export Type (whatever
+that is). Non-existing sections are said to have uninitialized SHA entries. And
+the number if SHA entries is also said to be variable.
+
+Guess:
+
+If the Header has fewer Size entries then the Cert also has fewer SHA entries.
+
+If the Header has entries with Size=0 then the Cert has uninitialized SHAs.
+
+```
+  Offset  Size    Description
+  000h    20h     SHA256(Decrypted Data) for Banner
+  010h    20h     SHA256(Decrypted Data) for Header
+  020h    20h     SHA256(Decrypted Data) for Cert             ?
+  030h    20h     SHA256(Decrypted Data) for TMD              ?
+  040h    20h     SHA256(Decrypted Data) for Content 0 (.app) ?
+  050h   (20h)    SHA256(Decrypted Data) for Content 1    ?????
+  060h   (20h)    SHA256(Decrypted Data) for Content 2    ?????
+  070h   (20h)    SHA256(Decrypted Data) for Content 3    ?????
+  080h   (20h)    SHA256(Decrypted Data) for Content 4    ?????
+  090h   (20h)    SHA256(Decrypted Data) for Content 5    ?????
+  0A0h   (20h)    SHA256(Decrypted Data) for Content 6    ?????
+  0B0h   (20h)    SHA256(Decrypted Data) for Content 7    ?????
+  0C0h    20h     SHA256(Decrypted Data) for public.sav       ?
+  0D0h    20h     SHA256(Decrypted Data) for banner.sav       ?
+  0E0h   (20h)    SHA256(Decrypted Data) for private.sav  ?????
+  000h+X  3Ch     ECDSA-SHA256 across above SHAs, signed by APCert
+  03Ch+X  180h    ECDSA APCert "APxxxxxxxxxxxxxxxx" cert signed by CTCert
+                    x is random lowercase ASCII hex data
+  1BCh+X  180h    ECDSA CTCert
+  33Ch+X  4       Uninitialized padding
+```
+
+The curve sect233r1 is used for all related ECDSA signing operations.
+
+
+
+## Decrypted TMD
+
+
+The DSiware Exports are probably containing 3DS-style B34h-byte TMDs (unlike
+original DSi-style 208h-byte TMDs).
+
+Unknown if the size is padded to 10h-byte boundary.
+
+
+
+## Content 1-7
+
+
+Unknown if these are used (on DSi they are empty), but MAYBE some DSiware
+titles are shipped with e-Manuals or other stuff on 3DS.
+
+
+
+## Note
+
+
+Config BlkID=00100003h is reportedly used for DSiWare exports (unknown
+how/where that is used).
+
+
+
+## AES-MAC ... or AES-CBC-MAC (with (xtra-)len=?) ... or AES-CMAC ?
+
+
+Keyslot 3Ah is reportedly used for "for calculating AES-CMACs for SD
+DSiWare\_Exports"
+
+
+
+## Other files
+
+
+System Settings ExtData does reportedly contain a MsetExt.dat file for DSiWare
+Exports Management (similar to HNB\_.lst on DSi). That, in SD Extdata:
+
+- [3DS Files - Savedata Extdata](#3dsfilessavedataextdata)
+Tickets are probably kept on the console's internal eMMC memory.
 
 
 
@@ -33025,24 +36251,59 @@ X). The image is loaded from following file (in no$gba directory):
 
 
 - PCB "C/CTR-CPU-01"
-  - U1   bga   "1048 0H, CPU CTR, (M)(C)2010, Nintendo, JAPAN ARM" (main cpu)
-  - U2   bga   "F JAPAN, MB82M8080-07L, 1040 M90, E1"              (main ram)
-  - U3   bga   "Texas Instruments, 93045A4, 0AAH86W GI" (PCB back, below YXAB)
-  - U4   bga   "Texas Instruments, PAIC301DB, 0AA37DW, GI"         (TSC)
-  - U5   bga   "TOSHIBA THGBM2G3P1FBAI8, VX2306, TAIWAN, 10459AE"  (eMMC)
-  - U6   bga   "UC CTR, 041KM73, KG10"                             (MCU)
-  - U?? 16pin  "CKP, TI 09W, ZF1T"     (PCB back, above YXAB)  (battery charger)
+  - U1    bga  "1048 0H, CPU CTR, (M)(C)2010, Nintendo, JAPAN ARM" (main cpu)
+  - U2    bga  "F JAPAN, MB82M8080-07L, 1040 M90, E1"              (main ram)
+  - U3    bga  "Texas Instruments, 93045A4, 0AAH86W GI" (PCB back, below YXAB)
+  - U4    bga  "Texas Instruments, PAIC301DB, 0AA37DW, GI"         (TSC)
+  - U5    bga  "TOSHIBA THGBM2G3P1FBAI8, VX2306, TAIWAN, 10459AE"  (eMMC)
+  - U6    bga  "UC CTR, 041KM73, KG10"                             (MCU)
+  - U7  16pin  "CKP, TI 09W, ZF1T"     (PCB back, above YXAB)  (battery charger)
   - U8   8pin  "17040, 08A45" MAX17040 (PCB back, above PWR button) (fuel gauge)
-  - U9  xxpin  "2048, 33DH, X1MAQ" or so (small, below/right of PAIC) (accelero)
-  - U10  3pin  "HOX" or "XOH" (PCB back, below/right of YXAB) (magnet sensor?)
-  - U11 xxpin  unsharp... INVENSENSE or so (right of main cpu)  (gyroscope?)
-  - U12  6pin  "EPB" (between main cpu and wifi socket)
-  - U13  6pin  "?" (right of PAIC)
+  - U9    bga  "2048, 33DH, X1MAQ" or so (small, below/right of PAIC) (accelero)
+  - U10  3pin  "H0X" or "H1X" (PCB back, near A/B buttons) (magnet hall sensor)
+  - U11 24pin  "INVENSENSE, ITG-3270, D1T134-C1, EL 1140 J" (gyro near circlepad)
+  - U12  6pin  "EPB" (between main cpu and wifi socket) (TP3, TP5 power control?)
+  - U13  6pin  "/\\ N5, 120" (right of PAIC) (TP258 audio voltage regulator)
   - Q1   6pin  "JG" (PCB back, right of POWER button)
   - Q4   6pin  "?" (between PAIC and UC CTR)
   - X1   4pin  "16.756" osc (near main CPU)
   - X2   4pin  "CA038" osc (near UC CTR)
-- Wifi board "DWM-W028"
+- Other Stuff
+  - P1  19pin   NDS/DSi cartridge slot (17pin slot + 2pin switch at right side)
+  - P2   6pin   External Power Supply input (4.6V DC IN) (with sticky glue!)
+  - P3   5pin   Headphone (stereo, plus switch)
+  - P4   3pin   Battery
+  - P5  50pin   Wifi daughterboard
+  - P6  29pin   Upper screen: Video (connector P6 on PCB side A)
+  - P7  21pin   Upper screen: Backlight, Parallax, Speakers, Cam/3D LEDs, Slider
+  - P8  43pin   Lower Screen: Video
+  - P9  37pin   Upper screen: Cameras
+  - P10  4pin   Microphone
+  - P11  4pin   Circle Pad (analog joystick)
+  - P12  4pin   Lower Screen: Backlight
+  - P13  4pin   Lower Screen: Touchpad
+  - P14 20pin   SD/MMC Card Slot
+  - P15  8pin   Right Shoulder button
+  - P16  8pin   Left Shoulder button
+  - P17  3pin   Volume Slider  (on PCB side A)
+  - P18  1pin   GNDed clip     ;\for eMMC shielding plate
+  - P19  1pin   GNDed clip     ;/
+  - P20  1pin   GNDed clip     ;\for MCU shielding plate
+  - P21  1pin   GNDed clip     ;/
+  - P22     -   N/A
+  - P23     -   N/A
+  - P24 12pin   IR daughterboard
+  - P25  1pin   GNDed clip     ;-antenna cable holder or so?
+  - SW1-SW5     POWER, HOME, WIFI, START, SELECT
+  - SW6-SW13    UP, X, LEFT, RIGHT, Y, A, DOWN, B
+  - DL1  2pin   LED Charge (orange)   (front-right)
+  - DL2  2pin   LED Power good (blue) (front)
+  - DL3  2pin   LED Power low (red)   (front)
+  - DL4  2pin   LED Wifi (yellow)     (side-right, near wifi button)
+  - DL5  4pin   LED Notify (RGB)      (rear-right)
+  - F1   2pin   Fuse External Power connector (marking "K")
+  - F2   2pin   Fuse Internal Battery connector (marking "K")
+- Wifi board "DWM-W028" (and probably same/similar for J27H023.01)
   - Un  80pin Wifi "Atheros, AR6014G.AL1C, N2T689,00B, 1036, TAIWAN" ;76+4pin
   - Un   8pin Wifi SPI FLASH "32A, 0VX, 46"
   - Un   8pin Wifi I2C EEPROM "08B, H1, 0DQ"
@@ -33050,14 +36311,35 @@ X). The image is loaded from following file (in no$gba directory):
   - Qn   4pin Crystal "40.000"
   - Pn  50pin Connector to mainboard
   - Pn   2pin Antenna connector
-- IrDA board "CTR-IR-01 "
-  - U1   xpin IR photo led/transistor unit
+- IrDA board "12-25, CTR-IR-01"
+  - U1   7pin IrDA transceiver "841 1A67" (RPM841-H16 or similar)
   - U2  24pin IrDA chip "NXP, S750, 0803, TSD031C"
+  - X1   3pin crystal "/L'e." (unknown frequency)
+  - R1   2pin 3.3 ohm (between VCC and LEDA pin)
+  - C1-C3 capacitors
+- SD/MMC Slot Board "SD 02 DM 2-2"
+  - P1  20pin Connector to P14 on mainboard
+  - P2  13pin SD/MMC slot (13 solder pads, plus shield)
+  - Note: The SD/MMC board is firmly glued to eMMC shielding plate
+  - (desolder the eMMC plate before trying to remove the SD/MMC board)
+- L/R Button Boards
+  - L Button & R button, with 8pin connector each to P15/P16 on mainboard
+- Volume Slider Board "L-28 R"
+  - O1   6pin volume slider (shielded potentiometer)
+  - R,W,B     red/white/black wires to P17 on mainboard
+- Circle Pad (analog joystick unit) "A145"
+  - Pn   4pin Cable to P11 on mainboard
+- Microphone unit "HF 01 KF" (front side, between Start and Power buttons)
+  - Pn   4pin Cable to P10 on mainboard
 - SD/MMC slot board
   - Pn   Xpin Connector to mainboard
   - Pn   Xpin Connector to full-size SD/MMC card
-- XXXxxx...
-  - and probably much more unknown stuff...
+- Lower Screen Unit:
+  - Pn  43pin "LS030Q7DW48P 1Y17L D8045572QTFD" (lower display, 320x240)
+  - Pn   4pin Backlight (2-wire, with 4pin connector)
+  - Pn   4pin Touchpad "340, NB-F8D", "....NB-FBE AA5 117"
+- Upper Screen Unit:
+  - Upper screen, parallax, backlight, speakers, 3d led, 3d slider, antenna
 
 
 
@@ -33077,6 +36359,9 @@ X). The image is loaded from following file (in no$gba directory):
 
 
 Unknown. These consoles seem to be quite rare, and no PCB photos exist...?
+
+Old 2DS does have a Sleep button additionally to Power, maybe Sleep is
+equivalent to Hinge on folded consoles?
 
 
 
@@ -33099,6 +36384,7 @@ Mainboard (PCB "RED-CPU-01 SIDE B 11-1, [05: 14 071], RED-CPU-01 SIDE A")
 - Un  6pin  power/charge? "9D" (or "06"?) (near ext.supply input)
 - Un  6pin  power "635Q" (under powerman) (...maybe lower backlight?)
 - Un  24pin IrDA "U8997, 3522" (nocash), or "NXP, S750, 1603, TSD438C" (ifixit)
+- Un  7pin  Infrared transceiver "841 3B60"
 - Un  16pin Gyroscope? less-near infra red "IT3B,315BA1,LT425A" (like ITG-1010?)
 - Un  32pin NFC Broadcom BCM20791 "20791UZ, KMLG 25, TD1430, 3976901W"
 - Un  8pin  Wifi-FLASH SPI(?) "32B, 3XH, .01" (4Kx8) (near AIC)
@@ -33110,7 +36396,7 @@ Mainboard (PCB "RED-CPU-01 SIDE B 11-1, [05: 14 071], RED-CPU-01 SIDE A")
 - Xn  4pin "40000, K42BY" (under atheros, probably for Wifi)
 - Xn  4pin "13000, K413Y" (under cpu, probably whatever) (to near-field chip?)
 - Xn  4pin "D164G" or so  (under cpu, probably whatever) (for CPU?)
-- Ix  Infrared receiver/transmitter
+                    - (or maybe one of above crystals is for IrDA, as on Old3DS?)
 - Fn  Fuse (for external charger + pin, near charger connector)
 - Pn  2pin External Power supply
 - Pn  3pin External Headphone
@@ -33119,8 +36405,8 @@ Mainboard (PCB "RED-CPU-01 SIDE B 11-1, [05: 14 071], RED-CPU-01 SIDE A")
 - Pn ??pin Connector to MicroSD slot (medium pins)
 - Pn  4pin Connector to Front panel Reset button? and MIC
 - Pn  4pin Connector to Front panel Home button? (4pins, only 2 wires attached)
-- Pn  Connector to bottom-shell (left shoulder (8pin+shield?, only 4 wires used)
-- Pn  Connector to bottom-shell (right shoulder (8pin+shld?, only 4 wires used)
+- Pn  Connector to bottom-shell (left shoulder, 8pin+shield?, only 4 wires used)
+- Pn  Connector to bottom-shell (right shoulder, 8pin+shld?, only 4 wires used)
 - Pn  4pin Connector to NFC (rectangle under bottom screen) (only 2 wires used)
 - Pn  4pin Connector to analog stick (above dpad)
 - Pn  4pin Connector to bottom screen, touchscreen
@@ -33226,12 +36512,822 @@ Case/bottom
 
 
 
+# <a name="3dstestpoints"></a>3DS Testpoints
+
+
+
+
+## TP Testpoints for Old 3DS (Mainboard "C/CTR-CPU-01")
+
+
+```
+  TP1   External Supply Ground (GND) (P2.pin2+3+4+6)            (near charger)
+  TP2   Supply +1.2V (for cpu)                           (CL5)  (near charger)
+  TP3   Supply +3.3V (for cpu,wifi,irda)             (CL9+CP10) (near powerman)
+  TP4   External Supply 4.6V (P2.pin1+5) (0V when disconnected) (near charger)
+  TP5   Supply +1.8V (for cpu,wifi,etc,etc)              (CL6)  (near mcu)
+  TP6   Supply +2.8V (for cameras)                       (CL11) (near powerman)
+  TP7   Charger IC U7.pin7 /PGOOD (external supply power good)  (near charger)
+  TP8   Charger IC U7.pin10+11 OUT Supply (to system)           (near charger)
+  TP9     4.03V with charger, 3.5V without      (always on) (near start button)
+  TP10  Charger IC U7.pin9 /CHG charging                        (near charger)
+  TP11  Charger IC U7.pin4 /CE charge enable                    (near charger)
+  TP12    4.18V with charger, 3.5V without (wired to U13.pin1+6)(near powerman)
+  TP13  SD/MMC Slot Supply   (P14.pin17+19)             (CL12)  (near sd slot)
+  TP14    3.30V ?                                               (near AIC)
+  TP15  N/A ?                                                   (?)
+  TP16  NDS Cart Slot Supply (P1.pin8)                  (CL13)  (near powerman)
+  TP17    ...?                                                  (near button y)
+  TP18    ...?                                                  (near powerman)
+  TP19    0.00V ?                                               (near powerman)
+  TP20  N/A ?                                                   (?)
+  TP21  Standby Supply +1.8V (for rtc) (same as TP79)    (CL7) (near home butt)
+  TP22  Battery Supply Plus        (P4.plus)  (via F2 to TP259) (near powerman)
+  TP23  Battery type/detect/alert? (P4.center) (typ=0.01V)      (near mcu)
+  TP24  Upper Screen VCOM MCU[03h] (0.95V .. 3.15V) P6.pin3+21  (near gyro)
+  TP25    ...  GNDed? Battery or so? (CL19?)                    (near powerman)
+  TP26  Lower Screen VCOM MCU[04h] (0.95V .. 3.15V) P8.pin32    (near eMMC)
+  TP27  Parallax Logic PWM            (3.3V PWM)                (near AIC)
+  TP28  Supply 5.1V for CAM+3D LEDs? (P7.pin12+19)       (CL14) (near powerman)
+  TP29  Parallax Logic Enable         (0V=off, 3.3V=on)         (near AIC)
+  TP30  Parallax Power /PWM (P7.pin6) (5.0V PWM inverted)       (near button y)
+  TP31  Parallax Power PWM  (P7.pin5) (5.0V PWM)                (near eMMC)
+  TP32  Supply +5.0V (for both screens)                  (CL15) (near button b)
+  TP33  I2C Bus MCU SDA  ;\for FuelGauge, Accel, Powerman, Tsc? (near powerman)
+  TP34  I2C Bus MCU SCL  ;/    (1.8V)                           (near powerman)
+  TP35  Upper screen AVDD 3.43V (P6.pin22)                      (near sd slot)
+  TP36  Supply +10.0V (for both screens)                        (near AIC)
+  TP37  Lower screen AVDD 3.70V (P8.pin33)                      (near AIC)
+  TP38  Fuel Gauge: Battery Voltage Input (CELL) (4.07V)        (near powerman)
+  TP39  Fuel Gauge: Power Supply (VDD)           (4.07V)        (near powerman)
+  TP40  Supply -5.0V (for both screens)                         (near button b)
+  TP41  Lower Backlight + (P12.Pin3+4)                 (CL8)  (lower left edge)
+  TP42  Lower Backlight - (P12.Pin1+2)                        (lower left edge)
+  TP43  Upper Backlight? P7.pin3 (?V)   (via C35 to CL17)    (lower right edge)
+  TP44  Upper Backlight? P7.pin2 (0.44V)              (CL16) (lower right edge)
+  TP45  Upper Backlight? P7.pin4 (0.44V)              (CL17)       (near start)
+  TP46  Microphone P10.pin3  ;\what is that? plus/minus? or left/right?
+  TP47  Microphone P10.pin2  ;/   (reportedly TP46 = enable or 3.2V supply??)
+  TP48  Headphone P3.pin1 Audio Ground? (GNDed when plug inserted)
+  TP49  Headphone P3.pin4 Insert Detect (GNDed when plug inserted) (Q3 to CL20)
+  TP50  Headphone P3.pin2 Audio Left
+  TP51  Headphone P3.pin3 Audio Right
+  TP52  Button Power (SW1)                              (near headphone)
+  TP53  Accelerometer INT1 U9.pin11                     (near select)
+  TP54  Accelerometer INT2 U9.pin9                      (near select)
+  TP55  Button Home  (SW2)
+  TP56  DL5 Notify RGB LED green
+  TP57  GNDed via 0 ohm EM7                             (near headphone)
+  TP58  Button Wifi  (SW3)
+  TP59  DL1 Charge LED orange                           (front right)
+  TP60  3D LED green           (P7.pin20)               (near MCU)
+  TP61  Speaker R- (/PWM)      (P7.pin15+16)            (near AIC)
+  TP62  Speaker R+ (PWM)       (P7.pin13+14)            (near AIC)
+  TP63    ...?     high 1.8v                            (near MCU)
+  TP64  Speaker L- (/PWM)      (P7.pin7+8)              (near AIC)
+  TP65  Speaker L+ (PWM)       (P7.pin9+10)             (near AIC)
+  TP66  Camera LED pink        (P7.pin11)               (near MCU)
+  TP67  DL2 Power LED blue                              (near power button)
+  TP68  Circle Pad Y (P11.pin4) (0.2V=Down, 1.5V=Up)
+  TP69  Circle Pad X (P11.pin2) (0.2V=Left, 1.5V=Right)
+  TP70  DL3 Power LED low/red                           (near power button)
+  TP71  DL4 Wifi button LED yellow                      (near wifi button)
+  TP72  3D Slider     (P7.pin18) (0V=min, 1.8V=max)      (CL47) (near MCU)
+  TP73  Volume Slider (P17.pin2) (0V=max, 1.8V=min)      (CL48) (near MCU)
+  TP74  MCU Backdoor /RESET                      ;\
+  TP75  MCU Backdoor FLMD0                       ; PCB Side B
+  TP76  MCU Backdoor TOOL1                       ; (under green
+  TP77  MCU Backdoor TOOL0                       ; solder stop)
+  TP78  MCU Backdoor GND                         ;
+  TP79  MCU Backdoor PVDD18 (same as TP21) (CL7) ;/
+  TP80  Button Start  (SW4)
+  TP81  Button Select (SW5)
+  TP82  Button R      (P15.pin4)
+  TP83  Button L      (P16.pin3)
+  TP84    ...?    high 1.8v                      (right of (Nintendo) logo)
+  TP85  Button Up     (SW6)
+  TP86  Button X      (SW7)
+  TP87  Button Left   (SW8)
+  TP88  Button Y      (SW10)
+  TP89  Button A      (SW11)
+  TP90  Button Right  (SW9)
+  TP91  Button Down   (SW12)
+  TP92  Button B      (SW13)
+  TP93  SD/MMC Slot /Unlock (P14.pin8)                   (CL50)
+  TP94  SD/MMC Slot /Insert (P14.pin10)                  (CL49)
+  TP95  NDS Slot CLK        (P1.pin2)                           (near AIC)
+  TP96  SD/MMC Slot CMD     (P14.pin14, via 57 ohm)
+  TP97  SD/MMC Slot Data3   (P14.pin18)
+  TP98  SD/MMC Slot Data2   (P14.pin20)
+  TP99  NDS Slot /SaveCS    (P1.pin6)
+  TP100 SD/MMC Slot Data1   (P14.pin2)
+  TP101 SD/MMC Slot Data0   (P14.pin4)
+  TP102 NDS Slot IRQ        (P1.pin7)
+  TP103 SD/MMC Slot CLK     (P14.pin16)
+  TP104 NDS Slot D3         (P1.pin12)
+  TP105 NDS Slot D4         (P1.pin13)
+  TP106 NDS Slot D7         (P1.pin16)
+  TP107 NDS Slot /RomCS     (P1.pin4)
+  TP108 NDS Slot /Reset     (P1.pin5)
+  TP109 NDS Slot /Insert    (P1.pin18)
+  TP110 NDS Slot D0         (P1.pin9)
+  TP111 NDS Slot D1         (P1.pin10)
+  TP112 NDS Slot D2         (P1.pin11)
+  TP113 NDS Slot D5         (P1.pin14)
+  TP114 NDS Slot D6         (P1.pin15)
+  TP115 SPI Bus0 CLK                  ;\            (CL53,CL23) (near aic)
+  TP116 SPI Bus0 MISO                 ;                  (CL24) (near aic)
+  TP117 SPI Bus0 MOSI                 ; SPI 0            (CL25) (near aic)
+  TP118 SPI Bus0 Device0 (powerman)   ;                  (CL21) (near aic)
+  TP119 SPI Bus0 Device1 (wifi flash) ;                         (near wifi)
+  TP120 SPI Bus0 Device2 (dsi tsc)    ;/                 (CL22) (near aic)
+  TP121 SPI Bus1 CLK                  ;\            (CL54,CL27) (near aic)
+  TP122 SPI Bus1 MISO                 ; SPI 1            (CL28) (near aic)
+  TP123 SPI Bus1 MOSI                 ;                  (CL29) (near aic)
+  TP124 SPI Bus1 Device0 (3ds tsc)    ;/                 (CL26) (near aic)
+  TP125 GPIO 0:1 Pendown (1.8V)             (0=low)             (near aic)
+  TP126 GPIO 0:2 Hinge (magnet hall sensor) (1=low=closed) (CL2,CL3) (near mcu)
+  TP127 I2C Bus0 SDA  ;also P9.pin23                            (near aic)
+  TP128 I2C Bus0 SCL  ;also P9.pin24              (1.8V)        (near aic)
+  TP129 I2C Bus1 SDA  ;also P8.pin38 and P9.pin13               (near mcu)
+  TP130 I2C Bus1 SCL  ;also P8.pin37 and P9.pin12 (1.8V)        (near mcu)
+  TP131 Upper Screen PWM (1166.7kHz, duty 2.7%-25%)             (near main cpu)
+  TP132 Lower Screen PWM (1166.7kHz, duty 5.0%-54%)             (near main cpu)
+  TP133   ...?      low                                         (near mcu)
+  TP134   ...?      low                                         (near mcu)
+  TP135   ...?      high 1.8v (forced low=triggers reset?)      (near mcu)
+  TP136   ...?      high 1.8v (forced low=triggers reset?)      (near AIC)
+  TP137   ...?      high 1.8v                            (CL37) (near AIC)
+  TP138   ...?      low                                  (CL31) (near AIC)
+  TP139   ...?      low                                  (CL30) (near AIC)
+  TP140   ...?      low                                  (CL32) (near AIC/wifi)
+  TP141 GPIO 3:4 IrDA TX-RC (manual TX remote ctrl) 3.3V        (near IrDA)
+  TP142 N/A ?                                                   (?)
+  TP143   ...?      high 3.3v                                   (near main cpu)
+  TP144 I2C Bus2 SCL (390kHz)        (3.3V)                     (near main cpu)
+  TP145 N/A ?                                                   (?)
+  TP146 I2C Bus2 SDA (IrDA and Gyro)                            (near main cpu)
+  TP147 Audio I2S Sound Data Out                         (CL34) (near AIC)
+  TP148 N/A ?  (maybe I2S microphone in, but has no TP?)        (?)
+  TP149 Audio I2S Word Clock (off, 32kHz, or 48kHz)      (CL33) (near AIC)
+  TP150 Audio I2S Bit Clock  (off, 1MHz, or 1.5MHz)      (CL35) (near AIC)
+  TP151 N/A ?                                                   (?)
+  TP152 Audio Clock 8MHz/16MHz (for speaker PWM?)   (CL36,CL55) (near AIC)
+  TP153 GPIO 3:0 ... (would be C-Stick if New3DS)     3.3V      (near main cpu)
+  TP154 GPIO 3:3 ... (unknown)                        3.3V      (near main cpu)
+  TP155 GPIO 3:7 ... (would be NFC if New3DS)         1.8V      (near main cpu)
+  TP156 GPIO 3:8 TSC IRQ (eg. TSC[67h:2Bh] headphone) 1.8V      (near AIC)
+  TP157 GPIO 3:9 MCU IRQ                              1.8V      (near mcu)
+  TP158 GPIO 3:2 Gyroscope IRQ (ITG-3270.pin12)       ?.?V  (near circle pad)
+  TP159 Upper Screen Video Data bit? (200mV)   (P6.pin12)  ;\
+  TP160 Upper Screen Video Data bit? (200mV)   (P6.pin11)  ;
+  TP161 Upper Screen Video Data bit? (200mV)   (P6.pin14)  ; Upper
+  TP162 Upper Screen Video Data bit? (200mV)   (P6.pin15)  ; Screen
+  TP163 Upper Screen Video Clock  (15ns, 100mV) (P6.pin8)  ;
+  TP164 Upper Screen Video Clock' (15ns, 100mV) (P6.pin9)  ;/
+  TP165 Lower Screen R7 (red)              ;\
+  TP166 Lower Screen R3 (red)              ;
+  TP167 Lower Screen G7 (green)            ; Lower
+  TP168 Lower Screen G3 (green)            ; Screen
+  TP169 Lower Screen B7 (blue)             ;
+  TP170 Lower Screen B3 (blue)             ;
+  TP171 Lower Screen R6 (red)              ;
+  TP172 Lower Screen R2 (red)              ;
+  TP173 Lower Screen G6 (green)            ;
+  TP174 Lower Screen G2 (green)            ;
+  TP175 Lower Screen B6 (blue)             ;
+  TP176 Lower Screen B2 (blue)             ;
+  TP177 Lower Screen R5 (red)              ;
+  TP178 Lower Screen R1 (red)              ;
+  TP179 Lower Screen G5 (green)            ;
+  TP180 Lower Screen G1 (green)            ;
+  TP181 Lower Screen B5 (blue)             ;
+  TP182 Lower Screen B1 (blue)             ;
+  TP183 Lower Screen R4 (red)              ;
+  TP184 Lower Screen R0 (red)              ;
+  TP185 Lower Screen G4 (green)            ;
+  TP186 Lower Screen G0 (green)            ;
+  TP187 Lower Screen B4 (blue)             ;
+  TP188 Lower Screen B0 (blue)             ;
+  TP189 Lower Screen Dotclk (11MHz, 1.8V)  ;
+  TP190 Lower Screen VSYNC (24.77kHz)      ;
+  TP191 Lower Screen HSYNC (59.8Hz)        ;/
+  TP192 Old Camera Data Bit?   (P9.pin34 via RA7 to CPU/TP220);\
+  TP193 Old Camera Data Bit?   (P9.pin33 via RA7 to CPU)      ;
+  TP194 Old Camera Data Bit?   (P9.pin32 via RA7 to CPU)      ; camera side of
+  TP195 Old Camera Data Bit?   (P9.pin31 via RA7 to CPU)      ; camera data bus
+  TP196 Old Camera Data Bit?   (P9.pin30 via RA8 to CPU)      ; (old DSi cams)
+  TP197 Old Camera Data Bit?   (P9.pin29 via RA8 to CPU)      ;
+  TP198 Old Camera Data Bit?   (P9.pin27 via RA8 to CPU/TP227);
+  TP199 Old Camera Data Bit?   (P9.pin28 via RA8 to CPU)      ;/
+  TP200 Old Camera HSYNC       (P9.pin26) (200us)
+  TP201 Old Camera Data CLK    (P9.pin37 via Rxx to CPU/TP228) (pcb upper left)
+  TP202 Old Camera VSYNC       (P9.pin25) (70ms)
+  TP203 Both Camera 16MHz (I2C)(P9.pin17) (XXXohm to TP229?)  ;\both cameras
+  TP204 Both Camera Reset?     (P9.pin20) (always high?)      ;/
+  TP205 Extra Camera Data Bit? (P9.pin4 via ?? to CPU/TP230)  ;\
+  TP206 Extra Camera Data Bit? (P9.pin5 via ?? to CPU)        ;
+  TP207 Extra Camera Data Bit? (P9.pin6 via ?? to CPU)        ; camera side of
+  TP208 Extra Camera Data Bit? (P9.pin7 via ?? to CPU)        ; camera data bus
+  TP209 Extra Camera Data Bit? (P9.pin8 via ?? to CPU)        ; (extra 3DS cam)
+  TP210 Extra Camera Data Bit? (P9.pin9 via ?? to CPU)        ;
+  TP211 Extra Camera Data Bit? (P9.pin10 via ?? to CPU)       ;
+  TP212 Extra Camera Data Bit? (P9.pin11 via ?? to CPU/TP237) ;/
+  TP213 Touchpad ... ;\        (P13.Pin1)
+  TP214 Touchpad ... ; X/Y +/- (P13.Pin2)
+  TP215 Touchpad ... ; or so?  (P13.Pin3)
+  TP216 Touchpad ... ;/        (P13.Pin4)
+  TP217 Extra Camera HSYNC     (P9.pin14) (200us)            (near main cpu)
+  TP218 Extra Camera VSYNC     (P9.pin15) (70ms)             (near main cpu)
+  TP219 Extra Camera Data CLK  (P9.pin1) (Rxx to CPU/TP238)  (pcb upper left)
+  TP220 Old Camera Data Bit?    (RA7 270ohm to TP192) ;\
+  TP221 N/A  ;\                                       ;
+  TP222 N/A  ; probably 6 more data bits              ; CPU side of
+  TP223 N/A  ; (also wired via 270ohm RA7/RA8)        ; DSi Camera bus
+  TP224 N/A  ; (but have no TPs on PCB)               ;
+  TP225 N/A  ;                                        ;      `
+  TP226 N/A  ;/                                       ;
+  TP227 Old Camera Data Bit?     (RA8 270ohm to TP198 ;
+  TP228 Old Camera Data CLK 16MHz   (100ohm to TP201) ;/   (near main cpu, top)
+  TP229 Both Camera 16MHz (I2C)     (XXXohm to TP203?)     (near main cpu, top)
+  TP230 Extra Camera Data Bit?      (270ohm to TP205) ;\   (near main cpu, top)
+  TP231 N/A  ;\                                       ;
+  TP232 N/A  ; probably 6 more data bits              ; CPU side of
+  TP233 N/A  ; (but have no TPs on PCB)               ; Extra Camera bus
+  TP234 N/A  ;                                        ;
+  TP235 N/A  ;                                        ;
+  TP236 N/A  ;/                                       ;
+  TP237 Extra Camera Data Bit?      (270ohm to TP212) ;   (near main cpu, top)
+  TP238 Extra Camera Data CLK 16MHz (100ohm to TP219) ;/  (near main cpu, top)
+  TP239 GPIO 3:1 IrDA /IRQ (P24.pin6)  3.3V     (near main cpu, low/right)
+  TP240 Accelerometer VDD_IO (U9.pin1) (1.8V)                (near home button)
+  TP241 TH1 (battery temperature sensor) (off/normal 9Kohm to GND) (8K=warmer)
+  TP242 Wifi CLK32k (P5.pin43)                                     (near mcu)
+  TP243 Wifi RESET  (P5.pin44) ;maybe also for others...?          (near wifi)
+  TP244 Both Screens /RESET (P6.pin26 and P8.pin39)                (near P8)
+  TP245 ..pwr on/off for U12 power control? (PCB Side B, underneath NDS slot)
+  TP246 ..pwr on/off for U12 power control? low 0V (near above U12)(near wifi)
+  TP247 Wifi CCA   (P5.pin9 )   ;\this have some slight noise      (near wifi)
+  TP248 Wifi TRRDY (P5.pin15)   ;/from GPIO 4:0 (no real signal?)  (near wifi)
+  TP249 eMMC DAT0       ;\
+  TP250 eMMC DAT1       ; PCB Side B
+  TP251 eMMC DAT2       ; (eMMC CLK has no known TP)
+  TP252 eMMC DAT3       ;
+  TP253 eMMC CMD        ;/
+  TP254 Gyroscope ITG-3270.pin8 ("VLOGIC") 3.3V (CL56)  (near circle pad)
+  TP255 GPIO 3:5 IrDA RXD (for manual polling) 3.3V     (near main cpu)
+  TP256 DL5 Notify RGB LED blue                         (pcb top-right)
+  TP257 DL5 Notify RGB LED red                          (pcb top-right)
+  TP258 Speaker/Audio Supply 3.5V (U13.pin3)    (CL45)  (near select button)
+  TP259 Charger IC U7.pin2+3 BAT      (via F2 to TP22)  (pcb top-right)
+```
+
+Yet unknown TPs details are...
+
+```
+  There should be an IRQ signal from TSC to MCU (but unknown which pin).
+  There should be a logical SD Slot Power Enable (for requesting TP13 = 3.3V)
+  Details on what is Camera D0..D7, etc.
+  Details on plus/minus for Touchpad, UpperBacklight
+  Debug button, Debug jtag, FIQ, SCFG_OP, etc. (if any)
+  Most wifi pins seem to have no TPs (but some might have still missing ones)
+  FCRAM seems to have no TPs (unless a few control signals do have some)
+```
+
+
+
+## Testpoints for 3DS XL and 2DS
+
+
+3DS XL and 2DS have some extra test points at TP260 and up (unknown if
+TP1-TP259 are same as on Old3DS, at least some seem to be same or similar).
+
+```
+  TP260 eMMC CLK        ;exists on both 2DS and 3DS XL (has no TP on 3DS)
+  TP261 ?
+  TP262 ?               ;spotted on 2DS (near power button)
+  TP263 ?               ;spotted on 2DS (near power button)
+  TP264 ?               ;spotted on 2DS (near power button)
+  ...
+  TP307 ?               ;spotted on 2DS
+```
+
+The extra TPs might be for changed signals, or for things that didn't have TPs
+on Old3DS (like Wifi).
+
+
+
+## Testpoints for New 3DS, New 3DS XL, and New 2DS
+
+
+New 3DS and New 3DS XL (and probably New 2DS) do also have testpoints, but only
+half as many, and without text layer (so they could be used/described only via
+photos or drawings).
+
+
+
+## CL Cut-Links for Old 3DS (Mainboard "C/CTR-CPU-01")
+
+
+```
+  CL1  GNDed (to accel.device.id)       (near AIC, low/right)
+  CL2  TP126 Hinge (to mcu)             (near MCU, up/right/big)
+  CL3  TP126 Hinge (to cpu)             (near cpu, up, underneath nds-slot)
+  CL4  N/A ? -                                    (?)
+  CL5  TP2   Supply 1.2V                          (near powerman, right)
+  CL6  TP5   Supply 1.8V                          (near powerman, right)
+  CL7  TP21+TP79 Standby Supply +1.8V MCU unbrick (near MCU, low/right)
+  CL8  TP41  Lower Backlight +                    (near powerman, up/right)
+  CL9  TP3   Supply 3.3V                          (near powerman, left)
+  CL10 TP3   Supply 3.3V                          (near powerman, left)
+  CL11 TP6   Supply 2.8V                          (near powerman, left)
+  CL12 TP13  SD/MMC Slot Supply                   (near powerman, up/left)
+  CL13 TP16  NDS Cart Slot supply                 (near powerman, up/left)
+  CL14 TP28  Supply +5.1V for CAM+3D LEDs?        (near powerman, up/left)
+  CL15 TP32  Supply +5.0V for both screens?       (near powerman, up/left)
+  CL16 TP44  Upper Backlight?                     (near powerman, low/right)
+  CL17 TP45  Upper Backlight? and via C35 to TP43 (near powerman, low/right)
+  CL18 GNDed                                      (near U8, fuel gauge)
+  CL19 GNDed (TP25?)                              (near powerman, low)
+  CL20 GPIO 1:0 Headphone? (via Q3 from TP49)     (near AIC, low/tiny)
+  CL21 TP118 SPI Bus0 Device0 (powerman)          (near AIC, up)
+  CL22 TP120 SPI Bus0 Device2 (dsi tsc)           (near AIC, up)
+  CL23 TP115 SPI Bus0 CLK             (also CL53) (near AIC, up)
+  CL24 TP116 SPI Bus0 MISO                        (near AIC, up)
+  CL25 TP117 SPI Bus0 MOSI                        (near AIC, up)
+  CL26 TP124 SPI Bus1 Device0 (3ds tsc)           (near AIC, up)
+  CL27 TP121 SPI Bus1 CLK             (also CL54) (near AIC, up)
+  CL28 TP122 SPI Bus1 MISO                        (near AIC, up)
+  CL29 TP123 SPI Bus1 MOSI                        (near AIC, up)
+  CL30 TP139                                      (near nds-slot)
+  CL31 TP138                                      (near nds-slot)
+  CL32 TP140                                      (near nds-slot)
+  CL33 TP149 Audio I2S Word Clock                 (near AIC, up/left)
+  CL34 TP147 Audio I2S Sound Data Out             (near nds-slot)
+  CL35 TP150 Audio I2S Bit Clock                  (near nds-slot)
+  CL36 TP152 Audio Clock              (also CL55) (near nds-slot)
+  CL37 TP137                                      (near nds-slot)
+  CL38 TP5   Supply 1.8V                          (near AIC, up/right)
+  CL39 TP5   Supply 1.8V                          (near AIC, low/right)
+  CL40 TP3   Supply 3.3V                          (near AIC, left)
+  CL41 TP5   Supply 1.8V                          (near AIC, low/big)
+  CL42 TP5   Supply 1.8V                          (near nds-slot)
+  CL43 TP3   Supply 3.3V                          (near AIC, up)
+  CL44 TP5   Supply 1.8V                          (near AIC, low/right)
+  CL45 TP258 Supply 3.5V (Speakers)               (near AIC, low/right)
+  CL46 ?     ?                                    (near MCU, up/right/tiny)
+  CL47 TP72  3D Slider                            (near MCU, left/tiny)
+  CL48 TP73  Volume Slider                        (near MCU, left/tiny)
+  CL49 TP94  SD/MMC Card /INSERT     (near cpu, right, underneath nds-slot)
+  CL50 TP93  SD/MMC Card /UNLOCK     (near cpu, low/right, underneath nds-slot)
+  CL51 ..    Wifi BB_RF_SCK (P5.10)  (near U12, underneath nds-slot)
+  CL52 ..    Wifi SDIO CLK  (P5.31)  (near cpu, right, underneath nds-slot)
+  CL53 TP115 SPI Bus0 CLK (also CL23)(near cpu, low/right, underneath nds-slot)
+  CL54 TP121 SPI Bus1 CLK (also CL27)(near cpu, low/right, underneath nds-slot)
+  CL55 TP152 Audio Clock  (also CL36)(near cpu, up, underneath nds-slot)
+  CL56 TP254 Gyroscope pin8          (near gyro)
+```
+
+
+
+## Data Bus Resistors and Resistor Arrays
+
+
+```
+  RA1      1x4 180ohm  4bit SD Slot Databus (pass-thru)
+  RA2      1x4 100ohm  4bit eMMC Databus    (pass-thru)
+  RA3      1x4 56Kohm? 4bit SD Slot Databus (pull-up to TP13)
+  RA5      1x4 57Kohm? 4bit eMMC Databus    (pull-up to TP3)
+  RA7,RA8  2x4 270ohm  8bit DSi Camera Databus      (pass-thru)
+  Rxx-Rxx  8x1 270ohm  8bit Extra Camera Databus    (pass-thru)
+  Rxx      1x1 100ohm  1bit DSi Camera Clock        (pass-thru)
+  Rxx      1x1 100ohm  1bit Extra Camera Clock      (pass-thru)
+  Rxx      1x1 XXXohm  1bit Both Camera Clock (I2C) (pass-thru?)
+  Rxx      1x1 120ohm  1bit eMMC CLK        (pass-thru)
+  RA11     1x4 56Kohm? 4x Whatever ???      (pull-down to GND)
+  EM23     1x4 0ohm?   (near P13 touchpad)
+  EM24     1x4 0ohm?   (near cpu, underneath nds-slot)
+```
+
+
+
+## See also
+
+
+- [http://www.3dbrew.org/wiki/Hardware](http://www.3dbrew.org/wiki/Hardware)
+- [http://www.3dbrew.org/wiki/TP\_Nets](http://www.3dbrew.org/wiki/TP_Nets)
+- [http://www.3dbrew.org/wiki/Pinouts](http://www.3dbrew.org/wiki/Pinouts)
+- [http://www.3dbrew.org/wiki/Video\_Capture](http://www.3dbrew.org/wiki/Video_Capture)
+
+
+
+
+# <a name="3dsconnectorpinouts"></a>3DS Connector Pinouts
+
+
+
+Connectors in Old 3DS with Mainboard "C/CTR-CPU-01"...
+
+
+
+## P1 - 19pin - NDS/DSi cartridge slot (17pin slot + 2pin switch at right side)
+
+
+```
+  1  GND   NDS Slot GND
+  2  TP95  NDS Slot CLK
+  3  NC?   NDS Slot ?
+  4  TP107 NDS Slot /RomCS
+  5  TP108 NDS Slot /Reset
+  6  TP99  NDS Slot /SaveCS
+  7  TP102 NDS Slot IRQ
+  8  TP16  NDS Slot 3.3V
+  9  TP110 NDS Slot D0
+  10 TP111 NDS Slot D1
+  11 TP112 NDS Slot D2
+  12 TP104 NDS Slot D3
+  13 TP105 NDS Slot D4
+  14 TP113 NDS Slot D5
+  15 TP114 NDS Slot D6
+  16 TP106 NDS Slot D7
+  17 GND   NDS Slot GND
+  18 TP109 NDS Slot /Insert Signal
+  19 GND   NDS Slot /Insert GND
+```
+
+
+
+## P2 - 6pin - External Power Supply input (4.6V DC IN) (with sticky glue!)
+
+
+```
+  1  TP4   4.6VIN (Power pin +)
+  2  TP1   GND    (Power pin -)
+  3  TP1   GND    (Shield)
+  4  TP1   GND    (Shield)
+  5  TP4   4.6VIN (goldplate +)    ;\alternate contacts (requires constant
+  6  TP1   GND    (goldplate -)    ;/pressure, maybe for expansion hardware)
+```
+
+Note: This surface mounted connector breaks off easily, but it can be soldered
+back in without problems (the 2DS uses a better connector with thru-holes; and
+without goldplates).
+
+
+
+## P3 - 5pin - Headphone (stereo, plus switch)
+
+
+```
+  1  TP48   Headphone Audio Ground?  (GNDed when plug inserted)
+  2  TP50   Headphone Audio Left     (tip)
+  3  TP51   Headphone Audio Right    (ring)
+  4  TP49   Headphone Insert Detect? (GNDed when plug inserted)
+  5  GND
+```
+
+Note: Unlike NDS/DSi, the 3DS has no connector for external microphone.
+
+
+
+## P4 - 3pin - Battery
+
+
+```
+  +  TP22  Battery +            ;(via F2 to TP259)
+  x  TP23  Battery type/detect/alert?
+  -  GND   Battery -
+```
+
+
+
+## P5 - 50pin - Wifi daughterboard (DWM-W028) (and probably same for J27H023.01)
+
+
+- [https://fccid.io/EW4DWMW028/Label/ID-label-location-1272988.pdf](https://fccid.io/EW4DWMW028/Label/ID-label-location-1272988.pdf)
+```
+  1        MCLK         2        RF_CSRF
+  3  GND   GND          4        BB_CSBB
+  5        RXPE         6        BB_RF_SDIN
+  7        TXPE         8        BB_RF_SDOUT
+  9  TP247 CCA          10  CL51 BB_RF_SCK
+  11       TRDATA       12 GND   GND
+  13       TRCLK        14       BBP_SLEEP_L
+  15 TP248 TRRDY        16       RF_SLEEP_L
+  17       TRST_L       18       SEL_ATH_L
+  19 GND   GND          20 GND   GND
+  21       SDIO_DATA_0  22       JTAG_TDO
+  23       SDIO_DATA_1  24       JTAG_TMS
+  25       SDIO_DATA_2  26       JTAG_TDI
+  27       SDIO_DATA_3  28       JTAG_TCK
+  29 GND   GND          30 TP119 SPI_CS2 (SPI FLASH /CS)
+  31  CL52 SDIO_CLK     32       W_B     (SPI FLASH /WP)
+  33 GND   GND          34 TP115 SPI_CLK (SPI Bus0 CLK)
+  35       SDIO_CMD     36 TP116 SPI_DO  (SPI Bus0 MISO)
+  37       UART_TXD     38 TP117 SPI_DI  (SPI Bus0 MOSI)
+  39       UART_RXD     40       SYS_RST_L
+  41 GND   GND          42       ATH_TX_H
+  43 TP242 CLK32k       44 TP243 RESET
+  45 GND   GND          46 GND   GND
+  47 TP5   VDD_18       48 TP3   VDD_33
+  49 TP5   VDD_18       50 TP3   VDD_33
+```
+
+Functionally same as DSi, but not pin-compatible, and with two UART pins
+(instead of the NC pins).
+
+
+
+## P6 - 29pin - Upper Screen Video (connector P6 is on PCB side A)
+
+
+```
+  1  TP32  Supply 5.0V  2  GND
+  3  TP24  VCOM 1.7V    4  GND
+  5  TP5   Supply 1.8V  6  TP5   Supply 1.8V
+  7  GND                8  TP163 Clock   +/-?   ;\
+  9  TP164 Clock   +/-? 10 GND                  ; Video Data (200mV)
+  11 TP160 Data bit+/-? 12 TP159 Data bit+/-?   ; and Clock (15ns, 100mV)
+  13 GND                14 TP161 Data bit+/-?   ; (Serial MIPI DSI format)
+  15 TP162 Data bit+/-? 16 GND                  ;/
+  17 TP32  Supply 5.0V  18 TP32  Supply 5.0V
+  19 GND                20 TP5   Supply 1.8V
+  21 TP24  VCOM 1.7V    22 TP35  AVDD 3.43V     ;-calibrate as VCOM=AVDD/2
+  23 GND                24 TP130 I2C Bus1 SCL
+  25 TP129 I2C Bus1 SDA 26 TP244 I2C /RESET
+  27 GND                28 TP36  Supply 10.0V
+  29 TP40  Supply -5.0V
+```
+
+
+
+## P7 - 21pin - Upper Backlight/Parallax?, Speakers, 3D LED/Slider, Camera LED
+
+
+```
+  1  GND                2  TP44  Backlight 0.4V;\upper backlight?
+  3  TP43  Backlight..? 4  TP45  Backlight 0.4V;/with THREE pins???
+  5  TP31  Parallax PWM 6  TP30  Parallax /PWM ;-parallax
+  7  TP64  Speaker L-   8  TP64  Speaker L-    ;\left speaker
+  9  TP65  Speaker L+   10 TP65  Speaker L+    ;/
+  11 TP66  Camera LED   12 TP28  Supply 5.1V   ;-Camera LED (2.8V=off, Less=on)
+  13 TP62  Speaker R+   14 TP62  Speaker R+    ;\right speaker
+  15 TP61  Speaker R-   16 TP61  Speaker R-    ;/
+  17 TP5   Supply 1.8V  18 TP72  3D Slider     ;-3D Slider  (0V=min, 1.8V=max)
+  19 TP28  Supply 5.1V  20 TP60  3D LED green  ;-3D LED     (2.8V=off, Less=on)
+  21 GND
+```
+
+Note: Speakers are 3.5V PWM, duty 50% when off, and about max duty 45%/55% for
+negative/positive amplitude (apparently 45%/55% is generating enough watts).
+Positive amplitudes have longer high duty on Speaker+ PWM pin, and shorter duty
+on Speaker- /PWM pins.
+
+
+
+## P8 - 43pin - Lower Screen: Video (Parallel RGB format)
+
+
+```
+  1  TP186 G0 (green)   2  TP180 G1 (green)     ;\
+  3  TP174 G2 (green)   4  TP168 G3 (green)     ; green
+  5  TP185 G4 (green)   6  TP179 G5 (green)     ;
+  7  TP173 G6 (green)   8  TP167 G7 (green)     ;/
+  9  GND                10 TP188 B0 (blue)      ;\
+  11 TP182 B1 (blue)    12 TP176 B2 (blue)      ;
+  13 TP170 B3 (blue)    14 TP187 B4 (blue)      ; blue
+  15 TP181 B5 (blue)    16 TP175 B6 (blue)      ;
+  17 TP169 B7 (blue)    18 GND                  ;/
+  19 TP165 R7 (red)     20 TP171 R6 (red)       ;\
+  21 TP177 R5 (red)     22 TP183 R4 (red)       ; red
+  23 TP166 R3 (red)     24 TP172 R2 (red)       ;
+  25 TP178 R1 (red)     26 TP184 R0 (red)       ;/
+  27 GND                28 TP5   Supply 1.8V
+  29 TP32  Supply 5.0V  30 GND
+  31 TP5   Supply 1.8V  32 TP26  VCOM 1.9V      ;\calibrate as VCOM=AVDD/2
+  33 TP37  AVDD 3.7V    34 GND                  ;/
+  35 TP189 Dotclk 11MHz 36 GND                  ;-clock 90ns, 1.8V
+  37 TP130 I2C Bus1 SCL 38 TP129 I2C Bus1 SDA   ;-I2C bus
+  39 TP244 I2C /RESET   40 TP190 VSYNC 24.77kHz
+  41 TP191 HSYNC 59.8Hz 42 TP36  Supply +10.0V
+  43 TP40  Supply -5.0V
+```
+
+CAUTION: Below is NONSENSE (for example, pin9 is clearly GND)
+
+- [http://www.3dbrew.org/wiki/Pinouts](http://www.3dbrew.org/wiki/Pinouts)
+- - with REVERSED pin numbers & bogus...
+  - OK BAD
+  - 43 1     Supply -6V                                              ;-supply -5v
+  - 42 2     Supply 12V                                              ;-supply 10v
+  - 41 3     Pixel Clock                                  (uh?)      ;-HSYNC
+  - 40 4     /HBL, Horizontal blank (low while blanking)  (uh??)     ;-VSYNC
+  - 39 5     /VBL, Vertical blank (low while blanking)    (uh???)    ;-maybe DEN?
+  - 38 6     2v2, Loopback of pin 07?                     (uh????)   ;-I2C
+  - 37 7     2v2, Content latch? screen memory??          (uh?????)  ;-I2C
+  - 36 8     GND                                                     ;-GND
+  - 35 9     HCL Horizontal clock                         (uh?)      ;-Dotclk
+  - 34 10    GND                                                     ;-GND
+  - 33 11    Contrast BIAS (usually 4.5V..4.8V)                      ;-AVDD   3.7
+  - 32 12    Flicker BIAS (usually voltage same as above)            ;-VCOM   1.9
+  - 31 13    ??? Might be a transistor? Shorted if off??? (whut?)    ;-supply 1.8
+  - 30 14    Supply +6V                                   (uh????)   ;-GND
+  - 29 15    ??? Loopback of pin 14 ? harsh pop sound.    (uh?????)  ;-supply +5v
+  - 28 16    ??? ???                                                 ;-supply
+  - 27 17    ??? ???                                      (uh??????) ;-GND
+  - .. 18-25 RED 0..7 Red pixel bits
+  - 18 26    GND
+  - .. 27-34 BLUE 7..0 Blue pixel bits
+  - 9  35    GND
+  - .. 36-43 GREEN 7..0 Green pixel bits
+
+
+
+## P9 - 37pin - Cameras (in upper screen unit)
+
+
+```
+  1  TP219 Data CLK ?   2  GND                  ;\
+  3  GND                4  TP205 Data...?       ;
+  5  TP206 Data...?     6  TP207 Data...?       ; extra 3DS camera
+  7  TP208 Data...?     8  TP209 Data...?       ; (13 signals)
+  9  TP210 Data...?     10 TP211 Data...?       ;
+  11 TP212 Data...?     12 TP130 I2C Bus1 SCL   ;
+  13 TP129 I2C Bus1 SDA 14 TP217 HSYNC          ;
+  15 TP218 VSYNC        16 GND                  ;/
+  17 TP203 16MHz (I2C)  18 GND                  ;\both cameras
+  19 GND                20 TP204 Reset?         ; (2 signals and supply)
+  21 TP5   Supply 1.8V  22 TP6   Supply 2.8V    ;/
+  23 TP127 I2C Bus0 SDA 24 TP128 I2C Bus0 SCL   ;\
+  25 TP202 VSYNC        26 TP200 HYSNC          ;
+  27 TP198 Data...?     28 TP199 Data...?       ; old DSi cameras
+  29 TP197 Data...?     30 TP196 Data...?       ; (13 signals)
+  31 TP195 Data...?     32 TP194 Data...?       ;
+  33 TP193 Data...?     34 TP192 Data...?       ;
+  35 GND                36 GND                  ;
+  37 TP201 Data CLK ?                           ;/
+```
+
+
+
+## P10 - 4pin - Microphone
+
+
+```
+  1  GND
+  2  TP47  1.02V     ;\what is that? plus/minus? or left/right?
+  3  TP46  3.30V     ;/
+  4  GND
+```
+
+
+
+## P11 - 4pin - Circle Pad (analog joystick)
+
+
+```
+  1  GND
+  2  TP69  Circle Pad X (0.2V=Left, 1.5V=Right)
+  3  TP5   Supply 1.8V
+  4  TP68  Circle Pad Y (0.2V=Down, 1.5V=Up)
+```
+
+
+
+## P12 - 4pin - Lower Screen: Backlight
+
+
+```
+  1  TP42  Lower Backlight -   ;\Minus (near 0V)
+  2  TP42  Lower Backlight -   ;/
+  3  TP41  Lower Backlight +   ;\Plus (pulsed 14V or so?)
+  4  TP41  Lower Backlight +   ;/
+```
+
+
+
+## P13 - 4pin - Lower Screen: Touchpad
+
+
+```
+  1  TP213 Touchpad     1.8V  ;\
+  2  TP214 Touchpad     0.2V  ; voltages measured without touchpad connected
+  3  TP215 Touchpad     0.2V  ;
+  4  TP216 Touchpad     0V    ;/
+```
+
+
+
+## P14 - 20pin - SD Card Slot
+
+
+```
+  1  GND            2  TP100 Data1
+  3  GND            4  TP101 Data0
+  5  GND            6  GND
+  7  GND            8  TP93  /Unlock   (CL50)
+  9  GND            10 TP94  /Inserted (CL49)
+  11 GND            12 GND
+  13 GND            14 TP96  Cmd
+  15 GND            16 TP103 Clk
+  17 TP13 VDD       18 TP97  Data3
+  19 TP13 VDD       20 TP98  Data2
+```
+
+
+
+## P15 - 8pin - Right Shoulder button
+
+
+```
+  1  GND            2  GND
+  3  GND            4  TP82  Button R
+  5  GND            6  GND
+  7  GND            8  GND
+```
+
+
+
+## P16 - 8pin - Left Shoulder button
+
+
+```
+  1  GND            2  GND
+  3  TP83  Button L 4  GND
+  5  GND            6  GND
+  7  GND            8  GND
+```
+
+
+
+## P17 - 3pin - Volume Slider  (on PCB side A)
+
+
+```
+  1  TP5   Supply 1.8V         (red wire)
+  2  TP73  MCU Volume Slider   (white wire) (0V=max, 1.8V=min)
+  3  GND                       (black wire)
+```
+
+
+
+## P18/P19 - 1pin (each) - shield for eMMC
+
+
+
+## P20/P20 - 1pin (each) - shield for MCU
+
+
+GNDed clips for holding shielding plates.
+
+
+
+## P22/P23 - N/A
+
+
+None such.
+
+
+
+## P24 - 12pin - IR daughterboard (I2C Device 2:9Ah)
+
+
+```
+  1  TP146 I2C Bus2 SDA   2  TP144 I2C Bus2 SCL
+  3  GND                  4  GND
+  5  TP141 GPIO 3:4 TX-RC 6  TP239 GPIO 3:1 /IRQ
+  7  GND                  8  GND
+  9  GND                  10 TP255 GPIO 3:5 RXD (IR.led.pin4 and IR.chip.pin24)
+  11 TP3   Supply 3.3V    12 TP3   Supply 3.3V
+```
+
+TX-RC (Remote Control Transmit) is for sending pulses manually, with higher
+signal strength. RXD can be used for manual polling. Anyways, normally bytes
+are transferred via I2C and automatically passed from/to transceiver.
+
+
+
+## P25 - 1pin - antenna cable holder or so?
+
+
+GNDed clip for holding antenna cable or so?
+
+
+
+## Goldplate (left of NDS cart slot)
+
+
+GNDed contact on PCB, for bottom screen case/shield.
+
+
+
+
 # <a name="3dschipsetpinouts"></a>3DS Chipset Pinouts
 
 
 
 
-## New Gyroscope (ITG-1010)
+## New Gyroscope (ITG-1010) (used in New 3DS XL)
 
 
 ```
@@ -33242,8 +37338,8 @@ Case/bottom
   5    /CS      SPI chip select (Low=SPI mode, High=I2C mode)
   6    RESV     Reserved. Connect to Ground
   7    INT      Interrupt digital output (totem pole or open-drain)
-  8    FSYNC    Frame synchronization digital input. Connect to GND if not used
-  9-12 NC       Not internally connected, may be used for PCB trace routing
+  8    FSYNC    Frame synchronization digital input (or GND=unused)
+  9-12 NC       Not connected (may be used for PCB trace routing)
   13   GND      Power supply ground
   14   REGOUT   Regulator filter capacitor connection
   15   RESV-G   Reserved. Connect to Ground
@@ -33252,27 +37348,30 @@ Case/bottom
 
 
 
-## Old Gyroscope (ITG-3200)
+## Old Gyroscope (ITG-3270) (used in Old 3DS)
 
 
 ```
-  1     CLKIN   Optional external ref clock input, connect to GND if unused
-  2-5   NC      Not internally connected, may be used for PCB trace routing
-  6-7   RESV    Reserved. Do not connect
-  8     VLOGIC  Digital IO supply voltage. VLOGIC must be = VDD at all times
-  9     AD0     I2C Slave Address LSB
-  10    REGOUT  Regulator filter capacitor connection
-  11    RESV-G  Reserved - Connect to ground.
-  12    INT     Interrupt digital output (totem pole or open-drain)
-  13    VDD     Power supply voltage
-  14-17 NC      Not internally connected, may be used for PCB trace routing
-  18    GND     Power supply ground
-  19    RESV    Reserved. Do not connect
-  20    CPOUT   Charge pump capacitor connection
-  21-22 RESV    Reserved. Do not connect
-  23    SCL     I2C serial clock
-  24    SDA     I2C serial data
+  1     CLKIN   Optional external ref clock input (or GND=unused)   GND
+  2-5   NC      Not connected (may be used for PCB trace routing)   -
+  6-7   RESV    Reserved. Do not connect                            -
+  8     VLOGIC  Digital IO voltage (must be <= VDD at all times)    TP254=?
+  9     AD0     I2C Slave Address LSB                               GND
+  10    REGOUT  Regulator filter capacitor connection               C71
+  11    RESV-G  Reserved - Connect to ground                        GND
+  12    INT     Interrupt digital output (totem pole or open-drain) TP158=IRQ
+  13    VDD     Power supply voltage                                TP3=VDD3.3V
+  14-17 NC      Not (connected, may be used for PCB trace routing)  -
+  18    GND     Power supply ground                                 GND
+  19    RESV    Reserved. Do not connect                            -
+  20    CPOUT   Charge pump capacitor connection                    C73
+  21-22 RESV    Reserved. Do not connect                            -
+  23    SCL     I2C serial clock                                    TP144=SCL
+  24    SDA     I2C serial data                                     TP146=SDA
 ```
+
+Note: Pinout is from ITG-3200 datasheet (which seems same as ITG-3270) (the
+right column shows GND/TP wiring in Old3DS).
 
 
 
@@ -33280,34 +37379,48 @@ Case/bottom
 
 
 ```
-  1  Vdd_IO      Power supply for I/O pins
-  2  NC          Not connected
-  3  NC          Not connected
-  4  SCL,SPC     I2C.clock (or SPI.clock)
-  5  GND         0V supply
-  6  SDA,SDI,SDO I2C.data (or SPI.data.in, or 3-wire.data.out)
-  7  SA0,SDO     I2C.device.id (or SPI.data.out)
-  8  CS          Mode (high=I2C, low=SPI)
-  9  INT 2       Inertial interrupt 2
-  10 Reserved    Connect to GND
-  11 INT 1       Inertial interrupt 1
-  12 GND         0V supply
-  13 GND         0V supply
-  14 Vdd         Power supply
-  15 Reserved    Connect to Vdd
-  16 GND         0V supply
+  1  VDD_IO      Power supply for I/O pins                          TP240=1.8V
+  2  NC          Not connected                                      -
+  3  NC          Not connected                                      -
+  4  SCL,SPC     I2C.clock (or SPI.clock)                           TP34=SCL
+  5  GND         0V supply                                          GND
+  6  SDA,SDI,SDO I2C.data (or SPI.data.in, or 3-wire.data.out)      TP33=SDA
+  7  SA0,SDO     I2C.device.id (or SPI.data.out)                    CL1=GNDed
+  8  CS          Mode (high=I2C, low=SPI)                           TP240=1.8V
+  9  INT2        Inertial interrupt 2                               TP54
+  10 Reserved    Connect to GND                                     GND
+  11 INT1        Inertial interrupt 1                               TP53
+  12 GND         0V supply                                          GND
+  13 GND         0V supply                                          GND
+  14 VDD         Power supply                                       D7-to-TP3
+  15 Reserved    Connect to VDD                                     D7-to-TP3
+  16 GND         0V supply                                          GND
 ```
 
 
 
-## IrDA (NXP SC16IS750, 24pin HVQFN24 package)
+## Hall-Effect Switch (magnet sensor for sensing shell closed)
+
+
+Texas Instruments DRV5032 (or the like). The sensor is near A/B buttons,
+triggered by right speaker.
+
+```
+  1  VCC         Supply         (TP5 Supply 1.8V in 3DS)
+  2  VOUT        Signal Output  (TP126 in 3DS)
+  3  GND         Ground
+```
+
+
+
+## IrDA Chip (NXP SC16IS750, 24pin HVQFN24 package)
 
 
 ```
-  1  I  /RESET     Reset
+  1  I  /RESET     Reset (not used in 3DS, wired to VDD)
   2  I  XTAL1      Crystal input, or external clock input
   3  O  XTAL2      Crystal output, or clock output
-  4  -  Vdd        Supply
+  4  -  VDD        Supply
   5  I  I2C,/SPI   Interface mode select
   6  I  /CS,A0     SPI chip select, or I2C device id
   7  I  SI,A1      SPI data in, or I2C device id
@@ -33315,7 +37428,7 @@ Case/bottom
   9  I  SCL,SCLK   SPI clk, or I2C clk
   10 IO SDA        I2C data
   11 O  /IRQ       Interrupt
-  12 IO GPIO0      I/O
+  12 IO GPIO0      I/O (in 3DS: wired to transceiver PWDOWN pin)
   13 IO GPIO1      I/O
   14 IO GPIO2      I/O
   15 IO GPIO3      I/O
@@ -33326,8 +37439,24 @@ Case/bottom
   20 IO GPIO7,/RI  I/O, or modem ring indicator
   21 O  /RTS       UART request to send
   22 I  /CTS       UART clear to send
-  23 O  TX         UART data out
-  24 I  RX         UART data in
+  23 O  TX         UART data out (aka IrDA transmit signal)
+  24 I  RX         UART data in  (aka IrDA receive signal)
+```
+
+
+
+## IrDA Transceiver "841" (seems to be RPM841-H16 or similar)
+
+
+```
+  1     LEDA   Transmit supply, can be always on, can be VCC or other supply
+  2     TX-RC  Remote Control Transmit, more strength than TXD   (high=light)
+  3  I  TXD    IrDA Transmit, with less strength than TX-RC      (high=light)
+  4  O  RXD    IrDA Receive, can be also polled manually         (low=light)
+  5     PWDOWN Power down, affects only RXD receive        (high=disable RXD)
+  6     VCC    Digital supply, for logic gates and receive
+  7     GND    Ground
+  SHLD  GND    Shield (intended to reduce EMI noise)
 ```
 
 
@@ -33393,14 +37522,14 @@ to the I2C/BSC EEPROM).
 
 
 ```
-  1 CTG   Connect to GND
-  2 CELL  Battery Voltage Input
-  3 VDD   Power Supply
-  4 GND   Ground
-  5 SEO   External 32kHz clock enable
-  6 EO    External 32kHz clock
-  7 SCL   I2C Clock
-  8 SDA   I2C Data
+  1 CTG   Connect to GND                ;Old3DS: GND
+  2 CELL  Battery Voltage Input         ;Old3DS: TP38
+  3 VDD   Power Supply                  ;Old3DS: TP39
+  4 GND   Ground                        ;Old3DS: GND
+  5 SEO   External 32kHz clock enable   ;Old3DS: GND
+  6 EO    External 32kHz clock          ;Old3DS: GND
+  7 SCL   I2C Clock                     ;Old3DS: TP34
+  8 SDA   I2C Data                      ;Old3DS: TP33
 ```
 
 
@@ -33414,6 +37543,61 @@ to the I2C/BSC EEPROM).
   |  CTG  CELL VDD  GND  |
   |  SDA  SCL  QRST /ALRT|
   |______________________|
+```
+
+
+
+## BQ24072 Charging IC (should match the "CKP" chip in Old3DS and New3DS XL)
+
+
+```
+  1  TS     I   External NTC Thermistor (3DS: dummy R2 resistor?);10K-to-GND
+  2  BAT    I/O Battery (charge output, and battery sense input) ;TP259/F2/TP22
+  3  BAT    I/O Battery (charge output, and battery sense input) ;TP259/F2/TP22
+  4  /CE    I   Charge Enable                                    ;TP11
+  5  EN2    I                                                    ;10K-to-TP8
+  6  EN1    I                                                    ;GNDed
+  7  /PGOOD O   External Supply Power Good (open drain)          ;TP7
+  8  GND    -   Ground                                           ;GND
+  9  /CHG   O   Charging (open drain)                            ;TP10
+  10 OUT    O   Supply Output  ;\from BAT or IN to system        ;TP8
+  11 OUT    O   Supply Output  ;/                                ;TP8
+  12 ILIM   I   Current Limit adjust (wire 1100..8000ohm to GND) ;1.96K-to-GND
+  13 IN     I   External Supply Input (4.35V..6.6V)              ;EM1/F1/TP4
+  14 TMR    I                                                    ;56K-to-GND
+  15 TD     I                                                    ;GNDed
+  16 ISET   I   Fast Charge Current (wire 590..8900ohm to GND)   ;1.5K-to-GND
+```
+
+
+
+## Whatever "EPB" (Maybe power on/off main cpu power supplies?) (Old3DS U12)
+
+
+Voltage Supervisor with Reset? Voltage Regulator with adjust/enable?
+
+```
+         .-----.
+  TP5   -|1   6|- TP3        ;TP3=Supply +3.3V, TP5=Supply 1.8V
+  GND   -|2   5|- GND
+  TP245 -|3   4|- TP246      ;TP246=low 0V, and TP245=high 1.7V
+         '-----'
+```
+
+Note: Upon Power on, TP246 carries a "variable frequency clock signal" for a
+moment, and then goes low.
+
+
+
+## Microchip "/\\ N5, 120" - Audio voltage regulator (Old3DS U13)
+
+
+```
+         .-----.
+  TP12  -|1   6|- TP12      ;TP12 = 4.18V
+  ?     -|2   5|- GND
+  TP258 -|3   4|- ?         ;TP258 = Speaker/Audio Supply 3.5V
+         '-----'
 ```
 
 
@@ -33480,6 +37664,7 @@ Exchange (BX) instruction.
 ## Further Information
 
 
+- [ARM Classic vs UAL Syntax (Unified Assembler Language)](#armclassicvsualsyntaxunifiedassemblerlanguage)
 - [ARM Pseudo Instructions and Directives](#armpseudoinstructionsanddirectives)
 - [ARM CP15 System Control Coprocessor](#armcp15systemcontrolcoprocessor)
 - [ARM Vector Floating-point Unit (VFP)](#armvectorfloatingpointunitvfp)
@@ -33772,7 +37957,11 @@ respective opcode.
   29    C - Carry Flag      (0=Borrow/No Carry, 1=Carry/No Borrow) ; Code Flags
   28    V - Overflow Flag   (0=No Overflow, 1=Overflow)            ;/
   27    Q - Sticky Overflow (1=Sticky Overflow, ARMv5TE and up only)
-  26-8  Reserved            (For future use) - Do not change manually!
+  26-25 Reserved            (For future use) - Do not change manually!
+  24    J - Jazelle Mode    (1=Jazelle Bytecode instructions) (if supported)
+  23-10 Reserved            (For future use) - Do not change manually!
+  9     E - Endian          (... Big endian)                  (ARM11 ?)
+  8     A - Abort disable   (1=Disable Imprecise Data Aborts) (ARM11 only)
   7     I - IRQ disable     (0=Enable, 1=Disable)                     ;\
   6     F - FIQ disable     (0=Enable, 1=Disable)                     ; Control
   5     T - State Bit       (0=ARM, 1=THUMB) - Do not change manually!; Bits
@@ -35637,8 +39826,7 @@ When reading a byte from memory, upper 24 bits of Rd are zero-extended.
 
 LDR PC,\<op> on ARMv4 leaves CPSR.T unchanged.
 
-LDR PC,\<op> on ARMv5 sets CPSR.T to
-\<op> Bit0, (1=Switch to Thumb).
+LDR PC,\<op> on ARMv5 sets CPSR.T to \<op> Bit0, (1=Switch to Thumb).
 
 
 When reading a word from a halfword-aligned address (which is located in the
@@ -36104,26 +40292,29 @@ explicitly mentioned).
 
 
 ```
-  Instruction        Cycles Flags Format Expl.
-  MOV Rd,Imm8bit      1S     NZ--  3   Rd=nn
-  MOV Rd,Rs           1S     NZ00  2   Rd=Rs+0
-  MOV R0..14,R8..15   1S     ----  5   Rd=Rs
-  MOV R8..14,R0..15   1S     ----  5   Rd=Rs
-  MOV R15,R0..15      2S+1N  ----  5   PC=Rs
-  MVN Rd,Rs           1S     NZ--  4   Rd=NOT Rs
-  AND Rd,Rs           1S     NZ--  4   Rd=Rd AND Rs
-  TST Rd,Rs           1S     NZ--  4 Void=Rd AND Rs
-  BIC Rd,Rs           1S     NZ--  4   Rd=Rd AND NOT Rs
-  ORR Rd,Rs           1S     NZ--  4   Rd=Rd OR Rs
-  EOR Rd,Rs           1S     NZ--  4   Rd=Rd XOR Rs
-  LSL Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHL nn
-  LSL Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHL (Rs AND 0FFh)
-  LSR Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHR nn
-  LSR Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHR (Rs AND 0FFh)
-  ASR Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SAR nn
-  ASR Rd,Rs           1S+1I  NZc-  4   Rd=Rd SAR (Rs AND 0FFh)
-  ROR Rd,Rs           1S+1I  NZc-  4   Rd=Rd ROR (Rs AND 0FFh)
-  NOP                 1S     ----  5   R8=R8
+  Instruction           Cycles Flags Format Expl.
+  MOV{S} Rd,Imm8bit      1S     NZ--  3   Rd=nn
+  MOV{S} Rd,Rs           1S     NZ00  2   Rd=Rs+0       (Pre-UAL)
+  CPY    Rd,Rs           1S     ----  5   Rd=Rs         (Pre-UAL, ARMv6)
+  MOV    Rd,Rs           1S     ----  5   Rd=Rs         (UAL)
+  MOV{S} Rd,Rs           1S     NZ--  2   Rd=Rs SHL 0   (UAL)
+  MOV    R0..14,R8..15   1S     ----  5   Rd=Rs
+  MOV    R8..14,R0..15   1S     ----  5   Rd=Rs
+  MOV    R15,R0..15      2S+1N  ----  5   PC=Rs
+  MVN{S} Rd,Rs           1S     NZ--  4   Rd=NOT Rs
+  AND{S} Rd,Rs           1S     NZ--  4   Rd=Rd AND Rs
+  TST    Rd,Rs           1S     NZ--  4 Void=Rd AND Rs
+  BIC{S} Rd,Rs           1S     NZ--  4   Rd=Rd AND NOT Rs
+  ORR{S} Rd,Rs           1S     NZ--  4   Rd=Rd OR Rs
+  EOR{S} Rd,Rs           1S     NZ--  4   Rd=Rd XOR Rs
+  LSL{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHL nn
+  LSL{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHL (Rs AND 0FFh)
+  LSR{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SHR nn
+  LSR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SHR (Rs AND 0FFh)
+  ASR{S} Rd,Rs,Imm5bit   1S     NZc-  1   Rd=Rs SAR nn
+  ASR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd SAR (Rs AND 0FFh)
+  ROR{S} Rd,Rs           1S+1I  NZc-  4   Rd=Rd ROR (Rs AND 0FFh)
+  NOP                    1S     ----  5   R8=R8
 ```
 
 Carry flag affected only if shift amount is non-zero.
@@ -36134,29 +40325,32 @@ Carry flag affected only if shift amount is non-zero.
 
 
 ```
-  Instruction        Cycles Flags Format Expl.
-  ADD Rd,Rs,Imm3bit   1S     NZCV  2   Rd=Rs+nn
-  ADD Rd,Imm8bit      1S     NZCV  3   Rd=Rd+nn
-  ADD Rd,Rs,Rn        1S     NZCV  2   Rd=Rs+Rn
-  ADD R0..14,R8..15   1S     ----  5   Rd=Rd+Rs
-  ADD R8..14,R0..15   1S     ----  5   Rd=Rd+Rs
-  ADD R15,R0..15      2S+1N  ----  5   PC=Rd+Rs
-  ADD Rd,PC,Imm8bit*4 1S     ---- 12   Rd=(($+4) AND NOT 2)+nn
-  ADD Rd,SP,Imm8bit*4 1S     ---- 12   Rd=SP+nn
-  ADD SP,Imm7bit*4    1S     ---- 13   SP=SP+nn
-  ADD SP,-Imm7bit*4   1S     ---- 13   SP=SP-nn
-  ADC Rd,Rs           1S     NZCV  4   Rd=Rd+Rs+Cy
-  SUB Rd,Rs,Imm3Bit   1S     NZCV  2   Rd=Rs-nn
-  SUB Rd,Imm8bit      1S     NZCV  3   Rd=Rd-nn
-  SUB Rd,Rs,Rn        1S     NZCV  2   Rd=Rs-Rn
-  SBC Rd,Rs           1S     NZCV  4   Rd=Rd-Rs-NOT Cy
-  NEG Rd,Rs           1S     NZCV  4   Rd=0-Rs
-  CMP Rd,Imm8bit      1S     NZCV  3 Void=Rd-nn
-  CMP Rd,Rs           1S     NZCV  4 Void=Rd-Rs
-  CMP R0-15,R8-15     1S     NZCV  5 Void=Rd-Rs
-  CMP R8-15,R0-15     1S     NZCV  5 Void=Rd-Rs
-  CMN Rd,Rs           1S     NZCV  4 Void=Rd+Rs
-  MUL Rd,Rs           1S+mI  NZx-  4   Rd=Rd*Rs
+  Instruction           Cycles Flags Format Expl.
+  ADD{S} Rd,Rs,Imm3bit   1S     NZCV  2   Rd=Rs+nn
+  ADD{S} Rd,Imm8bit      1S     NZCV  3   Rd=Rd+nn
+  ADD{S} Rd,Rs,Rn        1S     NZCV  2   Rd=Rs+Rn
+  ADD    Rd,Rs           1S     ----  5   Rd=Rd+Rs (UAL only)
+  ADD    R0..14,R8..15   1S     ----  5   Rd=Rd+Rs
+  ADD    R8..14,R0..15   1S     ----  5   Rd=Rd+Rs
+  ADD    R15,R0..15      2S+1N  ----  5   PC=Rd+Rs
+  ADD    Rd,PC,Imm8bit*4 1S     ---- 12   Rd=(($+4) AND NOT 2)+nn
+  ADD    Rd,SP,Imm8bit*4 1S     ---- 12   Rd=SP+nn
+  ADD    SP,Imm7bit*4    1S     ---- 13   SP=SP+nn
+  ADD    SP,-Imm7bit*4   1S     ---- 13   SP=SP-nn
+  ADC{S} Rd,Rs           1S     NZCV  4   Rd=Rd+Rs+Cy
+  SUB{S} Rd,Rs,Imm3Bit   1S     NZCV  2   Rd=Rs-nn
+  SUB{S} Rd,Imm8bit      1S     NZCV  3   Rd=Rd-nn
+  SUB{S} Rd,Rs,Rn        1S     NZCV  2   Rd=Rs-Rn
+  SUB    SP,Imm7bit*4    1S     ---- 13   SP=SP-nn  ;\alias for ADD
+  SUB    SP,-Imm7bit*4   1S     ---- 13   SP=SP+nn  ;/with flipped sign
+  SBC{S} Rd,Rs           1S     NZCV  4   Rd=Rd-Rs-NOT Cy
+  NEG{S} Rd,Rs           1S     NZCV  4   Rd=0-Rs
+  CMP    Rd,Imm8bit      1S     NZCV  3 Void=Rd-nn
+  CMP    Rd,Rs           1S     NZCV  4 Void=Rd-Rs
+  CMP    R0-15,R8-15     1S     NZCV  5 Void=Rd-Rs
+  CMP    R8-15,R0-15     1S     NZCV  5 Void=Rd-Rs
+  CMN    Rd,Rs           1S     NZCV  4 Void=Rd+Rs
+  MUL{S} Rd,Rs           1S+mI  NZx-  4   Rd=Rd*Rs
 ```
 
 
@@ -36319,7 +40513,7 @@ Flags: Z=zeroflag, N=sign, C=carry (except LSL#0: C=unchanged), V=unchanged.
            2: ADD{S} Rd,Rs,#nn  ;add immediate       Rd=Rs+nn
            3: SUB{S} Rd,Rs,#nn  ;subtract immediate  Rd=Rs-nn
          Pseudo/alias opcode with Imm=0:
-           2: MOV{ADDS} Rd,Rs      ;move (affects cpsr) Rd=Rs+0
+           2: MOV{ADDS} Rd,Rs   ;move (affects cpsr) Rd=Rs+0
   8-6    For Register Operand:
            Rn - Register Operand (R0..R7)
          For Immediate Operand:
@@ -36341,7 +40535,7 @@ Execution Time: 1S
   15-13  Must be 001b for this type of instructions
   12-11  Opcode
            00b: MOV{S} Rd,#nn      ;move     Rd   = #nn
-           01b: CMP{S} Rd,#nn      ;compare  Void = Rd - #nn
+           01b: CMP    Rd,#nn      ;compare  Void = Rd - #nn
            10b: ADD{S} Rd,#nn      ;add      Rd   = Rd + #nn
            11b: SUB{S} Rd,#nn      ;subtract Rd   = Rd - #nn
   10-8   Rd - Destination Register  (R0..R7)
@@ -36621,6 +40815,8 @@ Execution Time: 1S
   7      Opcode/Sign
           0: ADD  SP,#nn       ;SP = SP + nn
           1: ADD  SP,#-nn      ;SP = SP - nn
+          1: SUB  SP,#nn       ;SP = SP - nn  ;\alias for ADD
+          0: SUB  SP,#-nn      ;SP = SP + nn  ;/with flipped sign
   6-0    nn - Unsigned Offset    (0-508, step 4)
 ```
 
@@ -36875,8 +41071,7 @@ Execution SWI/BKPT:
 
 
 These unneccessary opcodes are apparently meant to reduce typical compiler
-overload (eg. for ensuring that "for i=0 to 7" won't end up with
-i>255).
+overload (eg. for ensuring that "for i=0 to 7" won't end up with i>255).
 
 ```
   15-8   Must be 1011.0010b for this type of instructions
@@ -36965,6 +41160,116 @@ should work on ARMv4T and up, but wasn't officially documented until ARMv6).
 
 
 
+# <a name="armclassicvsualsyntaxunifiedassemblerlanguage"></a>ARM Classic vs UAL Syntax (Unified Assembler Language)
+
+
+
+ARM has changed the ARM/THUMB syntax (apparently at some point between ARMv6
+and ARMv6K). The new UAL syntax contains some cosmetic changes, and fixes some
+serious flaws in the old THUMB syntax.
+
+GBA/NDS software did traditionally use old syntax. DSi software probably, too.
+3DS software uses ARMv6K, so it's more likely to use the new UAL syntax.
+
+
+
+## THUMB code with {S} suffix
+
+
+Most ALU opcodes do always affect flags in THUMB mode, although they were
+written without {S} suffix in Pre-UAL syntax, which is problematic because the
+same source code can behave differently for ARM and THUMB.
+
+MOV/ADD/SUB don't affect flags when using SP, PC, or R8..R15 as source/dest
+operands.
+
+MOV/ADD have variants that don't affect flags for operands R0..R7 (these
+variants were originally undocumented/reserved; the flag-less CPY variant was
+officially allowed in ARMv6, the flag-less ADD seems to be allowed (?) in UAL).
+
+MOV is a total mess because it relies on poorly defined pseudo opcodes (in the
+Pre-UAL syntax it was common to encode it as ADD{S} opcode, which destroyed the
+C,V flags).
+
+```
+  Pre-UAL               UAL
+  MOV Rd,Imm            MOVS Rd,Imm                ;\
+  LSL with R0..R7,0     MOVS with R0..R7           ;
+  MOV with R0..R7       ADDS Rd,Rs,0               ; move
+  MOV with R8..R15      MOV  with R8..R15          ;
+  CPY with R0..R7       MOV  with R0..R7           ;
+  SHIFT Rd,..,s         MOVS Rd,..,SHIFT s         ;/
+  ADD with R0..R7       ADDS with R0..R7           ;\
+  ADD with R8..R15      ADD  with R8..R15          ; add
+  N/A (reserved)        ADD  with R0..R7           ;/
+  SUB with R0..R7       SUBS with R0..R7           ;\subtract
+  SUB SP,Imm            SUB SP,Imm  (aka ADD -Imm) ;/
+  ADC/SBC/NEG/RSB/MUL   ADCS/SBCS/NEGS/RSBS/MULS   ;\
+  AND/ORR/EOR/BIC/MVN   ANDS/ORRS/EORS/BICS/MVNS   ; always affects flags
+  LSL/LSR/ASR/ROR       LSLS/LSRS/ASRS/RORS        ;/
+```
+
+These changes are solving compatibility issues between ARM and THUMB code.
+However, in case of MOV and ADD they do bring up compatibility issues between
+old and new THUMB code.
+
+
+
+## Renamed Opcodes
+
+
+```
+  Pre-UAL               UAL
+  LDR{cond}{xx}         LDR{xx}{cond}              ;\
+  ADD{cond}{S}          ADD{S}{cond}               ; cond suffix moved to end
+  xxx{cond}{xx}         xxx{xx}{cond}              ;/
+  LDMIA                 LDM                        ;\amod IA can be ommited
+  STMIA                 STM                        ;/
+  LDRD Rd,[addr]        LDRD Rd,Rd+1,[addr]        ;\double word load/store
+  STRD Rd,[addr]        STRD Rd,Rd+1,[addr]        ;/
+  SWI (software irq)    SVC (supervisior)          ;-renamed SWI to SVC
+```
+
+
+
+## Alternate Opcode Names
+
+
+Some opcodes had different names in classic ARM/THUMB syntax, UAL syntax allows
+to use either one in both ARM and THUMB mode.
+
+```
+  THUMB-style           ARM-style
+  PUSH rlist            STMFD r13!,rlist           ;\PUSH/POP
+  POP rlist             LDMFD r13!,rlist           ;/
+  NEG{S} Rd,Rs          RSB{S} Rd,Rs,0             ;-NEG/RSB
+  LSL{S} Rd,Rn,shift    MOV{S} Rd,Rn,LSL shift     ;\
+  LSR{S} Rd,Rn,shift    MOV{S} Rd,Rn,LSR shift     ;
+  ASR{S} Rd,Rn,shift    MOV{S} Rd,Rn,ASR shift     ; MOV/SHIFT
+  ROR{S} Rd,Rn,shift    MOV{S} Rd,Rn,ROR shift     ;
+  RRX{S} Rd,Rn          MOV{S} Rd,Rn,RRX           ;/
+  CMD{S} Rd,Op2         CMD{S} Rd,Rd,Op2           ;-long/short forms
+```
+
+
+
+## Further UAL changes
+
+
+```
+  NOP: uses new dedicated NOP opcodes (instead of MOV Rd,Rd pseudo opcodes)
+  LDMIA: should omit "!" if Rn in rlist
+  LDR Rd,[pc,#offset]: should be somehow written as LDR Rd,label
+  Newer opcodes (for ARMv6K and up) seem to exist only in UAL syntax
+```
+
+Moreover, unrelated to UAL syntax, the 4-letter LDSB/LDSH/STSB/STSH THUMB
+opcodes seem have been renamed to LDRSB/LDRSH/STRSB/STRSH at some point. And,
+SUB SP,imm seems to have been added as an official THUMB alias for ADD SP,-imm.
+
+
+
+
 # <a name="armpseudoinstructionsanddirectives"></a>ARM Pseudo Instructions and Directives
 
 
@@ -37012,6 +41317,8 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .dsi         indicate DSi program
   .firm3ds     indicate 3DS program (.firm format)
   .fix         fix GBA/NDS/DSi header checksum
+  .ual         select newer ARM syntax (UAL)
+  .pre_ual     select older ARM syntax (classic)
   .ereader_create_bmp      create GBA e-Reader dotcode .BMP file(s) (bitmaps)
   .ereader_create_raw      create GBA e-Reader dotcode .RAW file (useless)
   .ereader_create_bin      create GBA e-Reader dotcode .BIN file (smallest)
@@ -37020,8 +41327,11 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .title 'Txt' defines a title (used for e-Reader dotcodes)
   .teak        select TeakLiteII instruction set (for DSi DSP)
   .xtensa      select Xtensa instruction set (for DSi Atheros Wifi)
-  .rl78        select RL78 instruction set (for 3DS MCU)
+  .78k0        select 78K/0 instruction set  (for DSi MCU)
+  .78k0r       select 78K0R/ instruction set (for 3DS MCU)
+  .rl78        alias for .78k0r
   .norewrite   do not delete existing output file (keep following data in file)
+  .no_auto_run do not autostart binary after assembling
   .data?       following defines RAM data structure (assembled to nowhere)
   .code        following is normal ROM code/data (assembled to ROM image)
   .include     includes specified source code file (no nesting/error handling)
@@ -37036,7 +41346,7 @@ All above opcodes may be made conditional by specifying a {cond} field.
   .align nn    aligns to an address divisible-by-nn, inserts 00's
   .msg         defines a no$gba debugmessage string, such like .msg 'Init Okay'
   .brk         defines a no$gba source code break opcode
-  l equ n      l=n
+  l equ n      l=n   (symbol)
   l:   [cmd]   l=$   (global label)
   @@l: [cmd]   @@l=$ (local label, all locals are reset at next global label)
   end          end of source code
@@ -37046,6 +41356,37 @@ All above opcodes may be made conditional by specifying a {cond} field.
   defs nn      define nn bytes space (zero-filled)
   ;...         defines a comment (ignored by the assembler)
   //           alias for CRLF, eg. allows <db 'Text',0 // dw addr> in one line
+  .rept nn     repeat nn times, terminate by .endm
+  .macro name  define a macro, terminate by .endm (see notes)
+  .endm        end of .rept or .macro
+  .undef sym   forget label or symbol name
+```
+
+
+
+## A22i macros
+
+
+The macro feature is a bit quirky and unusual: It doesn't support macros with
+parameters, but one can define parameters as "param equ 1" before calling the
+macro.
+
+The downside is that the assembler will complain about "param" being already
+defined when doing multiple macro calls that way. The workaround is to use
+".undef param" (either inside of the macro or after the macro call).
+
+```
+  Examples:
+  .macro add_something
+    add r1,@@x*4+2
+    .undef @@x
+  .endm
+  @@x=1 // add_something
+  @@x=2 // add_something
+  @@x=3 // add_something
+  .rept 10h
+    nop
+  .endm
 ```
 
 
@@ -37144,6 +41485,8 @@ use friendly code:
   ldr   r0,[score]      ;allows to use clean brackets for relative addresses
   push  rlist           ;alias for stmfd [r13]!,rlist (and same for pop/ldmfd)
   label:                ;label definitions recommended to use ":" colons
+  xor   rd,..           ;alias for eor
+  not   rd,..           ;alias for mvn
 ```
 
 
@@ -41172,7 +45515,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   2000014h 2ECh  AutoParam Unknown... some buffer... string maybe?
   2000300h 4     AutoLoad ID ("TLNC") (also requires BPTWL[70h]=01h)
   2000304h 1     AutoLoad Unknown/unused (usually 01h)
-  2000305h 1     AutoLoad Leng of data at 2000308h (01h..18h,for CRC,18h=norm)
+  2000305h 1     AutoLoad Len of data at 2000308h (01h..18h, for CRC, 18h=norm)
   2000306h 2     AutoLoad CRC16 of data at 2000308h (with initial value FFFFh)
   2000308h 8     AutoLoad Old Title ID (former title) (can be 0=anonymous)
   2000310h 8     AutoLoad New Title ID (new title to be started, 0=none)
@@ -41180,7 +45523,7 @@ this allows DSi games to use the same memory addresses in NDS and DSi mode).
   200031Ch 4     AutoLoad Unused (but within checksummed area when CRC len=18h)
   2000320h E0h   AutoLoad Unused (but zerofilled upon erasing autoload area)
   2000400h 128h  System Settings from TWLCFGn.dat file (bytes 088h..1AFh)
-  20005E0h 1     WlFirm Type (1=DWM-W015, 2=DWM-W024) (as wifi_flash[1FDh])
+  20005E0h 1     WlFirm Type (1=DWM-W015, 2=W024, 3=W028)    ;wifi_flash[1FDh]
   20005E1h 1     WlFirm Unknown (zero)
   20005E2h 2     WlFirm CRC16 with initial value FFFFh on [20005E4h..20005EFh]
   20005E4h 4     WlFirm RAM vars (500400h)  ;\
@@ -41339,6 +45682,28 @@ requires only a few memory blocks in ITCM, ARM7 WRAM, and AES keyslots:
   40044E0h 1Ch   AES Key3.X/Y (CPU/Console ID and constants) for eMMC
   2000000h ...   Warmboot Param (optional, passed on to New Title)
   2000300h 20h   Warmboot Info  (optional, passed on to Launcher)
+```
+
+
+
+## 3DS Initial RAM content (from bootrom's FIRM loader)
+
+
+```
+  01FFB800h 90h    ARM9 ITCM+3800h Decrypted OTP
+  01FFB900h 200h   ARM9 ITCM+3900h NCSD header
+  01FFBB00h 200h   ARM9 ITCM+3B00h FIRM header
+  01FFBD00h 4*100h ARM9 ITCM+3D00h rsa keys ? private key 0..3 (modulo)
+  01FFC100h 4*200h ARM9 ITCM+4100h rsa keys ? private key 4..7 (modulo+exp)
+  01FFC900h 400h   ARM9 ITCM+4900h ??? ... copied from 1FFFD000h or 1FFFD400h
+  01FFCD00h 40h    ARM9 ITCM+4D00h keys?
+  01FFCD40h 40h    ARM9 ITCM+4D40h keys?
+  01FFCD80h 64h    ARM9 ITCM+4D80h sdmmc info?
+  01FFD000h 2470h  ARM9 ITCM+5000h Bootrom DSi Keys (RSA/AES/Blowfish)
+  08000000h 30h    ARM9 Exception Vectors (ldr pc,[$+4] opcodes)
+  1FFFFFA0h 30h    ARM11 Exception Vectors (ldr pc,[$+4] opcodes)
+  1FFFFFDCh 4      ARM11 Core 1 Entrypoint (32bit word)
+  20000000h 1000h  FCRAM FIRM Launch Params (on warmboot only)
 ```
 
 
@@ -41581,6 +45946,7 @@ vector should work even while BIOS ROMs are fully readable.
 - [AUX Opening the GBA](#auxopeningthegba)
 - [AUX Mainboard](#auxmainboard)
 - [AUX DSi Component Lists](#auxdsicomponentlists)
+- [AUX DSi Signals/Testpoints](#auxdsisignalstestpoints)
 - [AUX DSi Internal Connectors](#auxdsiinternalconnectors)
 - [AUX DSi Chipset Pinouts](#auxdsichipsetpinouts)
 
@@ -42334,7 +46700,7 @@ joypad, or read-only 12bit parallel port.
 ```
   U1 352pin   CPU TWL       (under shielding plate)                    ;\under
   U2   ?pin   RAM 8Mx16, Fujitsu MB82DBS08164D-70L, NEC uPD46128512AF1 ;/shield
-  U3  56pin   "TexasIns 72071B0" or "Mitsumi 3317A" (powerman?) (right of NAND)
+  U3  56pin   "TexasIns 72071B0" or "Mitsumi 3317A" (Powerman) (right of NAND)
   U4  48pin   "AIC3000D, TI 89K, EXDK G4" (PAIC3 codec? above headphone socket)
   U5   ?pin   Samsung KMAPF0000M-S998 (eMMC, 256Mbyte NAND FLASH)
   U6  36pin   "BPTWL, K007K, 0902KM00D" (small/square, left of cartridge slot)
@@ -42346,16 +46712,17 @@ joypad, or read-only 12bit parallel port.
   U12  5pin   "L8NX" or "C7JHN" (upper-right of PCB back-side) ;text layer (B)
   U13  5pin   Backlight 1, "U01" or "KER"  ;\lower-right board edge
   U14  5pin   Backlight 2, "U01" or "KER"  ;/see text-layer (B)
-  U15  4pin   ",\\ T34" (near external power input)
+  U15  4pin   VIN to EXB+ control via Q1, ",\\ T34" (near external power input)
   U16     -   N/A
-  U17  6pin   "VY" or "Z198" (in lower-right, on PCB backside)
-  U18  6pin   "YJ" (above headphone socket)
+  U17  6pin   Headphone Mute, "VY" or "Z198" (in lower-right, on PCB backside)
+  U18  6pin   Mic Bias, "YJ" (above headphone socket, not always installed)
   U19  5pin   "E30H6" or "L2SX" (at lower right of cartridge slot)
-  Q1   6pin   external power supply related
+  U20  3pin   Whatever, DSi XL only (maybe magnet Sensor instead of U10?)
+  Q1   6pin   external power supply related (VIN to EXTB+) (controlled by U15)
   Q2    pin   N/A ?
   Q3   6pin   ... above battery plug
-  Q4   3pin   maybe MUTE for SR  ;\old TWL-CPU-01 mainboard only
-  Q5   3pin   maybe MUTE for SL  ;/(replaced by Q17?/Q18? on newer boards)
+  Q4   3pin   Headphone MUTE for SR  ;\old TWL-CPU-01 mainboard only
+  Q5   3pin   Headphone MUTE for SL  ;/(replaced by Q17/Q18 on newer boards)
   Q6   6pin   MC1_VDD power ON (supply)
   Q7   3pin   MC1_VDD power OFF (pulldown)
   Q8    pin   N/A ?
@@ -42366,9 +46733,9 @@ joypad, or read-only 12bit parallel port.
   Q13  3pin   CAM_LED      ;/
   Q14  3pin   not installed (above powerman chip)
   Q15  3pin   not installed (above powerman chip)
-  Q16  3pin   VDD-5 related, near DPAD socket
-  Q17? 6pin   maybe MUTE  ;\  ;\new TWL-CPU-10 mainboard only
-  Q18? 6pin   maybe MUTE  ;/  ;/(formerly Q4/Q5 on older boards)
+  Q16  3pin   VDD-5 related, near DPAD socket (P15)
+  Q17  6pin   Headphone MUTE for ..?  ;\new TWL-CPU-10 mainboard only
+  Q18  6pin   Headphone MUTE for ..?  ;/(formerly Q4/Q5 on older boards)
   X1   4pin   16.756  (rectangular oscillator)        ;\under shielding plate
   X2   4pin   CB837 or CB822 (long slim osc) for RTC? ;/text layer: see (A)
   F1   2pin   Fuse for external power input
@@ -42401,6 +46768,7 @@ joypad, or read-only 12bit parallel port.
   P21  1pin   Shielding-Plate for CPU (right clip)
   P22     -   N/A
   P23  2pin   To Internal Microphone (via orange shielded wire)
+  P24 14pin   DSi XL only (L/VOL+/-, which were formerly on P16 in old DSi)
 ```
 
 DSi Front/bottom-Side Text Layer sections (in upper left of mainboard)
@@ -42506,7 +46874,7 @@ points).
 
 
 
-## 3DS Wifi Daughterboard (DWM-W028)
+## 3DS Wifi Daughterboard (DWM-W028, or J27H023, or J27H023.01)
 
 
 Component list is unknown. The thing is said to use a "Atheros AR6014" chip.
@@ -42520,7 +46888,7 @@ Later 3DS models have the Wifi unit (with AR6014G chip) on the mainboard
 
 
 ```
-  TH1  2pin  Battery Thermal Sensor maybe? (about 10kOhm at room temperature)
+  TH1  2pin  Battery Thermistor Thermal Sensor (ca. 10kOhm at room temperature)
   F1   2pin  Battery Fuse
   SW1  2pin  DPAD Up Button
   SW2  2pin  DPAD Down Button
@@ -42643,6 +47011,306 @@ Top Cover Disassembly:
   Remove 4 screws (all hidden under square rubber pieces)
   slide rear bezel upwards by two millimeters?
   push metal hinge inwards by three millimeters (under LED unit)
+```
+
+
+
+
+# <a name="auxdsisignalstestpoints"></a>AUX DSi Signals/Testpoints
+
+
+
+The DSi has testpoints with friendly names. The DSi XL has "nameless"
+testpoints (numbered TP1 thru TP194, as described on 
+- [https://www.dsibrew.org/wiki/DSi\_XL\_testpoints](https://www.dsibrew.org/wiki/DSi_XL_testpoints) which may include some bugs for the Supply and BGA pins though).
+
+
+```
+  ADPO       TP... U3,U6        Charger connected? (Low=Connected, High=No)
+  AOUT       TP... U3,U6        Analog battery level? (max=2.35V?)
+  PM_SLP     TP... U1,U3,U6     Sleep or so? (Low=Normal, High=Sleep?)
+  PMOFF      TP... U1,U3,U6,U17 Powerman/Headphone off? (Low=Normal)
+  PWSWO      TP... U3,U6        Power? (Low=Off, or Reset-tapping, High=On)
+  VCNT5      TP... U1,U3,U4,U19 Control for VSHD for Both Screens ?
+  mFE        TP... U6          BPTWL Flash Enable (aka FLMD0)    (Low=Normal)
+  /mRST      TP... U6          BPTWL Flash Invoke transfer?      (High=Normal)
+  /IRQ_O     TP... U1,U6       BPTWL Interrupt (eg. Power Button)
+  GPIO330    TP... U1          General Purpose GPIO bit (?)
+  RESET      TP... P5,U1,U3..  Reset WifiFlash,MainCpu,PowerMan,TSC from BPTWL
+  P00        TP... U1,SW1      Button A
+  P01        TP... U1,SW2      Button B
+  P02        TP... U1,SW5,U6   Button SELECT (also SELECT+VOLP/VOLN=Backlight)
+  P03        TP... U1,SW6      Button START
+  P04        TP... U1,P15      Button DPAD right
+  P05        TP... U1,P15      Button DPAD left
+  P06        TP... U1,P15      Button DPAD up
+  P07        TP... U1,P15      Button DPAD down
+  P08        TP... U1,P16      Button Shoulder R
+  P09        TP... U1,P16      Button Shoulder L
+  R00        TP... U1,SW3      Button X
+  R01        TP... U1,SW4      Button Y
+   -?-       TP... -           Button Debug aka R03 (if any exists)
+  VOLP       TP... P16,U6      Button Volume Plus  (Backlight when SELECT+VOLP)
+  VOLN       TP... P16,U6      Button Volume Minus (Backlight when SELECT+VOLN)
+  PWSW       TP... P15,U3      Button Power (High=Released)
+  PENIRQ     TP... U1,U4       Touchscreen Pen Down
+  R7         TP... U1,U10      Shell Open Magnet Sensor (HINGE)
+  RTC_INT    TP... U9,U1       RTC Real-Time Clock Interrupt
+  -          TP... U9,U1       RTC Real-Time Clock CS
+  -          TP... U9,U1       RTC Real-Time Clock /SCK
+  -          TP... U9,U1       RTC Real-Time Clock SIO
+  SCL        TP... P9,U1,..    Primary I2C Bus Clock (Both Cameras,etc.)
+  SDA        TP... P9,U1,..    Primary I2C Bus Data  (Both Cameras,etc.)
+  -          TP... U8,U6       Primary I2C Bus Clock (for BPTWL xlated to 3.3V)
+  -          TP... U8,U6       Primary I2C Bus Data  (for BPTWL xlated to 3.3V)
+  SCL1       TP... U3,U6,U7    Secondary IC2 bus Clock (BPTWL/Wiper/Powerman)
+  SDA1       TP... U3,U6,U7    Secondary IC2 bus Data  (BPTWL/Wiper/Powerman)
+  SD10_CLK   TP... U1,P16      SD/MMC SD Slot Clock (typ 16MHz)
+  SD10_CMD   TP... U1,P16      SD/MMC SD Slot Cmd
+  SD10_DATA0 TP... U1,P16      SD/MMC SD Slot Data0
+  SD10_DATA1 TP... U1,P16      SD/MMC SD Slot Data1
+  SD10_DATA2 TP... U1,P16      SD/MMC SD Slot Data2
+  SD10_DATA3 TP... U1,P16      SD/MMC SD Slot Data3
+  SD10_WP    TP... U1,P16      SD/MMC SD Slot Write Protect Switch
+  SD10_CD    TP... U1,P16      SD/MMC SD Slot Card Detect Switch
+  SD10_VDD   TP... P16         SD/MMC SD Slot Supply (aka VDD33)
+  SD11_CLK   TP... U1,U5       SD/MMC eMMC Clock (typ 16MHz)
+  -          TP... U1,U5       SD/MMC eMMC Cmd/Data0..3/CD/WP/VDDI
+  SPI_CS1    TP... U1,U3,U4    SPI Chip Select Powerman
+  SPI_CS2    TP... U1,P5       SPI Chip Select Wifi FLASH chip select
+  SPI_CS3    TP... U1,U4       SPI Chip Select Touchscreen/Sound TSC
+  -          TP... P5,R122     SPI Wifi FLASH_WP (R122)
+  SPI_SCK    TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Clock
+  SPI_MISO   TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Master In Slave Out (Reply)
+  SPI_MOSI   TP... U1,P5,U3,U4 SPI Wifi/Pow/TSC Master Out Slave In (Command)
+  MC1_CLK    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_CS     TP... U1,P1       NDS/DSi cartridge slot
+  MC1_RES    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_CS2    TP... U1,P1       NDS/DSi cartridge slot
+  MC1_IREQ   TP... U1,P1       NDS/DSi cartridge slot
+  MC1_VDD    TP... P1,Q6/Q7    NDS/DSi cartridge slot Power Supply (when on)
+  -          TP... U1,R28,Q7   NDS/DSi cartridge slot Power Enable
+  MC1_IO0    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO1    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO2    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO3    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO4    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO5    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO6    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_IO7    TP... U1,P1       NDS/DSi cartridge slot Data
+  MC1_DET    TP... U1,P1       NDS/DSi cartridge slot Cart Insert Switch
+  -          TP... U1          NDS/DSi 2nd cart slot (NC in retail console)
+  -          TP... U1,U2       Main RAM Address A0..A22
+  -          TP... U1,U2       Main RAM Data DQ0..DQ15
+  -          TP... U1,U2       Main RAM /OE
+  -          TP... U1,U2       Main RAM /WE
+  -          TP... U1,U2       Main RAM CE1
+  -          TP... U1,U2       Main RAM CE2
+  -          TP... U1,U2       Main RAM CLK
+  -          TP... U1,U2       Main RAM /ADV
+  -          TP... U1,U2       Main RAM /LB
+  -          TP... U1,U2       Main RAM /UB
+  -          TP... U1          Main RAM A23 or Chipsel for debug ver 32Mbyte
+  -          TP... P5,U1       Wifi Atheros SDIO Clock (typ 16MHz?)
+  -          TP... P5,U1       Wifi Atheros SDIO Command
+  -          TP... P5,U1       Wifi Atheros SDIO Data 1
+  -          TP... P5,U1       Wifi Atheros SDIO Data 2
+  -          TP... P5,U1       Wifi Atheros SDIO Data 3
+  -          TP... P5,U1       Wifi Atheros SDIO Data 3
+  -          TP... P5,U9       Wifi Atheros 32kHz (from RTC_FOUT to Wifi)
+  /WIFI_RST  TP... P5,U6       Wifi Atheros Reset?
+  ATH_TX_H   TP... P5,U6       Wifi Atheros TX (for Wifi LED?)
+  -          TP... P5,U1       Wifi SEL_ATH_L (near PENIRQ pin)
+  WL_RXPE    TP... P5,U1,U6    Wifi RX something (for CPU and Wifi LED)
+  WL_TXPE    TP... P5,U1,U6    Wifi TX something (for CPU and Wifi LED)
+  -          TP... P5,U1       Wifi Mitsumi BBP_SLEEP
+  -          TP... P5,U1       Wifi Mitsumi RF_SLEEP
+  -          TP... P5,U1       Wifi Mitsumi BBP_SCS
+  -          TP... P5,U1       Wifi Mitsumi RF_SCS
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SDO
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SDI
+  -          TP... P5,U1       Wifi Mitsumi RB_RF_SCLK
+  -          TP... P5,U1       Wifi Mitsumi CCA
+  -          TP... P5,U1       Wifi Mitsumi MCLK
+  -          TP... P5,U1       Wifi Mitsumi TRDATA
+  -          TP... P5,U1       Wifi Mitsumi TRCLK
+  -          TP... P5,U1       Wifi Mitsumi TRRDY
+  -          TP... P5          Wifi JTAG_TDO    (NC in console)
+  -          TP... P5          Wifi JTAG_TDI    (NC in console)
+  -          TP... P5          Wifi JTAG_TMS    (NC in console)
+  -          TP... P5          Wifi JTAG_TCK    (NC in console)
+  -          TP... P5          Wifi JTAG_TRST_L (NC in console)
+  -          TP... P5          Wifi to MM3218.pin47 (0ohm)     (NC in console)
+  .          TP... P5          Wifi to MM3218.pin28 (0ohm+cap) (NC in console)
+  SND_SDI    TP... U1,U4       Audio I2S Data In   (Microphone)
+  SND_SDO    TP... U1,U4       Audio I2S Data Out  (Speaker/Headphone)
+  SND_WS     TP... U1,U4       Audio I2S LR Clock  (typ 32kHz)
+  SND_SCLK   TP... U1,U4       Audio I2S Bit Clock (typ 1MHz, aka SND_WS*2*16)
+  SND_MCLK   TP... U1,U4       Audio TSC Master Clock (typ 8MHz)
+  -          TP... U4,U7       Audio Volume Wiper (from I2C potentiometer)
+  SPLN       TP... P7,U4       Audio Speaker Left Minus
+  SPLP       TP... P7,U4       Audio Speaker Left Plus
+  SPRN       TP... P7,U4       Audio Speaker Right Minus
+  SPRP       TP... P7,U4       Audio Speaker Right Plus
+  HP#SP      TP... P4,U1,U4    Audio Headphone/Speaker switch
+  SL         TP... P4,Q5,U4    Audio Headphone Left
+  SR         TP... P4,Q4,U4    Audio Headphone Right
+  -          TP... U1,U17      Audio Headphone Mute (from Main CPU GPIO)
+  -          TP... U4,U17,Q..  Audio Headphone Mute (via Q4/Q5 to SR/SL)
+  MIC        TP... P4,P23      Audio Microphone (via .. to LIN)
+  LIN        TP... U4,U18      Audio Microphone Input
+  -          TP... U4,U18      Audio Microphone Bias (to U18)
+  BLA2       TP... P7,U3,U14   LCD Upper Screen Backlight Anode (ca. 15V)
+  BLC2       TP... P7,U3       LCD Upper Screen Backlight Cathode
+  LDB20      TP... P7,U1       LCD Upper Screen Blue Bit0
+  LDB21      TP... P7,U1       LCD Upper Screen Blue Bit1
+  LDB22      TP... P7,U1       LCD Upper Screen Blue Bit2
+  LDB23      TP... P7,U1       LCD Upper Screen Blue Bit3
+  LDB24      TP... P7,U1       LCD Upper Screen Blue Bit4
+  LDB25      TP... P7,U1       LCD Upper Screen Blue Bit5
+  LDR20      TP... P7,U1       LCD Upper Screen Red Bit0
+  LDR21      TP... P7,U1       LCD Upper Screen Red Bit1
+  LDR22      TP... P7,U1       LCD Upper Screen Red Bit2
+  LDR23      TP... P7,U1       LCD Upper Screen Red Bit3
+  LDR24      TP... P7,U1       LCD Upper Screen Red Bit4
+  LDR25      TP... P7,U1       LCD Upper Screen Red Bit5
+  LDG20      TP... P7,U1       LCD Upper Screen Green Bit0
+  LDG21      TP... P7,U1       LCD Upper Screen Green Bit1
+  LDG22      TP... P7,U1       LCD Upper Screen Green Bit2
+  LDG23      TP... P7,U1       LCD Upper Screen Green Bit3
+  LDG24      TP... P7,U1       LCD Upper Screen Green Bit4
+  LDG25      TP... P7,U1       LCD Upper Screen Green Bit5
+  COM2       TP... P7,P16      LCD Upper Screen VCOM Calibration
+  DCLK       TP... P7,P8,U1    LCD Both Screens Dot Clock  ;2.8MHz
+  LS         TP... P7,P8,U1    LCD Both Screens Latch Pulse;15.6kHz, 0.3us high
+  SPL        TP... P7,P8,U1    LCD Both Screens Start Pulse;15.6kHz, 0.3us high
+  GCK        TP... P7,P8,U1    LCD Both Screens Gate Clock ;15.6kHz, 9us low
+  REV        TP... P7,P8,U1    LCD Both Screens VcomFlicker;7kHz, toggle@15kHz
+  GSP        TP... P7,P8,U1    LCD Both Screens Gate Start ;60Hz, short low
+  INI        TP... P7,P8,U1    LCD Both Screens Init? MOD? ;usually high?
+  VSHD       TP... P7,P8,U19   LCD Both Screens Supply 3.3V
+  VDD5       TP... P7,P8,P16   LCD Both Screens Supply 5.0V
+  VDD-5      TP... P7,P8       LCD Both Screens Supply -5.0V
+  VDD10      TP... P7,P8       LCD Both Screens Supply 10.0V
+  BLA1       TP... P18,U3,U13  LCD Lower Screen Backlight Anode (ca. 14V)
+  BLC1       TP... P18,U3      LCD Lower Screen Backlight Cathode (ca. 0V)
+  LDB10      TP... P8,U1       LCD Lower Screen Blue Bit0
+  LDB11      TP... P8,U1       LCD Lower Screen Blue Bit1
+  LDB12      TP... P8,U1       LCD Lower Screen Blue Bit2
+  LDB13      TP... P8,U1       LCD Lower Screen Blue Bit3
+  LDB14      TP... P8,U1       LCD Lower Screen Blue Bit4
+  LDB15      TP... P8,U1       LCD Lower Screen Blue Bit5
+  LDR10      TP... P8,U1       LCD Lower Screen Red Bit0
+  LDR11      TP... P8,U1       LCD Lower Screen Red Bit1
+  LDR12      TP... P8,U1       LCD Lower Screen Red Bit2
+  LDR13      TP... P8,U1       LCD Lower Screen Red Bit3
+  LDR14      TP... P8,U1       LCD Lower Screen Red Bit4
+  LDR15      TP... P8,U1       LCD Lower Screen Red Bit5
+  LDG10      TP... P8,U1       LCD Lower Screen Green Bit0
+  LDG11      TP... P8,U1       LCD Lower Screen Green Bit1
+  LDG12      TP... P8,U1       LCD Lower Screen Green Bit2
+  LDG13      TP... P8,U1       LCD Lower Screen Green Bit3
+  LDG14      TP... P8,U1       LCD Lower Screen Green Bit4
+  LDG15      TP... P8,U1       LCD Lower Screen Green Bit5
+  COM1       TP... P8,P16      LCD Lower Screen VCOM Calibration
+  X-         TP... P10,U4      LCD Lower Screen Touchpad X-
+  Y-         TP... P10,U4      LCD Lower Screen Touchpad Y-
+  X+         TP... P10,U4      LCD Lower Screen Touchpad X+
+  Y+         TP... P10,U4      LCD Lower Screen Touchpad Y+
+  VIN        TP2   P11         Supply 4.6V External Power Supply Input (DC IN)
+  VGND       TP5   P11         Supply 0.0V External Power Supply Ground
+  VDET-      TP... U3,Q3       Supply 4.xV Shortcut with BT+ (via 0 ohm R71)
+  BT+        TP... P17,U3,U11  Supply 4.xV Battery Plus (red wire) 3.6V 800mAh
+  BT-        TP... P17         Supply 0.0V Battery GND  (black wire)
+  DET        TP... P15,U3      Supply Battery Middle Pin  (Low=Normal)
+  TH         TP... P15,U11     Supply Battery Thermal Sensor (on DPAD board)
+  PVDD       TP... U3,U9       Supply 4.xV Permanent Power for RTC
+  VDD12      TP... U3,U1       Supply 1.2V (Main CPU)
+  VDD18      TP... P9,U3,U1,.. Supply 1.8V (Main CPU and many things)
+  VDD28      TP... P9,U12,U6   Supply 2.8V (for Cameras and BPTWL)
+  VDD33      TP... U3,U1,..    Supply 3.3V (Main CPU and many things)
+  VDD42      TP... P15,P9,U3.. Supply 4.2V (for LEDs) (and U19)
+  B+         TP... U3,U4,U19.. Supply 4.xV (for Speakers, or everything?) U11
+  SG         TP... U3          Supply 0.0V Ground or Audio GND or so
+  GND1       TP... ..          Supply 0.0V Ground (near COM1/COM2 testpoints)
+  GND2       TP... ..          Supply 0.0V Ground (near wifi connector)
+  EXTB+      TP... U3,U11,Q1   Charger 4.xV or 0V (EXTB+ comes from VIN via Q1)
+  Rosc       TP... U3,U11      Charger 1.0V ?
+  RICHG      TP... U3,U11      Charger 0.4V ?
+  ORANGE     TP... P15,U11     LED Battery Charge
+  BLUE       TP... P15,U6,Q11  LED Power On/Good
+  YELLOW     TP... P15,U6,Q12  LED Wifi
+  RED        TP... P15,U6      LED Power On/Low
+  CAM_LED    TP... P9,U6,Q13   LED Camera
+  CAM_D0     TP... P9,U1       Both Cameras Data Bit0
+  CAM_D1     TP... P9,U1       Both Cameras Data Bit1
+  CAM_D2     TP... P9,U1       Both Cameras Data Bit2
+  CAM_D3     TP... P9,U1       Both Cameras Data Bit3
+  CAM_D4     TP... P9,U1       Both Cameras Data Bit4
+  CAM_D5     TP... P9,U1       Both Cameras Data Bit5
+  CAM_D6     TP... P9,U1       Both Cameras Data Bit6
+  CAM_D7     TP... P9,U1       Both Cameras Data Bit7
+  CAM_RST    TP... P9,U1       Both Cameras Reset?
+  HSYNC      TP... P9,U1       Both Cameras Hsync
+  VSYNC      TP... P9,U1       Both Cameras Vsync
+  RCLK       TP... P9,U1       Both Cameras Data Clock (8MHz, unless blanking)
+  CKI        TP... P9,U1       Both Cameras Master Clock (8MHz) (or off)
+```
+
+
+
+## Cut-Links
+
+
+```
+  CL1   VDD12    to/near Powerman
+  CL2
+  CL3   VDD18    to/near Powerman
+  CL4    ?       near Powerman (above L3)
+  CL5   VDD33    PCB top side (near Powerman)
+  CL6   VDD5     near lower screen connector (F)
+  CL7   BLC1     near lower screen connector
+  CL8
+  CL9   GNDed     to/near Powerman (near ADPO pin)
+  CL10  GNDed     to/near Powerman (near VDD5 pin)
+  CL11
+  CL12
+  CL13
+  CL14  SDIO CLK   to/near wifi connector
+  CL15  BB RF CLK  to/near wifi connector
+  CL16  Wifi MCLK  to/near wifi connector
+  CL17
+  CL18
+  CL19
+  CL20
+  CL21  VDD42    to/near Powerman
+  CL22  VDD10    to DA1 and C5, near DPAD board connector
+  CL23  VDD-5    near lower screen connector
+  CL24
+  CL25  ?        PCB top side (near Button B)
+  CL26
+  CL27  ?        PCB top side (near Button B) (D)
+  CL28  ?        PCB top side (near Button B) (D)
+  CL29
+  CL30
+  CL31
+  CL32
+  CL33
+  CL34  SND_SDI   near TSC chip
+  CL35  SND_SDO   near TSC chip
+  CL36  SND_WS    near TSC chip
+  CL37  SND_SCLK  near TSC chip
+  CL38  SND_MCLK  near TSC chip
+  CL39
+```
+
+
+
+## Short-Links
+
+
+```
+  R122  FLASH_WP to VDD33 (not installed)
 ```
 
 
@@ -42859,6 +47527,8 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 ## P16 - 26pin - To bottom cover (SD Slot and L/R/VOL+/- buttons)
 
 
+On original DSi:
+
 ```
                       GND  2  1  SD10_CLK                   ;\
                SD10_DATA0  4  3  SD10_VDD (aka VDD33)       ;
@@ -42870,9 +47540,27 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
                   SD10_CD 16  15 SD10_DATA2                 ;
                       GND 18  17 GND                        ;/
                       GND 20  19 GND                        ;\pin 19..20
-  maybe display ;\   VDD5 22  21 VOLP (aka volume plus?)    ; to LEFT side:
-  calibration?  ;    COM1 24  23 VOLN (aka volume minus?)   ; L-button, VOL +/-
+  maybe display ;\   VDD5 22  21 VOLP  volume plus          ; to LEFT side:
+  calibration?  ;    COM1 24  23 VOLN  volume minus         ; L-button, VOL +/-
   (at battery)  ;/   COM2 26  25 P09   shoulder button L    ;/and calibration
+```
+
+On DSi XL (changed pins, COM1/COM2 removed, and L/VOL+- moved to P24):
+
+```
+       GND  1  2  GND
+       GND  3  4  GND
+       GND  5  6  GND
+  SD10_CLK  7  8  GND
+     VDD33  9  10 SD10_D0
+     VDD33 11  12 SD10_D1
+       GND 13  14 SD10_WP
+  SD10_CMD 15  16 VDD33
+       GND 17  18 P08 (should button R)
+   SD10_D3 19  20 VDD33
+   SD10_D2 21  22 SD10_CD
+       GND 23  24 GND
+       GND 25  26 GND
 ```
 
 
@@ -42926,6 +47614,18 @@ Note: On Daughterboard, pins are mirrored (eg. PWSW=Pin1 instead Pin15)
 
 
 
+## P24 - 14pin - DSi XL only (L/VOL+/- were formerly on P16 in old DSi)
+
+
+```
+               GND 1  2  GND
+               N/C 3  4  VOLP
+  P09 (shoulder-L) 5  6  VOLN
+            GND 7-13  8-14 GND
+```
+
+
+
 ## DPAD-BOARD - P2 - 6pin - To LEDs
 
 
@@ -42958,23 +47658,23 @@ be found at:
 ```
       Wifi    MC2 maybe      MC1           SD/MMC  eMMC  SPI     RTC   IRQs
   .---.---.---------------.---------------.-------.---.-------.-------.---.---.
-  |NC |wif|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
+  |NC |CSB|NC  NC  NC  NC |D7  D3  IRQ CLK|D0  CLK|CLK|CS3 SCK|CS  SCK|R7 |NC |
   +---'   |               |               |       |   |       |   .---'   '---+
-  |wif wif|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
+  |SDI CSR|NC  NC  NC  NC |D6  D2  DET CS |D1  CMD|D0 |CS2 MIS|SIO|PEN NC  WIF|
   |       |               |               |       |   |       +---+---.   .---+
-  |wif wif|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
+  |SCK SDO|NC  NC  NC  NC |D5  D1  PWR CS2|D2  CD |D1 |CS1 MOS|R00 R01|RTC|P09|
   |       '---.       .---+           .---'   .---'   '---.---+       '---'   |
-  |wif wif wif|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
+  |TCK TDA RDY|NC  NC |V33|D4  D0  RES|D3  WP |D3  D2  CMD| ? |P08 P07 P06 P05|
   |           '---+---'   '-----------'-------'-----------'---+               |
-  |wif wif RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
+  |MCK CCA RXP TXP|GND V12 V33 GND V12 V33 G?  V12 V33 GND V33|P04 P03 P02 P01|
   | . .           |                                           +-----------.   |
-  |DT3|wif wif ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
+  |DT3|SLR SLB ?  |GND V33 V12 GND GND GND V33 G?  GND V33 V12| ?  RES NC |P00|
   |   '. . . . . .|                                           |           '---+
   |CLK DT2 DT1 DT0|V33 GND V12 V33 GND V12 G?  V12 GND GND V33|PMO VC5 PMS X  |
   +-----------.   |                                           '-----------.   |
   |V33 NC  GND|CMD|V12 GND V33 GND V12 V33 GND V33 V12 V12 V33 GND GND GND|X  |
   |           '---'               .-----------.               .-----------'   |
-  |V33 NC  V33 V33 GND V33 GND V33|-   -   -  |GND GND GND GND|HP# IRQ ?   GND|
+  |V33 NC  V33 V33 GND V33 GND V33|-   -   -  |GND GND GND GND|HP# IRQ mut GND|
   +---.   .---.                   |           |               |               |
   |B15|V33|NC |V33 V12 GND V12 V12|-   -   -  |V12 V18 GND V12|NC  NC  NC  GP |
   |   '---'---'---.               |           |               +---------------+
@@ -43103,7 +47803,7 @@ extra address line (or an extra chip select for a 2nd RAM chip).
   30  BT+     ;/    ;\these are almost shortcut
   31  VDET-         ;/with each other (via 0 ohm R71)
   32  PVDD
-  33  PWSW (when off: very few ohms to PVDD)
+  33  PWSW (when off: very few ohms to PVDD ???)
   34        ... via R104 (100K) to Q3 (B+ enable or so?)
   35  B+
   36        ... via to C18 to GND (seems to have no other connection)
@@ -43150,17 +47850,17 @@ AIC3000D pinout is same as in TSC2117 datasheet (aside from GPIx/GPIOx pins).
   9   DVDD    VDD18
   10  SDOUT   SND_SDI              ;\
   11  SDIN    SND_SDO              ;
-  12  WLCK    SND_WS               ; serial sound input from main cpu
+  12  WCLK    SND_WS               ; serial sound input from main cpu
   ---                              ; (and serial output? microphone maybe?)
   13  BCLK    SND_SCLK             ;
   14  MCLK    SND_MCLK             ;/
   15  SDA       ... via R107 to VDD18  ;\unused I2C bus (?)
   16  SCL       ... via R106 to VDD18  ;/
   17  VOL/M   wiper (sound volume, from I2C potentiometer) "VOL/MICDET?"
-  18  MICBIAS   LIN-related-1 ... to 6pin U18
-  19  MIC     LIN (aka MIC via C31)
-  20  AUX1      LIN-related-2   ;\via 0ohm R108 to ... something on U18
-  21  AUX2      LIN-related-2   ;/                     that is almost GND
+  18  MICBIAS micbias (to U18)                  ;\
+  19  MIC     LIN (to U18) (and to MIC via C31) ; microphone related
+  20  AUX1    aux  ;\via 0ohm R108 to U18       ;
+  21  AUX2    aux  ;/(that is almost GND)       ;/
   22  AVSS    GND
   23  AVDD    VDD33
   24  VBAT    GND
@@ -43225,12 +47925,25 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
 
 
 ```
-       GND         WL_TXPE     P02(button) SDA'33      ADPO        GND       o
-       ATH_TX_H    BLUE(LED)   RED(LED)    SCL'33      V33         GND
-       YELLOW(LED) VOLP button VOLN button PM_SLP      V33'        /WIFI_RST
-       SDA1        RESET       SCL1        to C46      GND         to U17
-       VDD28       GND         CAM_LED     PWSWO       mFE         /mRST
-       GND         AOUT        mFE'(R79)   WL_RXPE     /IRQ_O      GND
+       1           2           3            4           5           6
+  o A  GND         WL_TXPE     P02 button   SDA'33      ADPO        GND
+    B  ATH_TX_H    BLUE(LED)   RED(LED)     SCL'33      V33         GND
+    C  YELLOW(LED) VOLP button VOLN button  PM_SLP      V33'        /WIFI_RST
+    D  SDA1        RESET       SCL1         to C46      GND         PMOFF
+    E  VDD28       GND         CAM_LED      PWSWO       mFE         /mRST
+    F  GND         AOUT        mFE'(R79)    WL_RXPE     /IRQ_O      GND
+```
+
+Aka from 78K0/KB2 datasheet...
+
+```
+       1           2           3            4           5           6
+  o A  NC          P32/INT3    P30/INT1     P61/SDA     P33/INT4/T  NC
+    B  P31/INT2    P16/INT5/T  P15/TOH0     P60/SCL0    EVDD        EVSS
+    C  P17/T'50    P14/RxD6    P13/TxD6     P00/TI000   VDD         P121/X1
+    D  P11/SI10/Rx P12/SO10    P10/SCK10/Tx REGC        VSS      P122/X2/EXCLK
+    E  AVREF       AVSS        P22/ANI2     P21/ANI1    FLMD0       RESET
+    F  NC          P23/ANI3    P20/ANI0  P01/TI010/TO00 P120/INT0/EXLVI  NC
 ```
 
 
@@ -43259,7 +47972,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
   2  VREF1 (DSi: VDD18)
   3  SCL1  (DSi: SCL)     ;\to U1 (CPU)
   4  SDA1  (DSi: SDA)     ;/
-  5  SDA2  (DSi: SDA'33)  ;\to U6 (LED/stuff)
+  5  SDA2  (DSi: SDA'33)  ;\to U6 (BPTWL)
   6  SCL2  (DSi: SCL'33)  ;/
   7  VREF2 (DSi: VDD33)
   8  EN    (DSi: VDD33)
@@ -43291,7 +48004,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
 
 
 
-## DSi U11 - charge
+## DSi U11 - Charge
 
 
 ```
@@ -43301,7 +48014,7 @@ VDD, instead it goes to a capacitor (0.1uF min) "for internal power stability".
   4  GND
   5  TH' (via R76 to TH)          ;\thermal sensor
   6  TH  (via R102 to DPAD board) ;/for battery?
-  7  B+  (?)
+  7  B+
   8  RICHG
   9  BT+
   10 BT+
@@ -43314,35 +48027,108 @@ Note: Seems to resemble Mitsumi MM3358 datasheet.
 ## DSi U12 - 5pin, VDD33 to VDD28 converter? (near upper screen socket)
 
 
+```
+  1  VDD28
+  2  GND
+  3  VDD33
+  4  VDD33
+  5  (no pin)
+  6  ... to DA6/DA7
+```
 
-## DSi U13 - 5pin, Backlight 1, near power managment chip
+
+
+## DSi U13 - 5pin, Backlight 1 (Lower Screen), near power managment chip
 
 
 
-## DSi U14 - 5pin, Backlight 2, near power managment chip
+## DSi U14 - 5pin, Backlight 2 (Upper Screen), near power managment chip
+
+
+```
+  1  from U3 (wanted backlight pulse/level or so?)
+  2  GND
+  3  B+
+  4  BLA1/BLA2 backlight anode output
+  5  (no pin)
+  6  B+
+```
 
 
 
-## DSi U15 - 4pin, something near external power input
+## DSi U15 - 4pin, near external power input
+
+
+```
+  1  via R4 to C100,Q1 (controls Q1 for forwarding VIN to EXTB+)
+  2  VIN'' (from VIN via EM1 and F1)
+  3  ?
+  4  via C132,R14 to GND, and via D1 to VIN''
+```
+
+VIN power-input related.
 
 
 
 ## DSi U16 - N/A
 
 
-
-## DSi U17 - 6pin, something near headphone socket, connects to U6, and MUTE
-
+None such.
 
 
-## DSi U18 - 6pin, something near headphone socket, MIC/LIN related
+
+## DSi U17 - Headphone Mute logic, near headphone socket
+
+
+```
+  1  mute (from main CPU GPIO)
+  2  GND
+  3  PMOFF
+  4  MUTE (to Q4/Q5/TSC)
+  5  VDD33
+  6  ?
+```
+
+
+
+## DSi U18 - Microphone Bias, near headphone socket (not always installed)
+
+
+```
+  1  NC
+  2  GND
+  3  LIN (via C31/EM5 to MIC)
+  4  aux (via 0 ohm to TSC AUX1/AUX2)
+  5  VDD33
+  6  micbias (from TSC micbias)
+```
 
 
 
 ## DSi U19 - 5pin, something near dpad socket
 
 
-Smaller misc chips.
+```
+  1  via D5/D6 from B+/VDD42
+  2  GND
+  3  VCNT5
+  4  ?
+  5  (no pin)
+  6  VSHD
+```
+
+Note: Pin-numbering is unclear, here is no Pin 1 marker.
+
+
+
+## DSi U20 - Whatever, DSi XL only (maybe magnet Sensor instead of U10?)
+
+
+```
+  1  ?
+  2  ?
+  3  ?
+```
 
 
 
@@ -43350,16 +48136,16 @@ Smaller misc chips.
 
 
 ```
-  CAM_LED (via R68 and Q13)  ;\
-  BLUE    (via R21 and Q11)  ; from U6
-  YELLOW  (via R22 and Q12)  ;/
-  RED     (via R20)          ;-from U6 (or to U6 ?)
-  ORANGE  (via R2)           ;-from U11
+  CAM_LED (via R68 and Q13) ;Camera LED    ;\
+  BLUE    (via R21 and Q11) ;Power On/Good ; from U6
+  YELLOW  (via R22 and Q12) ;Wifi LED      ;/
+  RED     (via R20)         ;Power On/Low  ;-from U6 (or to U6 ?)
+  ORANGE  (via R2)          ;Charge LED    ;-from U11
 ```
 
 
 
-## DSi Wifi Daughterboard - MM3218 chip (same chip as in DS Lite)
+## MM3218 chip (same chip as in DS Lite) (on DSi Wifi Daughterboard)
 
 
 ```
@@ -43426,7 +48212,7 @@ Smaller misc chips.
 
 
 
-## DSi DWM-W015 Wifi Daughterboard - ROCm Atheros AR6002G-AC1B chip
+## ROCm Atheros AR6002G-AC1B chip (on DSi DWM-W015 Wifi Daughterboard)
 
 
 ```
@@ -43461,7 +48247,7 @@ Smaller misc chips.
 
 
 
-## DSi DWM-W024 Wifi Daughterboard - Atheros AR6013 chip
+## Atheros AR6013 chip (on DSi DWM-W024 Wifi Daughterboard)
 
 
 ```
@@ -43475,7 +48261,7 @@ Smaller misc chips.
   8  VDD18
   9  1.2V
   10 NC
-  11 NC (except, wired to tespoint)
+  11 NC (except, wired to testpoint)
   12 VDD33
   13 via 0 ohm to ATH_TX_H  ;<--with 0 ohm connection
   14 via (N/A) to ATH_TX_H  ;<--connection not installed
@@ -43483,7 +48269,7 @@ Smaller misc chips.
   16 to a dead-end-via
   17 1.2V
   18 P5.pin24       JTAG_TRST_L     (plus testpoint)
-  19 NC (except, wired to tespoint)
+  19 NC (except, wired to testpoint)
   ---
   20 VDD18
   21 1.2V
@@ -43531,10 +48317,10 @@ Smaller misc chips.
   61 1.2V
   62 1.2V
   63 VDD18
-  64 NC (except, wired to tespoint)
-  65 NC (except, wired to tespoint)
-  66 NC (except, wired to tespoint)
-  67 NC (except, wired to tespoint)
+  64 NC (except, wired to testpoint)
+  65 NC (except, wired to testpoint)
+  66 NC (except, wired to testpoint)
+  67 NC (except, wired to testpoint)
   68 NC
   69 via 6.1K to GND
   70 1.2V
@@ -43553,7 +48339,7 @@ AR6013G (that's unlike as real MM3218).
 
 
 
-## 3DS DWM-W028 Wifi Daughterboard - Atheros AR6014 chip
+## Atheros AR6014 chip (on 3DS DWM-W028 Wifi Daughterboard) (and J27H023?)
 
 
 Pinouts unknown.
@@ -43651,13 +48437,11 @@ Pin 152 seems to be not connected on the mainboard, maybe an undoc output.
 
 
 
-## GBA-Micro, NDS, NDS-Lite, and DSi CPU Pinouts
+## GBA-Micro, NDS, NDS-Lite Pinouts
 
 
-Unknown. The CPU Pins are hidden underneath of the CPU. And, in NDS and
-NDS-Lite, the CPU itself hides underneath of the DS Cartridge Slot. In the DSi
-it's hidden underneath of a shielding plate (which is itself underneath of the
-removeable wifi daughterboard).
+Unknown. The CPU BGA Pins are hidden underneath of the CPU. And, in NDS and
+NDS-Lite, the CPU itself hides underneath of the DS Cartridge Slot.
 
 
 
