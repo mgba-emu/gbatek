@@ -17531,11 +17531,10 @@ Return: No return value.
 CRC16 checksums can be calculated as such:
 
 ```
-  val[0..7] = C0C1h,C181h,C301h,C601h,CC01h,D801h,F001h,A001h
   for i=start to end
     crc=crc xor byte[i]
     for j=0 to 7
-      crc=crc shr 1:if carry then crc=crc xor (val[j] shl (7-j))
+      crc=crc shr 1:if carry then crc=crc xor A001h
     next j
   next i
 ```
